@@ -86,7 +86,7 @@ npm run dev
 - [ ] Add export/save functionality for drawings
 
 ## 📜 License
-This project is licensed under the **[Apache-2.0 license](https://github.com/karlbernaldez/VOTE?tab=Apache-2.0-1-ov-file)**.
+This project is licensed under the **[Apache-2.0 license](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
 
 ## 🙌 Contributing
 Feel free to submit issues or pull requests to improve the app!
