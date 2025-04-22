@@ -8,8 +8,6 @@ import HeaderNavbar from "./components/Header";
 import Footer from "./components/Footer";
 import styled from 'styled-components';
 
-const HEADER_HEIGHT = '64px'; // adjust to match your actual header height
-
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -22,16 +20,14 @@ const StickyHeader = styled.div`
   top: 0;
   left: 0;
   width: 100%;
-  height: ${HEADER_HEIGHT};
   z-index: 999;
 `;
 
 const MainContent = styled.main`
-  margin-top: 30px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: ${HEADER_HEIGHT}; /* ensures content starts below the fixed header */
+  padding-top: 70px; /* Add space equal to header height */
 `;
 
 const FooterWrapper = styled.div`
