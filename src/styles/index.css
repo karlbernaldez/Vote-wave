@@ -1,7 +1,7 @@
 html, body, #root {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* Prevent global scroll */
+  font-family: Arial, sans-serif;
+  overflow: auto; /* Allow page to scroll */
 }
