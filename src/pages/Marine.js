@@ -4,8 +4,6 @@ import { Charts } from '../components/marine/Charts';
 import line1 from "../assets/Line.png";
 import wave from "../assets/wave.png";
 
-// Import Grid System Components
-import { Grid, Row, Col } from 'react-flexbox-grid';
 
 const MarineContainer = styled.div`
   display: flex;
