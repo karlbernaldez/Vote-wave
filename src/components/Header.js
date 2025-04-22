@@ -18,11 +18,10 @@ const CenterWrapper = styled.div`
   background-color: #ffffff;
   display: flex;
   gap: 214px;
-  height: 80px;
+  height: 70px;
   justify-content: space-around;
-  padding: 0px 36px;
   position: relative;
-  width: 1280px;
+  width: 100%;
 `;
 
 const Center = styled.div`

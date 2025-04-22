@@ -89,8 +89,7 @@ const ContentWrapper = styled.div`
 
 const ChartWrapper = styled.div`
   max-width: 80%;
-  max-height: 70vh; /* or any height you prefer */
-  overflow-y: auto;
+  /* Removed max-height and overflow properties */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,8 +98,9 @@ const ChartWrapper = styled.div`
 
 const Legend = styled.div`
   background-color: #01b0ef;
+  margin-top: 50px;
   height: 252px;
-  width: 1282px;
+  width: 1050px;
 `;
 
 
@@ -162,6 +162,9 @@ const Marine = () => {
               <Charts selected={selected} />
             </div>
           </ChartWrapper>
+
+          <Legend/>
+
         </ContentWrapper>
 
       </MarineContainer>
