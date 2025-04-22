@@ -4,6 +4,9 @@ import { Charts } from '../components/marine/Charts';
 import line1 from "../assets/Line.png";
 import wave from "../assets/wave.png";
 
+// Import Grid System Components
+import { Grid, Row, Col } from 'react-flexbox-grid';
+
 const MarineContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,7 +53,22 @@ const Title = styled.div`
 
 const ChartStyles = styled.div`
   display: flex;
-  margin-top: 40px;
+  justify-content: center; /* Start by centering the buttons */
+  width: 100%;
+  padding: 0 10%; /* Add padding on both sides to avoid sticking to the edges */
+  margin-top: 20px; /* Increased margin-top to move the chart lower */
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    padding: 0 5%; /* Reduce the padding for smaller screens */
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column; /* Stack the options vertically */
+    align-items: center;
+    margin-top: 30px; /* Adjust margin-top for smaller screens */
+    padding: 0 10%; /* Ensure some space on smaller screens */
+  }
 `;
 
 const OptionBox = styled.div`
@@ -68,16 +86,26 @@ const OptionBox = styled.div`
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color:rgb(0, 118, 161);
+    background-color: rgb(0, 118, 161);
     color: #ffffff;
   }
 `;
 
 const Line = styled.img`
   height: 1px;
-  width: 1200px;
+  width: 100%; /* Make sure the width is fluid and takes the full container width */
   object-fit: cover;
   margin-top: 0px;
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    width: 100%; /* Ensure the line takes full width on smaller screens */
+  }
+
+  /* Optional: Set a max-width for larger screens to keep the line from becoming too wide */
+  @media (min-width: 1201px) {
+    max-width: 1200px; /* Prevent it from becoming too wide on large screens */
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -89,11 +117,16 @@ const ContentWrapper = styled.div`
 
 const ChartWrapper = styled.div`
   max-width: 80%;
-  /* Removed max-height and overflow properties */
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 20px; /* push below title and line */
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    max-width: 100%; /* Make the chart container take full width on smaller screens */
+    margin-top: 30px;
+  }
 `;
 
 const Legend = styled.div`
@@ -101,8 +134,17 @@ const Legend = styled.div`
   margin-top: 50px;
   height: 252px;
   width: 1050px;
-`;
 
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    width: 90%; /* Adjust width for smaller screens */
+  }
+
+  @media (max-width: 768px) {
+    width: 100%; /* Full width on mobile screens */
+    height: 200px; /* Adjust height on smaller screens */
+  }
+`;
 
 const Marine = () => {
   const [selected, setSelected] = useState({
@@ -121,54 +163,50 @@ const Marine = () => {
   };
 
   return (
-    <>
-      <MarineContainer>
-        <TitleWrapper>
-          <Title>
-            <Img alt="Wave" src={wave} />
-            <TextWrapper>Wave Chart</TextWrapper>
-          </Title>
-        </TitleWrapper>
+    <MarineContainer>
+      <TitleWrapper>
+        <Title>
+          <Img alt="Wave" src={wave} />
+          <TextWrapper>Wave Chart</TextWrapper>
+        </Title>
+      </TitleWrapper>
 
-        <ChartStyles>
-          <OptionBox
-            width="120px"
-            active={selected.waveWind}
-            onClick={() => toggleSelection("waveWind")}
-          >
-            Wave & Wind
-          </OptionBox>
-          <OptionBox
-            width="100px"
-            active={selected.wave}
-            onClick={() => toggleSelection("wave")}
-          >
-            Wave
-          </OptionBox>
-          <OptionBox
-            width="145px"
-            active={selected.colorImpaired}
-            onClick={() => toggleSelection("colorImpaired")}
-          >
-            For Color Impaired
-          </OptionBox>
-        </ChartStyles>
+      <ChartStyles>
+        <OptionBox
+          width="120px"
+          active={selected.waveWind}
+          onClick={() => toggleSelection("waveWind")}
+        >
+          Wave & Wind
+        </OptionBox>
+        <OptionBox
+          width="100px"
+          active={selected.wave}
+          onClick={() => toggleSelection("wave")}
+        >
+          Wave
+        </OptionBox>
+        <OptionBox
+          width="145px"
+          active={selected.colorImpaired}
+          onClick={() => toggleSelection("colorImpaired")}
+        >
+          For Color Impaired
+        </OptionBox>
+      </ChartStyles>
 
-        <Line alt="Line" src={line1} />
+      <Line alt="Line" src={line1} />
 
-        <ContentWrapper>
-          <ChartWrapper>
-            <div style={{ marginTop: "50px" }}>
-              <Charts selected={selected} />
-            </div>
-          </ChartWrapper>
+      <ContentWrapper>
+        <ChartWrapper>
+          <div style={{ marginTop: "50px" }}>
+            <Charts selected={selected} />
+          </div>
+        </ChartWrapper>
 
-          <Legend/>
-
-        </ContentWrapper>
-
-      </MarineContainer>
-    </>
+        <Legend>THIS IS FOR THE LEGEND OF CHART</Legend>
+      </ContentWrapper>
+    </MarineContainer>
   );
 };
 

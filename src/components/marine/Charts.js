@@ -13,26 +13,40 @@ const Wrapper = styled.div`
 `;
 
 const ChartContainer = styled.div`
-  height: 1064px;
-  position: relative;
-  width: 1099px;
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap when needed */
+  justify-content: space-around; /* Distribute items evenly */
+  width: 100%;
+  max-width: 1099px; /* Set max-width */
+
+  /* Add margin-top for mobile view */
+  @media (max-width: 768px) {
+    margin-top: 1100px; /* Adjust the top margin to push the charts down */
+  }
 `;
 
 const ChartBlockWrapper = styled.div`
-  align-items: flex-start;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
-  position: absolute;
-  width: 505px;
-  left: ${(props) => props.left}px;
-  top: ${(props) => props.top}px;
+  position: relative;
+  width: 45%; /* Default width for larger screens */
+
+  /* Adjusting the left and top margins dynamically */
+  left: ${(props) => props.left || 0}px;
+  top: ${(props) => props.top || 0}px;
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    width: 100%; /* Stack 1 column on smaller screens */
+    margin-bottom: 20px; /* Add some space between stacked blocks */
+  }
 `;
 
 const ChartTitle = styled.div`
+  display: flex;
   align-items: flex-end;
-  display: inline-flex;
-  flex: 0 0 auto;
   gap: 2px;
   position: relative;
 `;
@@ -54,24 +68,22 @@ const TextWrapper = styled.div`
 `;
 
 const ChartImage = styled.div`
-  align-items: flex-start;
-  align-self: stretch;
-  background-color: #d9d9d9;
   display: flex;
   flex-direction: column;
   gap: 10px;
   height: 435px;
   padding: 20px 17px;
-  width: 93%;
+  background-color: #d9d9d9;
+  width: 100%; /* Adjust width to be fluid */
 `;
 
 const Image = styled.img`
   height: 429px;
   object-fit: cover;
-  width: 470px;
+  width: 100%; /* Ensure the image takes up full width of the container */
 `;
 
-const ChartBlock = ({ title, left, top, selected }) => {
+const ChartBlock = ({ title, selected }) => {
   let imageSrc = imageWaveWind; // Default image
 
   // Conditionally change the image based on the selected option
@@ -82,7 +94,7 @@ const ChartBlock = ({ title, left, top, selected }) => {
   }
 
   return (
-    <ChartBlockWrapper left={left} top={top}>
+    <ChartBlockWrapper>
       <ChartTitle>
         <ComboChart alt="Combo chart" src={comboChart} />
         <TextWrapper>{title}</TextWrapper>
@@ -98,10 +110,10 @@ export const Charts = ({ selected }) => {
   return (
     <Wrapper>
       <ChartContainer>
-        <ChartBlock title="12-h Prognostic Wave Chart" left={28} top={0} selected={selected} />
-        <ChartBlock title="24-h Prognostic Wave Chart" left={565} top={0} selected={selected} />
-        <ChartBlock title="36-h Prognostic Wave Chart" left={28} top={532} selected={selected} />
-        <ChartBlock title="48-h Prognostic Wave Chart" left={565} top={532} selected={selected} />
+        <ChartBlock title="12-h Prognostic Wave Chart" selected={selected} />
+        <ChartBlock title="24-h Prognostic Wave Chart" selected={selected} />
+        <ChartBlock title="36-h Prognostic Wave Chart" selected={selected} />
+        <ChartBlock title="48-h Prognostic Wave Chart" selected={selected} />
       </ChartContainer>
     </Wrapper>
   );

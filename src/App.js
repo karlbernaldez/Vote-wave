@@ -13,6 +13,7 @@ const AppContainer = styled.div`
   flex-direction: column;
   min-height: 100vh;
   overflow-y: ${({ noScroll }) => (noScroll ? 'hidden' : 'auto')};
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 `;
 
 const StickyHeader = styled.div`
@@ -48,6 +49,7 @@ const Layout = () => {
 
   return (
     <AppContainer noScroll={isEditPage}>
+      
       <StickyHeader>
         <HeaderNavbar />
       </StickyHeader>
