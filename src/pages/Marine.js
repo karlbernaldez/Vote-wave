@@ -197,7 +197,7 @@ const Marine = () => {
 
       <ContentWrapper>
         <ChartWrapper>
-          <div style={{ marginTop: "50px" }}>
+          <div style={{ marginTop: "30px" }}>
             <Charts selected={selected} />
           </div>
         </ChartWrapper>

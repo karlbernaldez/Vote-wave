@@ -44,11 +44,13 @@ const ChartBlockWrapper = styled.div`
   }
 `;
 
+
 const ChartTitle = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 2px;
   position: relative;
+  margin-top: 20px;
 `;
 
 const ComboChart = styled.img`
