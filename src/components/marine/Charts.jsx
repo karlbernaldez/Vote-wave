@@ -8,8 +8,10 @@ import imageColorImpaired from "../../assets/colorImpairedImage.png"; // Example
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh; /* Or adjust depending on your use case */
+  align-items: flex-start; // Prevents vertical clipping
+  min-height: 100%; // Allow content to grow
+  width: 100%;
+  padding: 1rem 0;
 `;
 
 const ChartContainer = styled.div`
@@ -21,7 +23,7 @@ const ChartContainer = styled.div`
 
   /* Add margin-top for mobile view */
   @media (max-width: 768px) {
-    margin-top: 1100px; /* Adjust the top margin to push the charts down */
+    margin-top: -40px; /* Adjust the top margin to push the charts down */
   }
 `;
 
@@ -73,16 +75,19 @@ const ChartImage = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: 435px;
   padding: 20px 17px;
   background-color: #d9d9d9;
-  width: 100%; /* Adjust width to be fluid */
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const Image = styled.img`
-  height: 429px;
-  object-fit: cover;
-  width: 100%; /* Ensure the image takes up full width of the container */
+  width: 100%;
+  height: auto; /* Maintain aspect ratio and prevent cropping */
+  object-fit: contain; /* Ensure it fits inside the wrapper without cropping */
 `;
 
 const ChartBlock = ({ title, selected }) => {
