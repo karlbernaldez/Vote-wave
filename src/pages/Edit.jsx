@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import Header from '../components/Header';
 import MapComponent from "../components/MapComponent";
 import LayerPanel from "../components/LayerPanel";
 import styled from "@emotion/styled";

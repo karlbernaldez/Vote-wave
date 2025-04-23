@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
-import { Menu } from "./Menu";
 import { PagasaLogo } from "./Logo";
 
 const StyledHeaderNavbar = styled.div`

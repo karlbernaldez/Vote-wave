@@ -1,12 +1,13 @@
-// src/pages/Home.js
+// src/pages/Home.jsx
 import React from 'react';
-import Header from '../components/Header';  // Example reusable component
+import HeroSection from '../components/Home/HeroSection';
+import Feature from '../components/Home/Feature';
 
 const Home = () => {
   return (
     <div>
-      <h1>Welcome to the Home Page</h1>
-      <p>This is the landing page of the site.</p>
+      <HeroSection />
+      <Feature/>
     </div>
   );
 };
