@@ -119,7 +119,7 @@ const LinksContainer = styled.div`
   flex: 2;
   min-width: 250px;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 820px) {
     flex-direction: column;
     gap: 1.5rem;
     align-items: center;
