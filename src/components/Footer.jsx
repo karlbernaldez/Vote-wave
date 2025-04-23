@@ -21,12 +21,26 @@ const FlexRow = styled.div`
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const SocialContainer = styled.div`
   flex: 1;
   min-width: 250px;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    text-align: center;
+    align-items: center;
+  }
 `;
 
 const TextContainer = styled.div`
@@ -39,6 +53,7 @@ const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 11px;
+  justify-content: center;
 `;
 
 const PagasaWrapper = styled.div`
@@ -63,6 +78,7 @@ const TextWrapper = styled.p`
 const IconContainer = styled.div`
   display: flex;
   gap: 1rem;
+  justify-content: center;
 `;
 
 const LineImage = styled.img`
@@ -94,6 +110,12 @@ const LinksContainer = styled.div`
   justify-content: space-between;
   flex: 2;
   min-width: 250px;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+  }
 `;
 
 const FrameTwo = styled.div`
@@ -101,6 +123,12 @@ const FrameTwo = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   min-width: 150px;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+    min-width: 200px;
+  }
 `;
 
 const FrameThree = styled.div`
@@ -115,24 +143,44 @@ const LinksTitle = styled.div`
   font-family: "Roboto-Medium", Helvetica;
   font-size: 1.125rem;
   color: #000;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
 
 const LinkText = styled.div`
   font-family: "Roboto-Light", Helvetica;
   font-size: 1rem;
   color: #000;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
 
 const PagesTitle = styled.div`
   font-family: "Baloo 2-Bold", Helvetica;
   font-size: 1rem;
   color: #000;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
 
 const PageLinkText = styled.div`
   font-family: "Baloo 2-Medium", Helvetica;
   font-size: 1rem;
   color: #000;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
 
 const Footer = () => {
@@ -195,7 +243,7 @@ const Footer = () => {
       <LineImage src={line1} alt="Separator line" />
 
       <RightsReservedContainer>
-      <img src={Copyright} alt="Copyright symbol" />
+        <img src={Copyright} alt="Copyright symbol" />
         <RightsText>
           2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
           All rights reserved.
@@ -206,4 +254,3 @@ const Footer = () => {
 };
 
 export default Footer;
- 
