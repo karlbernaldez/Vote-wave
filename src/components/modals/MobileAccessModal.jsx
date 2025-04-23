@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useSpring, animated } from 'react-spring';
+import { useSpring, animated } from '@react-spring/web';
 import styled from 'styled-components';
 
 // Overlay with fixed positioning and background
