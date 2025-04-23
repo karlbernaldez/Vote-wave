@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Edit from './pages/Edit';
 import Weather from './pages/Marine';
@@ -7,6 +7,8 @@ import AboutUs from './pages/AboutUs';
 import HeaderNavbar from "./components/Header";
 import Footer from "./components/Footer";
 import styled from 'styled-components';
+import useIsMobile from './hooks/useIsMobile';
+import MobileAccessModal from './components/modals/MobileAccessModal';
 
 const AppContainer = styled.div`
   display: flex;
@@ -45,11 +47,35 @@ const FreeSpace = styled.div`
 
 const Layout = () => {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const isEditPage = location.pathname === '/edit';
+  const [modalVisible, setModalVisible] = useState(false);
+  const [redirect, setRedirect] = useState(false); // Track when to redirect
+
+  useEffect(() => {
+    if (isMobile && isEditPage) {
+      setModalVisible(true); // Show the modal on mobile when accessing /edit page
+    }
+  }, [isMobile, isEditPage]);
+
+  const handleModalClose = () => {
+    setModalVisible(false); // Close the modal
+    setRedirect(true); // Trigger redirect when manually closed
+  };
+
+  // Refresh page after redirect
+  const handleRedirect = () => {
+    // Trigger a page refresh after the redirect
+    window.location.reload();
+  };
+
+  if (redirect) {
+    handleRedirect(); // Refresh the page
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <AppContainer noScroll={isEditPage}>
-      
       <StickyHeader>
         <HeaderNavbar />
       </StickyHeader>
@@ -57,7 +83,19 @@ const Layout = () => {
       <MainContent>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/edit" element={<Edit />} />
+          <Route
+            path="/edit"
+            element={isMobile ? (
+              <>
+                <MobileAccessModal
+                  isOpen={modalVisible}
+                  onClose={handleModalClose} // Close modal on button click
+                />
+              </>
+            ) : (
+              <Edit />
+            )}
+          />
           <Route path="/weather" element={<Weather />} />
           <Route path="/about-us" element={<AboutUs />} />
         </Routes>
