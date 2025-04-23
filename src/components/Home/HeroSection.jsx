@@ -10,11 +10,11 @@ const HeroSectionContainer = styled.div`
   position: relative;
 
   @media (max-width: 768px) {
-    height: 600px;
+    height: 900px;
   }
 
   @media (max-width: 480px) {
-    height: 500px;
+    height: 900px;
   }
 `;
 
@@ -60,6 +60,18 @@ const Gradient = styled.div`
   left: 0;
   width: 100%;
   pointer-events: none;
+
+  @media (max-width: 768px) {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 10, 10, 0) 0%,
+      rgba(10, 10, 10, 0.2) 20%,
+      rgba(10, 10, 10, 0.4) 40%,
+      rgba(10, 10, 10, 0.6) 60%,
+      rgba(10, 10, 10, 0.8) 80%,
+      rgba(10, 10, 10, 1) 100%
+    );
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -94,13 +106,19 @@ const Heading = styled.div`
   margin-left: 140px;
 
   @media (max-width: 768px) {
-    margin-left: 40px;
+    margin-left: auto;
+    margin-right: auto;
     width: 90%;
+    align-items: center;
+    text-align: center;
   }
 
   @media (max-width: 480px) {
-    margin-left: 20px;
-    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 85%;
+    align-items: center;
+    text-align: center;
   }
 `;
 
@@ -115,11 +133,15 @@ const Title = styled.p`
   text-align: left;
 
   @media (max-width: 768px) {
-    font-size: 30px;
+    font-size: 42px;
+    text-align: center;
+    line-height: 1.5;
   }
 
   @media (max-width: 480px) {
-    font-size: 30px;
+    font-size: 38px;
+    text-align: center;
+    line-height: 1.5;
   }
 `;
 
@@ -131,18 +153,24 @@ const Subtitle = styled.p`
   line-height: normal;
   width: auto;
   margin: 0;
-  text-align: left;
   margin-top: -50px;
   margin-bottom: 25px;
+  text-align: left;
 
   @media (max-width: 768px) {
-    font-size: 16px;
+    font-size: 22px;
     margin-top: -30px;
+    text-align: center;
+    width: 95%;
+    line-height: 1.4;
   }
 
   @media (max-width: 480px) {
-    font-size: 18px;
-    margin-top: -30px;
+    font-size: 22px;
+    margin-top: 20px;
+    text-align: center;
+    width: 95%;
+    line-height: 1.4;
   }
 `;
 
@@ -163,7 +191,7 @@ const ButtonsContainer = styled.div`
     gap: 10px;
     flex-direction: column;
     align-items: center;
-    margin-top: -10px;
+    margin-top: 10px;
   }
 `;
 
@@ -178,6 +206,10 @@ const Button = styled.button`
   transition: background-color 0.3s ease, border 0.3s ease;
   height: auto;
   line-height: normal;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 
   &:hover {
     background-color: ${({ primary }) => (primary ? '#0088cc' : '#e0f7f7')};
@@ -185,16 +217,35 @@ const Button = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 10px 18px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-    padding: 1px 2px;
+    font-size: 24px;
+    padding: 24px 40px;
     width: 100%;
     height: 40px;
     margin: 5px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+    padding: 24px 30px;
+    width: 100%;
+    height: 40px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 24px;
+  }
+`;
+
+const LiveMapButton = styled(Button)`
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
@@ -212,8 +263,8 @@ const HeroSection = () => {
             Interactive tools for meteorologists, researchers, and enthusiasts.
           </Subtitle>
           <ButtonsContainer>
-            <Button primary>Get Started</Button>
-            <Button>Live Map</Button>
+            <Button primary>Get Forecast</Button>
+            <LiveMapButton>Live Map</LiveMapButton>
           </ButtonsContainer>
         </Heading>
       </ContentContainer>
