@@ -53,7 +53,11 @@ const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 11px;
-  justify-content: center;
+  justify-content: center;  /* Default: center alignment */
+  
+  @media (min-width: 1024px) {
+    justify-content: flex-start;  /* Align to left on desktop */
+  }
 `;
 
 const PagasaWrapper = styled.div`
@@ -78,7 +82,11 @@ const TextWrapper = styled.p`
 const IconContainer = styled.div`
   display: flex;
   gap: 1rem;
-  justify-content: center;
+  justify-content: center;  /* Default: center alignment */
+  
+  @media (min-width: 1024px) {
+    justify-content: flex-start;  /* Align to left on desktop */
+  }
 `;
 
 const LineImage = styled.img`
