@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { useSpring, animated } from '@react-spring/web';
+// MobileAccessModal.jsx
+import React from 'react';
 import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Overlay with fixed positioning and background
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -16,8 +16,7 @@ const Overlay = styled.div`
   z-index: 1000;
 `;
 
-// Modal container with animation and responsive styling
-const ModalContainer = styled(animated.div)`
+const ModalContainer = styled(motion.div)`
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -36,37 +35,31 @@ const ModalContainer = styled(animated.div)`
   }
 `;
 
-// Modal component for mobile access restriction
+const animationVariants = {
+  hidden: { opacity: 0, y: -30 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+};
+
 const MobileAccessModal = ({ isOpen, onClose }) => {
-  // Animation for the modal
-  const modalStyles = useSpring({
-    opacity: isOpen ? 1 : 0,
-    transform: isOpen ? 'translateY(0)' : 'translateY(-50px)',
-  });
-
-  const modalShown = useRef(false); // Ref to track if the modal has been shown
-
-  useEffect(() => {
-    if (isOpen && !modalShown.current) {
-      modalShown.current = true; // Set it to true once the modal is shown
-    }
-  }, [isOpen]);
-
-  if (!isOpen || modalShown.current) return null; // Don't show the modal again if already shown
-
   return (
-    <Overlay onClick={onClose}>
-      <ModalContainer style={modalStyles} onClick={(e) => e.stopPropagation()}>
-        <h2>Access Restricted</h2>
-        <p>
-          You cannot access the Edit page on mobile. Please use a desktop.
-        </p>
-        <p>
-          If you're on a desktop, please make sure your browser is in <strong>fullscreen mode</strong> for the best experience.
-        </p>
-        <button onClick={onClose}>Close</button>
-      </ModalContainer>
-    </Overlay>
+    <AnimatePresence>
+      {isOpen && (
+        <Overlay onClick={onClose}>
+          <ModalContainer
+            variants={animationVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>Mobile Access Restricted</h2>
+            <p>You cannot access the Edit page on mobile. Please use a desktop or maximize your screen if you're already on one.</p>
+            <button onClick={onClose}>Close</button>
+          </ModalContainer>
+        </Overlay>
+      )}
+    </AnimatePresence>
   );
 };
 
