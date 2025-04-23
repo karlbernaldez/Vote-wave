@@ -105,7 +105,7 @@ const Heading = styled.div`
   width: 650px;
   margin-left: 140px;
 
-  @media (max-width: 820px){
+  @media (max-width: 1024px){
     margin-left: 60px;
   }
 
