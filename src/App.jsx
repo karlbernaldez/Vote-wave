@@ -10,12 +10,14 @@ import styled from 'styled-components';
 import useIsMobile from './hooks/useIsMobile';
 import MobileAccessModal from './components/modals/MobileAccessModal';
 
+// Styled components for Layout
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow-y: ${({ noScroll }) => (noScroll ? 'hidden' : 'auto')};
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-y: ${({ noScroll }) => (noScroll ? "hidden" : "auto")};
+  overflow-x: hidden;
+  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")}; /* Disable interactions when loading */
 `;
 
 const StickyHeader = styled.div`
@@ -24,6 +26,7 @@ const StickyHeader = styled.div`
   left: 0;
   width: 100%;
   z-index: 999;
+  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable header interactions when loading */
 `;
 
 const MainContent = styled.main`
@@ -31,11 +34,13 @@ const MainContent = styled.main`
   display: flex;
   flex-direction: column;
   padding-top: 70px; /* Add space equal to header height */
+  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable content interactions when loading */
 `;
 
 const FooterWrapper = styled.div`
   flex-shrink: 0;
   margin-top: auto;
+  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable footer interactions when loading */
 `;
 
 const FreeSpace = styled.div`
@@ -45,18 +50,59 @@ const FreeSpace = styled.div`
   margin-top: 200px;
 `;
 
+const LoadingScreen = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+const LoadingSpinner = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const Layout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const isEditPage = location.pathname === '/edit';
   const [modalVisible, setModalVisible] = useState(false);
   const [redirect, setRedirect] = useState(false); // Track when to redirect
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   useEffect(() => {
     if (isMobile && isEditPage) {
       setModalVisible(true); // Show the modal on mobile when accessing /edit page
     }
   }, [isMobile, isEditPage]);
+
+  useEffect(() => {
+    setIsLoading(true); // Start loading on route change
+
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Stop loading after a brief delay (to simulate loading effect)
+    }, 500); // You can adjust the delay time as needed
+
+    return () => clearTimeout(timer); // Clean up timeout on route change
+  }, [location]);
 
   const handleModalClose = () => {
     setModalVisible(false); // Close the modal
@@ -75,12 +121,21 @@ const Layout = () => {
   }
 
   return (
-    <AppContainer noScroll={isEditPage}>
-      <StickyHeader>
-        <HeaderNavbar />
+    <AppContainer noScroll={isEditPage} isLoading={isLoading}>
+      <StickyHeader isLoading={isLoading}>
+        <HeaderNavbar isLoading={isLoading} />
       </StickyHeader>
 
-      <MainContent>
+      <MainContent isLoading={isLoading}>
+        {isLoading && (
+          <LoadingScreen>
+            <div>
+              <LoadingSpinner />
+              <div>Loading...</div>
+            </div>
+          </LoadingScreen>
+        )}
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
@@ -104,7 +159,7 @@ const Layout = () => {
       </MainContent>
 
       {!isEditPage && (
-        <FooterWrapper>
+        <FooterWrapper isLoading={isLoading}>
           <Footer />
         </FooterWrapper>
       )}
