@@ -1,7 +1,7 @@
-// MobileAccessModal.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MdWarningAmber } from 'react-icons/md';
 
 const Overlay = styled.div`
   position: fixed;
@@ -9,7 +9,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,26 +17,60 @@ const Overlay = styled.div`
 `;
 
 const ModalContainer = styled(motion.div)`
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
+  background: white;
+  padding: 30px 20px;
+  border-radius: 16px;
+  max-width: 320px;
   width: 100%;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.1);
+`;
 
-  @media (max-width: 768px) {
-    padding: 15px;
-    max-width: 90%;
-  }
+const IconWrapper = styled.div`
+  background: #f1f5f9;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 16px;
+`;
 
-  @media (max-width: 480px) {
-    padding: 10px;
-    max-width: 85%;
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+const Description = styled.p`
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+`;
+
+const ActionButton = styled.button`
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+
+  &:hover {
+    background-color: #1d4ed8;
   }
 `;
 
 const animationVariants = {
-  hidden: { opacity: 0, y: -30 },
+  hidden: { opacity: 0, y: -20 },
   visible: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -20 }
 };
@@ -53,9 +87,18 @@ const MobileAccessModal = ({ isOpen, onClose }) => {
             exit="exit"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>Mobile Access Restricted</h2>
-            <p>You cannot access the Edit page on mobile. Please use a desktop or maximize your screen if you're already on one.</p>
-            <button onClick={onClose}>Close</button>
+            <IconWrapper>
+              <MdWarningAmber size={22} color="#FF3333" />
+            </IconWrapper>
+
+            <Title>Access Restricted</Title>
+            <Description>
+              This feature is not available on smaller screens. Please switch to desktop or maximize your window.
+            </Description>
+
+            <ActionButton onClick={onClose}>
+              Okay, got it
+            </ActionButton>
           </ModalContainer>
         </Overlay>
       )}
