@@ -1,6 +1,5 @@
 // src/pages/AboutUs.js
 import React from 'react';
-import Header from '../components/Header';
 
 const AboutUs = () => {
   return (

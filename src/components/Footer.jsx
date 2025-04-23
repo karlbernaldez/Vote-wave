@@ -195,7 +195,7 @@ const Footer = () => {
       <LineImage src={line1} alt="Separator line" />
 
       <RightsReservedContainer>
-        <img src={Copyright} />
+      <img src={Copyright} alt="Copyright symbol" />
         <RightsText>
           2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
           All rights reserved.
