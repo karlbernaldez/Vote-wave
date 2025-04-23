@@ -23,7 +23,7 @@ const FlexRow = styled.div`
   margin: 0 auto;
   gap: 2rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     flex-direction: column;
     align-items: center;
   }
@@ -37,7 +37,7 @@ const SocialContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
     align-items: center;
   }
@@ -133,7 +133,7 @@ const FrameTwo = styled.div`
   min-width: 150px;
   text-align: left;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
     min-width: 200px;
   }
@@ -153,7 +153,7 @@ const LinksTitle = styled.div`
   color: #000;
   text-align: left;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
   }
 `;
@@ -164,7 +164,7 @@ const LinkText = styled.div`
   color: #000;
   text-align: left;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
   }
 `;
@@ -175,7 +175,7 @@ const PagesTitle = styled.div`
   color: #000;
   text-align: left;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
   }
 `;
@@ -186,7 +186,7 @@ const PageLinkText = styled.div`
   color: #000;
   text-align: left;
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     text-align: center;
   }
 `;
