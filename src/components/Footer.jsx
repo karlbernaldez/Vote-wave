@@ -55,7 +55,7 @@ const LogoContainer = styled.div`
   gap: 11px;
   justify-content: center;  /* Default: center alignment */
   
-  @media (min-width: 1024px) {
+  @media (min-width: 821px) {
     justify-content: flex-start;  /* Align to left on desktop */
   }
 `;
@@ -84,7 +84,7 @@ const IconContainer = styled.div`
   gap: 1rem;
   justify-content: center;  /* Default: center alignment */
   
-  @media (min-width: 1024px) {
+  @media (min-width: 821px) {
     justify-content: flex-start;  /* Align to left on desktop */
   }
 `;
@@ -118,6 +118,43 @@ const LinksContainer = styled.div`
   justify-content: space-between;
   flex: 2;
   min-width: 250px;
+
+  @media (min-width: 877px) and (max-width: 900px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+    flex: 2;
+    min-width: 250px;
+  }
+
+  @media (min-width: 853px) and (max-width: 876px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    flex: 2;
+    min-width: 250px;
+  }
+
+  @media (min-width: 848px) and (max-width: 852px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .9rem;
+    justify-content: space-between;
+    flex: 2;
+    min-width: 250px;
+  }
+
+  @media (min-width: 821px) and (max-width: 847px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    justify-content: space-between;
+    flex: 2;
+    min-width: 250px;
+    margin-left: 30px;
+  }
 
   @media (max-width: 820px) {
     flex-direction: column;
@@ -153,6 +190,10 @@ const LinksTitle = styled.div`
   color: #000;
   text-align: left;
 
+  @media (min-width: 821px) and (max-width: 847px) {
+    font-size: 1rem;
+  }
+
   @media (max-width: 820px) {
     text-align: center;
   }
@@ -163,6 +204,10 @@ const LinkText = styled.div`
   font-size: 1rem;
   color: #000;
   text-align: left;
+
+  @media (min-width: 821px) and (max-width: 847px) {
+    font-size: .8rem;
+  }
 
   @media (max-width: 820px) {
     text-align: center;
@@ -175,6 +220,11 @@ const PagesTitle = styled.div`
   color: #000;
   text-align: left;
 
+  @media (min-width: 821px) and (max-width: 847px) {
+    font-size: 1rem;
+    margin-left: -3rem;
+  }
+
   @media (max-width: 820px) {
     text-align: center;
   }
@@ -185,6 +235,11 @@ const PageLinkText = styled.div`
   font-size: 1rem;
   color: #000;
   text-align: left;
+
+  @media (min-width: 821px) and (max-width: 847px) {
+    font-size: .8rem;
+    margin-left: -3rem;
+  }
 
   @media (max-width: 820px) {
     text-align: center;
