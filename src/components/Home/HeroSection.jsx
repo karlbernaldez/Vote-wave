@@ -19,6 +19,7 @@ const HeroSectionContainer = styled.div`
     margin: 1rem auto;
     border-radius: 12px;
     overflow: hidden;
+    margin-top: 1.5rem;
   }
 `;
 
