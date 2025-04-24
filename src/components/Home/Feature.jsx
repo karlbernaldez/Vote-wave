@@ -46,7 +46,12 @@ const Header = styled.header`
   }
 
   @media (max-width: 480px) {
+    align-items: flex-start;
+    text-align: left;
     margin-bottom: 30px;
+    padding-left: 1rem;
+    width: 100%;
+    margin-top: -2rem;
   }
 `;
 
@@ -61,7 +66,9 @@ const Title = styled.h2`
   }
 
   @media (max-width: 480px) {
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 400;
+    color: white;
   }
 `;
 
@@ -77,6 +84,7 @@ const Subtitle = styled.p`
 
   @media (max-width: 480px) {
     font-size: 13px;
+    display: none;
   }
 `;
 
@@ -92,43 +100,63 @@ const FeatureGrid = styled.div`
   }
 
   @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding: 8px 0;
+    margin-top: -2rem;
+    margin-left: .5rem;
   }
 `;
 
 const Card = styled.div`
-  background-color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
-  box-shadow: 0px 4px 4px #00000040;
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
   overflow: hidden;
+  scroll-snap-align: start;
+  min-width: 180px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-  @media (max-width: 768px) {
-    padding: 16px;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.15);
   }
 
   @media (max-width: 480px) {
-    padding: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    margin-right: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+    padding: 0;
+    min-width: 200px;
   }
 `;
 
+
 const FeatureImage = styled.img`
   width: 100%;
-  height: auto;
-  max-height: 280px;
-  object-fit: contain;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: 12px;
 
   @media (max-width: 768px) {
-    max-height: 240px;
+    border-radius: 12px;
   }
 
   @media (max-width: 480px) {
-    max-height: 200px;
+    height: 260px;
   }
 `;
 
@@ -147,8 +175,7 @@ const FeatureTitle = styled.div`
   }
 
   @media (max-width: 480px) {
-    font-size: 16px;
-    letter-spacing: 1px;
+    display: none;
   }
 `;
 

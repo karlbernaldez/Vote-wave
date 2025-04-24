@@ -5,18 +5,23 @@ import styled from 'styled-components';
 import bg from '../../assets/bg.png';
 
 const HeroSectionContainer = styled.div`
-  height: 900px;
   width: 100%;
+  height: 900px;
   position: relative;
 
   @media (max-width: 768px) {
-    height: 900px;
+    height: 700px;
   }
 
   @media (max-width: 480px) {
-    height: 900px;
+    width: 90%;
+    height: 12rem !important;
+    margin: 1rem auto;
+    border-radius: 12px;
+    overflow: hidden;
   }
 `;
+
 
 const BackgroundWrapper = styled.div`
   position: relative;
@@ -118,9 +123,10 @@ const Heading = styled.div`
   }
 
   @media (max-width: 480px) {
-    margin-left: auto;
+    margin-top: -8rem;
+    margin-left: 1rem;
     margin-right: auto;
-    width: 85%;
+    width: 75%;
     align-items: center;
     text-align: center;
   }
@@ -143,8 +149,8 @@ const Title = styled.p`
   }
 
   @media (max-width: 480px) {
-    font-size: 38px;
-    text-align: center;
+    font-size: 22px;
+    text-align: left;
     line-height: 1.5;
   }
 `;
@@ -170,11 +176,10 @@ const Subtitle = styled.p`
   }
 
   @media (max-width: 480px) {
-    font-size: 22px;
-    margin-top: 20px;
-    text-align: center;
-    width: 95%;
-    line-height: 1.4;
+    font-size: 11px;
+    text-align: left;
+    width: 85%;
+    margin-left: -2.5rem;
   }
 `;
 
@@ -192,10 +197,11 @@ const ButtonsContainer = styled.div`
   }
 
   @media (max-width: 480px) {
-    gap: 10px;
     flex-direction: column;
-    align-items: center;
-    margin-top: 10px;
+    margin-top: -2rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-left: -11.2rem;
   }
 `;
 
@@ -208,8 +214,6 @@ const Button = styled.button`
   border: ${({ primary }) => (primary ? 'none' : '2px solid #008080')};
   cursor: pointer;
   transition: background-color 0.3s ease, border 0.3s ease;
-  height: auto;
-  line-height: normal;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -226,24 +230,18 @@ const Button = styled.button`
     width: 100%;
     height: 40px;
     margin: 5px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
     border-radius: 24px;
   }
 
   @media (max-width: 480px) {
-    font-size: 24px;
-    padding: 24px 30px;
-    width: 100%;
-    height: 40px;
+    font-size: 10px;
+    padding: 4px 14px;
+    width: fit-content; /* ✅ Shrinks button width */
+    height: 30px;
     margin: 5px 0;
-    display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* ✅ Align icon/text inside */
     align-items: center;
-    text-align: center;
-    border-radius: 24px;
+    text-align: left;
   }
 `;
 

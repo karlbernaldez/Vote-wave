@@ -18,6 +18,10 @@ const AppContainer = styled.div`
   overflow-y: ${({ noScroll }) => (noScroll ? "hidden" : "auto")};
   overflow-x: hidden;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")}; /* Disable interactions when loading */
+
+  @media (max-width: 768px) {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
 `;
 
 const StickyHeader = styled.div`
@@ -25,8 +29,12 @@ const StickyHeader = styled.div`
   top: 0;
   left: 0;
   width: 100%;
+  height: 70px;
   z-index: 999;
-  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable header interactions when loading */
+  background: linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 `;
 
 const MainContent = styled.main`
@@ -129,7 +137,7 @@ const Layout = () => {
       <MainContent isLoading={isLoading}>
         {isLoading && (
           <LoadingScreen>
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
               <LoadingSpinner />
               <div>Loading...</div>
             </div>
