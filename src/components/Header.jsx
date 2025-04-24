@@ -63,14 +63,54 @@ const MobileMenu = styled.div`
   @media (max-width: 768px) {
     display: ${({ open }) => (open ? "flex" : "none")};
     position: absolute;
-    top: 70px;
-    left: 0;
-    right: 0;
+    top: 60px;
+    left: 55%;
+    transform: translateX(-50%);  // Centers the menu horizontally
+    width: 150px;  // Reduced the width
     flex-direction: column;
-    background-color: white;
-    padding: 10px 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #2c3e50;
+    padding: 0.5rem 0.8rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     z-index: 99;
+    border-radius: 6px;
+    transform: translateY(-10px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+
+    ${({ open }) =>
+      open &&
+      `
+      transform: translateY(0);
+      opacity: 1;
+    `}
+
+    & a {
+      font-size: 0.95rem;  // Reduced font size for more compact look
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 8px 12px;
+      margin: 4px 0;
+      border-radius: 4px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    }
+
+    & a:hover {
+      background-color: #34495e;
+      color: #3498db;
+      transform: scale(1.02);
+    }
+
+    & a:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.6);
+    }
+
+    & a:active {
+      background-color: #1abc9c;
+      color: #ffffff;
+    }
   }
 `;
 
