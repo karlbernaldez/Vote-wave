@@ -86,7 +86,7 @@ npm run dev
 - [ ] Add export/save functionality for drawings
 
 ## 📜 License
-This project is licensed under the **[MIT LICENSE](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
+This project is licensed under the **[MIT license](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
 
 ## 🙌 Contributing
 Feel free to submit issues or pull requests to improve the app!
