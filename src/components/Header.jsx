@@ -13,6 +13,10 @@ const StyledHeaderNavbar = styled.div`
   top: 0;
   z-index: 100;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")}; /* Disable pointer events when loading */
+
+  @media (max-width: 768px) {
+    background: transparent;
+  }
 `;
 
 const CenterWrapper = styled.div`
