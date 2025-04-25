@@ -118,7 +118,8 @@ const Heading = styled.div`
 
   @media (max-width: 1366px) {
     margin-left: 120px;
-    margin-top: -8rem
+    margin-top: -8rem;
+    width: 750px;
   }
 
   @media (max-width: 1024px){
