@@ -37,8 +37,8 @@ const BackgroundWrapper = styled.div`
 
 const BackgroundImage = styled.div`
   background-image: url(${bg});
-  background-size: cover;
-  background-position: center;
+  background-size: 115%;  /* Zoom effect */
+  background-position: left center;  /* Move the image towards the right */
   height: 100%;
   position: absolute;
   top: 0;
