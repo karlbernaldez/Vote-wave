@@ -107,7 +107,18 @@ const FeatureGrid = styled.div`
     gap: 12px;
     padding: 8px 0;
     margin-top: -2rem;
-    margin-left: .5rem;
+    margin-left: 0.5rem;
+
+    /* Hide scrollbar for Webkit browsers */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for Firefox */
+    scrollbar-width: none;
+
+    /* Hide scrollbar for IE and Edge */
+    -ms-overflow-style: none;
   }
 `;
 
