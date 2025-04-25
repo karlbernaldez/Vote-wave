@@ -25,6 +25,10 @@ const TitleWrapper = styled.div`
   align-items: center;
   padding: 0 1rem;
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    border-radius: 8px;
+  }
 `;
 
 const Title = styled.div`
@@ -56,7 +60,7 @@ const ChartStyles = styled.div`
   margin-top: 1.5rem;
 
   @media (max-width: 768px) {
-    justify-content: flex-start;
+    justify-content: center;
     gap: 8px;
     padding: 0 0.5rem;
   }
@@ -87,14 +91,17 @@ const OptionBox = styled.div`
     min-width: 90px;
     font-size: 0.9rem;
     padding: 0 0.75rem;
+    color: ${({ active }) => (active ? "#fff" : "#fef")}; /* Changed font color */
   }
 
   @media (max-width: 480px) {
     min-width: 80px;
     font-size: 0.85rem;
     padding: 0 0.5rem;
+    color: ${({ active }) => (active ? "#fff" : "#fef")}; /* Changed font color */
   }
 `;
+
 
 // CHART + LEGEND
 const Line = styled.img`
@@ -119,7 +126,8 @@ const ChartWrapper = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding-top: 3rem;
+    padding-top: 2rem;
+    margin-right: 1rem;
   }
 `;
 
