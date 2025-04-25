@@ -63,12 +63,12 @@ const MobileMenu = styled.div`
   @media (max-width: 768px) {
     display: ${({ open }) => (open ? "flex" : "none")};
     position: absolute;
-    top: 60px;
-    left: 55%;
+    top: 50px;
+    left: 54%;
     transform: translateX(-50%);  // Centers the menu horizontally
     width: 150px;  // Reduced the width
     flex-direction: column;
-    background:rgb(240, 240, 240);
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     padding: 0.5rem 0.8rem;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     z-index: 99;
@@ -78,15 +78,15 @@ const MobileMenu = styled.div`
     transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
 
     ${({ open }) =>
-      open &&
-      `
+    open &&
+    `
       transform: translateY(0);
       opacity: 1;
     `}
 
     & a {
-      font-size: 0.95rem;  // Reduced font size for more compact look
-      color:rgb(54, 56, 56);
+      font-size: 0.95rem;
+      color: white; /* ← updated from rgb(54, 56, 56) */
       text-decoration: none;
       padding: 8px 12px;
       margin: 4px 0;
@@ -94,8 +94,7 @@ const MobileMenu = styled.div`
       font-weight: 400;
       letter-spacing: 0.5px;
       transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-    }
-
+  }
     & a:hover {
       background-color: #34495e;
       color: #3498db;

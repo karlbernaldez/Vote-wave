@@ -210,7 +210,7 @@ const ButtonsContainer = styled.div`
 
   @media (max-width: 480px) {
     flex-direction: column;
-    margin-top: -2rem;
+    margin-top: -1.2rem;
     align-items: flex-start;
     justify-content: flex-start;
     margin-left: -11.2rem;
