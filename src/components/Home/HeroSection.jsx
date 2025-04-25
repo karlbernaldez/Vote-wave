@@ -9,6 +9,11 @@ const HeroSectionContainer = styled.div`
   height: 900px;
   position: relative;
 
+  @media (max-width: 1366px) {
+    height: 700px;
+  }
+
+
   @media (max-width: 768px) {
     height: 700px;
   }
@@ -110,6 +115,11 @@ const Heading = styled.div`
   gap: 10px;
   width: 650px;
   margin-left: 140px;
+
+  @media (max-width: 1366px) {
+    margin-left: 120px;
+    margin-top: -8rem
+  }
 
   @media (max-width: 1024px){
     margin-left: 60px;

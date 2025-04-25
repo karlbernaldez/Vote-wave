@@ -68,7 +68,7 @@ const MobileMenu = styled.div`
     transform: translateX(-50%);  // Centers the menu horizontally
     width: 150px;  // Reduced the width
     flex-direction: column;
-    background-color: #2c3e50;
+    background:rgb(240, 240, 240);
     padding: 0.5rem 0.8rem;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     z-index: 99;
@@ -86,7 +86,7 @@ const MobileMenu = styled.div`
 
     & a {
       font-size: 0.95rem;  // Reduced font size for more compact look
-      color: #ecf0f1;
+      color:rgb(54, 56, 56);
       text-decoration: none;
       padding: 8px 12px;
       margin: 4px 0;
