@@ -34,7 +34,7 @@ const StickyHeader = styled.div`
   background: linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
 `;
 
 const MainContent = styled.main`
