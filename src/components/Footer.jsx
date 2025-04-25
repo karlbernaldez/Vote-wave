@@ -13,6 +13,7 @@ const FooterContainer = styled.footer`
   width: 100%;
   padding: 2rem 1rem;
   box-sizing: border-box;
+
 `;
 
 const FlexRow = styled.div`
@@ -87,6 +88,10 @@ const IconContainer = styled.div`
   @media (min-width: 821px) {
     justify-content: flex-start;  /* Align to left on desktop */
   }
+  
+  @media (max-width: 821px) {
+    margin-top: -.5rem;
+  }
 `;
 
 const LineImage = styled.img`
@@ -94,6 +99,11 @@ const LineImage = styled.img`
   height: 1px;
   margin: 2rem 0;
   object-fit: cover;
+
+  @media (max-width: 821px) {
+    margin-bottom: 1rem;
+  }
+
 `;
 
 const RightsReservedContainer = styled.div`
@@ -160,6 +170,7 @@ const LinksContainer = styled.div`
     flex-direction: column;
     gap: 1.5rem;
     align-items: center;
+    margin-top: -3rem;
   }
 `;
 
