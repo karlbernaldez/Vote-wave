@@ -157,12 +157,17 @@ const HeaderNavbar = ({ isLoading }) => {
   return (
     <StyledHeaderNavbar isLoading={isLoading}>
       <CenterWrapper>
-        <NavLink to="/" exact style={{ textDecoration: 'none' }}>
+        <a
+          href="https://www.pagasa.dost.gov.ph/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none' }}
+        >
           <Logo>
             <PagasaLogoInstance />
             <Div>PAGASA</Div>
           </Logo>
-        </NavLink>
+        </a>
 
         <Navbar>
           <StyledNavLink to="/" exact isActive={isLinkActive('/')} isLoading={isLoading}>

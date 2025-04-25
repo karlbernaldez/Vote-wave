@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Copyright from "../assets/Copyright.svg";
 import Facebook from "../assets/Facebook.svg";
@@ -181,10 +182,15 @@ const FrameTwo = styled.div`
   min-width: 150px;
   text-align: left;
 
+  @media (min-width: 821px) and (max-width: 847px) {
+    margin-right: -2rem;
+  }
+
   @media (max-width: 820px) {
     text-align: center;
     min-width: 200px;
   }
+    
 `;
 
 const FrameThree = styled.div`
@@ -193,7 +199,32 @@ const FrameThree = styled.div`
   gap: 0.3rem;
 `;
 
-const FrameFour = styled(FrameTwo)``;
+const StyledLink = styled.a`
+  font-family: "Roboto-Light", Helvetica;
+  font-size: 1rem;
+  color: #000;
+  text-align: left;
+  text-decoration: none;
+
+  &:hover {
+    color: #01b0ef;
+    text-decoration: underline;
+  }
+
+  @media (min-width: 821px) and (max-width: 847px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 820px) {
+    text-align: center;
+  }
+`;
+
+const FrameFour = styled(FrameTwo)`
+  @media (min-width: 821px) and (max-width: 847px) {
+    margin-left: -2.5rem;
+  }
+`;
 
 const LinksTitle = styled.div`
   font-family: "Roboto-Medium", Helvetica;
@@ -210,21 +241,6 @@ const LinksTitle = styled.div`
   }
 `;
 
-const LinkText = styled.div`
-  font-family: "Roboto-Light", Helvetica;
-  font-size: 1rem;
-  color: #000;
-  text-align: left;
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    font-size: .8rem;
-  }
-
-  @media (max-width: 820px) {
-    text-align: center;
-  }
-`;
-
 const PagesTitle = styled.div`
   font-family: "Baloo 2-Bold", Helvetica;
   font-size: 1rem;
@@ -233,23 +249,6 @@ const PagesTitle = styled.div`
 
   @media (min-width: 821px) and (max-width: 847px) {
     font-size: 1rem;
-    margin-left: -3rem;
-  }
-
-  @media (max-width: 820px) {
-    text-align: center;
-  }
-`;
-
-const PageLinkText = styled.div`
-  font-family: "Baloo 2-Medium", Helvetica;
-  font-size: 1rem;
-  color: #000;
-  text-align: left;
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    font-size: .8rem;
-    margin-left: -3rem;
   }
 
   @media (max-width: 820px) {
@@ -263,22 +262,37 @@ const Footer = () => {
       <FlexRow>
         <SocialContainer>
           <TextContainer>
-            <LogoContainer>
-              <PagasaLogo />
-              <PagasaWrapper>
-                <PagasaText>PAGASA</PagasaText>
-              </PagasaWrapper>
-            </LogoContainer>
+            <a
+              href="https://www.pagasa.dost.gov.ph/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              <LogoContainer>
+                <PagasaLogo />
+                <PagasaWrapper>
+                  <PagasaText>PAGASA</PagasaText>
+                </PagasaWrapper>
+              </LogoContainer>
+            </a>
             <TextWrapper>
               Welcome to PAGASA, we are the nation's trusted source for accurate weather forecasts,
               climate information, and astronomical services dedicated to safeguarding lives,
               livelihoods, and the future of our communities.
             </TextWrapper>
             <IconContainer>
-              <img src={Facebook} alt="Facebook" />
-              <img src={Twitter} alt="Twitter" />
-              <img src={Instagram} alt="Instagram" />
-              <img src={Linkedin} alt="Linkedin" />
+              <a href="https://www.facebook.com/PAGASA.DOST.GOV.PH" target="_blank" rel="noopener noreferrer">
+                <img src={Facebook} alt="Facebook" />
+              </a>
+              <a href="https://x.com/dost_pagasa" target="_blank" rel="noopener noreferrer">
+                <img src={Twitter} alt="Twitter" />
+              </a>
+              <a href="https://www.instagram.com/pagasa_dost/" target="_blank" rel="noopener noreferrer">
+                <img src={Instagram} alt="Instagram" />
+              </a>
+              <a href="https://www.linkedin.com/company/dost-pagasa" target="_blank" rel="noopener noreferrer">
+                <img src={Linkedin} alt="Linkedin" />
+              </a>
             </IconContainer>
           </TextContainer>
         </SocialContainer>
@@ -287,29 +301,63 @@ const Footer = () => {
           <FrameTwo>
             <LinksTitle>Government Links</LinksTitle>
             <FrameThree>
-              <LinkText>Office of the President</LinkText>
-              <LinkText>Office of the Vice President</LinkText>
-              <LinkText>Senate of the Philippines</LinkText>
-              <LinkText>House of Representatives</LinkText>
-              <LinkText>Supreme Court</LinkText>
-              <LinkText>Court of Appeals</LinkText>
-              <LinkText>Sandiganbayan</LinkText>
+              <StyledLink href="https://president.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the President</StyledLink>
+              <StyledLink href="https://ovp.gov.ph" target="_blank" rel="noopener noreferrer">Office of the Vice President</StyledLink>
+              <StyledLink href="https://senate.gov.ph" target="_blank" rel="noopener noreferrer">Senate of the Philippines</StyledLink>
+              <StyledLink href="https://congress.gov.ph" target="_blank" rel="noopener noreferrer">House of Representatives</StyledLink>
+              <StyledLink href="https://sc.judiciary.gov.ph" target="_blank" rel="noopener noreferrer">Supreme Court</StyledLink>
+              <StyledLink href="https://ca.judiciary.gov.ph" target="_blank" rel="noopener noreferrer">Court of Appeals</StyledLink>
+              <StyledLink href="https://sb.judiciary.gov.ph" target="_blank" rel="noopener noreferrer">Sandiganbayan</StyledLink>
             </FrameThree>
           </FrameTwo>
           <FrameTwo>
             <LinksTitle>GOV.PH</LinksTitle>
             <FrameThree>
-              <LinkText>Open Data Portal</LinkText>
-              <LinkText>Official Gazette</LinkText>
+              <StyledLink href="https://data.gov.ph" target="_blank" rel="noopener noreferrer">
+                Open Data Portal
+              </StyledLink>
+              <StyledLink href="https://www.officialgazette.gov.ph" target="_blank" rel="noopener noreferrer">
+                Official Gazette
+              </StyledLink>
             </FrameThree>
           </FrameTwo>
           <FrameFour>
             <PagesTitle>Pages</PagesTitle>
-            <PageLinkText>About Us</PageLinkText>
-            <PageLinkText>Shop</PageLinkText>
-            <PageLinkText>Contact Us</PageLinkText>
-            <PageLinkText>Services</PageLinkText>
-            <PageLinkText>Blog</PageLinkText>
+            <a
+              href="https://www.panahon.gov.ph/"
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StyledLink>Hydro-Met</StyledLink>
+            </a>
+            <a
+              href="https://hazardhunter.georisk.gov.ph/map"
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StyledLink>Hazard Map</StyledLink>
+            </a>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <StyledLink>Wave</StyledLink>
+            </a>
+            <a
+              href="/services"
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StyledLink>Services</StyledLink>
+            </a>
+            <a
+              href="/blog"
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StyledLink>Blog</StyledLink>
+            </a>
           </FrameFour>
         </LinksContainer>
       </FlexRow>
