@@ -25,14 +25,13 @@ const StyledFeature = styled.section`
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    padding: 32px 16px; 
+    padding: 32px 16px;
   }
 
   @media (max-width: 480px) {
     padding: 24px 12px;
   }
 `;
-
 
 const Header = styled.header`
   display: flex;
@@ -57,8 +56,8 @@ const Header = styled.header`
 
 const Title = styled.h2`
   font-size: 32px;
-  font-family: "Roboto-Regular", Helvetica, sans-serif;
-  color: #000;
+  font-family: ${({ theme }) => theme.fonts.bold};
+  color: ${({ theme }) => theme.colors.featureTitle};
   margin-bottom: 8px;
 
   @media (max-width: 768px) {
@@ -68,14 +67,14 @@ const Title = styled.h2`
   @media (max-width: 480px) {
     font-size: 20px;
     font-weight: 400;
-    color: white;
+    color: ${({ theme }) => theme.colors.mobileTextPrimary};
   }
 `;
 
 const Subtitle = styled.p`
   font-size: 16px;
-  font-family: "Roboto-LightItalic", Helvetica, sans-serif;
-  color: #000;
+  font-family: ${({ theme }) => theme.fonts.lightItalic};
+  color: ${({ theme }) => theme.colors.featureSubtitle};
   font-style: italic;
 
   @media (max-width: 768px) {
@@ -109,26 +108,22 @@ const FeatureGrid = styled.div`
     margin-top: -2rem;
     margin-left: 0.5rem;
 
-    /* Hide scrollbar for Webkit browsers */
     &::-webkit-scrollbar {
       display: none;
     }
 
-    /* Hide scrollbar for Firefox */
     scrollbar-width: none;
-
-    /* Hide scrollbar for IE and Edge */
     -ms-overflow-style: none;
   }
 `;
 
 const Card = styled.div`
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: ${({ theme }) => theme.colors.glassBackground};
+  backdrop-filter: blur(${({ theme }) => theme.blur.regular});
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.blur.regular});
+  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
   border-radius: 24px;
-  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -140,21 +135,20 @@ const Card = styled.div`
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: ${({ theme }) => theme.colors.boxShadowHover};
   }
 
   @media (max-width: 480px) {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    margin-right: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: ${({ theme }) => theme.colors.glassBackgroundMobile};
+    backdrop-filter: blur(${({ theme }) => theme.blur.mobile});
+    -webkit-backdrop-filter: blur(${({ theme }) => theme.blur.mobile});
+    border: 1px solid ${({ theme }) => theme.colors.glassBorderMobile};
     box-shadow: none;
+    margin-right: 0.5rem;
     padding: 0;
     min-width: 200px;
   }
 `;
-
 
 const FeatureImage = styled.img`
   width: 100%;
@@ -172,11 +166,10 @@ const FeatureImage = styled.img`
 `;
 
 const FeatureTitle = styled.div`
-  font-size: 24px;
-  font-family: "Roboto-Light", Helvetica, sans-serif;
-  font-weight: 300;
+  font-size: 22px;
+  font-family: ${({ theme }) => theme.fonts.light};
   letter-spacing: 2px;
-  color: #000;
+  color: ${({ theme }) => theme.colors.featureTitle};
   text-align: center;
   margin-top: 16px;
 

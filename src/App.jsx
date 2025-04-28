@@ -9,6 +9,8 @@ import Footer from "./components/Footer";
 import styled from 'styled-components';
 import useIsMobile from './hooks/useIsMobile';
 import MobileAccessModal from './components/modals/MobileAccessModal';
+import { ThemeProvider } from 'styled-components';
+import { darkTheme, theme } from './styles/theme';
 
 // Styled components for Layout
 const AppContainer = styled.div`
@@ -17,11 +19,11 @@ const AppContainer = styled.div`
   min-height: 100vh;
   overflow-y: ${({ noScroll }) => (noScroll ? "hidden" : "auto")};
   overflow-x: hidden;
-  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")}; /* Disable interactions when loading */
+  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   @media (max-width: 768px) {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-}
+    background: ${({ theme }) => theme.gradients.background};
+  }
 `;
 
 const StickyHeader = styled.div`
@@ -29,33 +31,33 @@ const StickyHeader = styled.div`
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
-  z-index: 999;
-  background: linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  height: ${({ theme }) => theme.spacing.headerHeight};
+  z-index: ${({ theme }) => theme.zIndex.stickyHeader};
+  background: ${({ theme }) => theme.gradients.stickyHeader};
+  backdrop-filter: blur(${({ theme }) => theme.blur.regular});
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.blur.regular});
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
 const MainContent = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: 70px; /* Add space equal to header height */
-  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable content interactions when loading */
+  padding-top: ${({ theme }) => theme.spacing.headerHeight};
+  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')};
 `;
 
 const FooterWrapper = styled.div`
   flex-shrink: 0;
   margin-top: auto;
-  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')}; /* Disable footer interactions when loading */
+  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')};
 `;
 
 const FreeSpace = styled.div`
-  background-color: #01b0ef;
-  height: 300px;
+  background-color: ${({ theme }) => theme.colors.highlight};
+  height: ${({ theme }) => theme.spacing.freeSpaceHeight};
   width: 100%;
-  margin-top: 200px;
+  margin-top: ${({ theme }) => theme.spacing.freeSpaceMarginTop};
 `;
 
 const LoadingScreen = styled.div`
@@ -64,27 +66,47 @@ const LoadingScreen = styled.div`
   left: 0;
   width: 100%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${({ theme }) => theme.colors.loadingBackground};
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  color: white;
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen};
+  color: ${({ theme }) => theme.colors.loadingText};
   font-size: 24px;
   font-weight: bold;
 `;
 
 const LoadingSpinner = styled.div`
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid ${({ theme }) => theme.colors.loadingSpinnerBorder};
+  border-top: 4px solid ${({ theme }) => theme.colors.loadingSpinnerBorderTop};
   border-radius: 50%;
   width: 60px;
   height: 60px;
-  animation: spin 1s linear infinite;
+  animation: ${({ theme }) => theme.animations.spin};
+`;
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+const ThemeToggleButton = styled.button`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: ${({ theme }) => theme.colors.highlight};
+  color: ${({ theme }) => theme.colors.white};
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.boxShadowHover};
+  }
+
+  z-index: 9999;
+
+  @media (max-width: 768px) {
+    display: none;  // Hide on mobile
   }
 `;
 
@@ -93,85 +115,86 @@ const Layout = () => {
   const isMobile = useIsMobile();
   const isEditPage = location.pathname === '/edit';
   const [modalVisible, setModalVisible] = useState(false);
-  const [redirect, setRedirect] = useState(false); // Track when to redirect
-  const [isLoading, setIsLoading] = useState(false); // Track loading state
+  const [redirect, setRedirect] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
   useEffect(() => {
     if (isMobile && isEditPage) {
-      setModalVisible(true); // Show the modal on mobile when accessing /edit page
+      setModalVisible(true);
     }
   }, [isMobile, isEditPage]);
 
   useEffect(() => {
-    setIsLoading(true); // Start loading on route change
+    setIsLoading(true);
 
     const timer = setTimeout(() => {
-      setIsLoading(false); // Stop loading after a brief delay (to simulate loading effect)
-    }, 500); // You can adjust the delay time as needed
+      setIsLoading(false);
+    }, 500);
 
-    return () => clearTimeout(timer); // Clean up timeout on route change
+    return () => clearTimeout(timer);
   }, [location]);
 
   const handleModalClose = () => {
-    setModalVisible(false); // Close the modal
-    setRedirect(true); // Trigger redirect when manually closed
+    setModalVisible(false);
+    setRedirect(true);
   };
 
-  // Refresh page after redirect
   const handleRedirect = () => {
-    // Trigger a page refresh after the redirect
     window.location.reload();
   };
 
   if (redirect) {
-    handleRedirect(); // Refresh the page
+    handleRedirect();
     return <Navigate to="/" replace />;
   }
 
   return (
-    <AppContainer noScroll={isEditPage} isLoading={isLoading}>
-      <StickyHeader isLoading={isLoading}>
-        <HeaderNavbar isLoading={isLoading} />
-      </StickyHeader>
+    <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
+      <AppContainer noScroll={isEditPage} isLoading={isLoading}>
+        <StickyHeader isLoading={isLoading}>
+          <HeaderNavbar isLoading={isLoading} />
+        </StickyHeader>
 
-      <MainContent isLoading={isLoading}>
-        {isLoading && (
-          <LoadingScreen>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <LoadingSpinner />
-              <div>Loading...</div>
-            </div>
-          </LoadingScreen>
+        <MainContent isLoading={isLoading}>
+          {isLoading && (
+            <LoadingScreen>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <LoadingSpinner />
+                <div>Loading...</div>
+              </div>
+            </LoadingScreen>
+          )}
+
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/edit"
+              element={isMobile ? (
+                <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
+              ) : (
+                <Edit />
+              )}
+            />
+            <Route path="/weather" element={<Weather />} />
+            <Route path="/about-us" element={<AboutUs />} />
+          </Routes>
+
+          {!isEditPage && <FreeSpace />}
+        </MainContent>
+
+        {!isEditPage && (
+          <FooterWrapper isLoading={isLoading}>
+            <Footer />
+          </FooterWrapper>
         )}
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/edit"
-            element={isMobile ? (
-              <>
-                <MobileAccessModal
-                  isOpen={modalVisible}
-                  onClose={handleModalClose} // Close modal on button click
-                />
-              </>
-            ) : (
-              <Edit />
-            )}
-          />
-          <Route path="/weather" element={<Weather />} />
-          <Route path="/about-us" element={<AboutUs />} />
-        </Routes>
-
-        {!isEditPage && <FreeSpace />}
-      </MainContent>
-
-      {!isEditPage && (
-        <FooterWrapper isLoading={isLoading}>
-          <Footer />
-        </FooterWrapper>
-      )}
-    </AppContainer>
+        {/* Theme Toggle Button */}
+        <ThemeToggleButton onClick={() => setIsDarkMode(!isDarkMode)}>
+          Toggle {isDarkMode ? 'Light' : 'Dark'} Mode
+        </ThemeToggleButton>
+      </AppContainer>
+    </ThemeProvider>
   );
 };
 

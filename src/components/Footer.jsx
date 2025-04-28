@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Copyright from "../assets/Copyright.svg";
 import Facebook from "../assets/Facebook.svg";
@@ -8,13 +7,13 @@ import Linkedin from "../assets/Linkedin.png";
 import Twitter from "../assets/Twitter.svg";
 import { PagasaLogo } from "./Logo";
 import line1 from "../assets/line1.png";
+import { theme } from '../styles/theme';
 
 const FooterContainer = styled.footer`
-  background-color: rgb(207, 207, 207);
+  background-color: ${theme.colors.background}; /* Use theme background color */
   width: 100%;
   padding: 2rem 1rem;
   box-sizing: border-box;
-
 `;
 
 const FlexRow = styled.div`
@@ -55,10 +54,10 @@ const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 11px;
-  justify-content: center;  /* Default: center alignment */
-  
+  justify-content: center;
+
   @media (min-width: 821px) {
-    justify-content: flex-start;  /* Align to left on desktop */
+    justify-content: flex-start;
   }
 `;
 
@@ -68,15 +67,15 @@ const PagasaWrapper = styled.div`
 `;
 
 const PagasaText = styled.div`
-  color: #01b0ef;
-  font-family: "Roboto-Medium", Helvetica;
+  color: ${theme.colors.highlight}; /* Use theme highlight color */
+  font-family: ${theme.fonts.medium};
   font-size: 1.8rem;
   font-weight: 500;
 `;
 
 const TextWrapper = styled.p`
-  color: #000;
-  font-family: "Roboto-Regular", Helvetica;
+  color: ${theme.colors.links}; /* Use theme text secondary color */
+  font-family: ${theme.fonts.regular};
   font-size: 0.875rem;
   max-width: 400px;
 `;
@@ -84,12 +83,12 @@ const TextWrapper = styled.p`
 const IconContainer = styled.div`
   display: flex;
   gap: 1rem;
-  justify-content: center;  /* Default: center alignment */
-  
+  justify-content: center;
+
   @media (min-width: 821px) {
-    justify-content: flex-start;  /* Align to left on desktop */
+    justify-content: flex-start;
   }
-  
+
   @media (max-width: 821px) {
     margin-top: -.5rem;
   }
@@ -104,7 +103,6 @@ const LineImage = styled.img`
   @media (max-width: 821px) {
     margin-bottom: 1rem;
   }
-
 `;
 
 const RightsReservedContainer = styled.div`
@@ -117,8 +115,8 @@ const RightsReservedContainer = styled.div`
 `;
 
 const RightsText = styled.p`
-  color: #000;
-  font-family: "Baloo 2-Medium", Helvetica;
+  color: ${theme.colors.links}; /* Use theme text secondary color */
+  font-family: ${theme.fonts.balooMedium};
   font-size: 0.75rem;
 `;
 
@@ -129,43 +127,6 @@ const LinksContainer = styled.div`
   justify-content: space-between;
   flex: 2;
   min-width: 250px;
-
-  @media (min-width: 877px) and (max-width: 900px) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: space-between;
-    flex: 2;
-    min-width: 250px;
-  }
-
-  @media (min-width: 853px) and (max-width: 876px) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: space-between;
-    flex: 2;
-    min-width: 250px;
-  }
-
-  @media (min-width: 848px) and (max-width: 852px) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .9rem;
-    justify-content: space-between;
-    flex: 2;
-    min-width: 250px;
-  }
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .3rem;
-    justify-content: space-between;
-    flex: 2;
-    min-width: 250px;
-    margin-left: 30px;
-  }
 
   @media (max-width: 820px) {
     flex-direction: column;
@@ -182,15 +143,10 @@ const FrameTwo = styled.div`
   min-width: 150px;
   text-align: left;
 
-  @media (min-width: 821px) and (max-width: 847px) {
-    margin-right: -2rem;
-  }
-
   @media (max-width: 820px) {
     text-align: center;
     min-width: 200px;
   }
-    
 `;
 
 const FrameThree = styled.div`
@@ -200,19 +156,15 @@ const FrameThree = styled.div`
 `;
 
 const StyledLink = styled.a`
-  font-family: "Roboto-Light", Helvetica;
+  font-family: ${theme.fonts.light}; /* Use theme light font */
   font-size: 1rem;
-  color: #000;
+  color: ${theme.colors.links}; /* Use theme text secondary color */
   text-align: left;
   text-decoration: none;
 
   &:hover {
-    color: #01b0ef;
+    color: ${theme.colors.highlight}; /* Use theme highlight color */
     text-decoration: underline;
-  }
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    font-size: 0.8rem;
   }
 
   @media (max-width: 820px) {
@@ -220,21 +172,13 @@ const StyledLink = styled.a`
   }
 `;
 
-const FrameFour = styled(FrameTwo)`
-  @media (min-width: 821px) and (max-width: 847px) {
-    margin-left: -2.5rem;
-  }
-`;
+const FrameFour = styled(FrameTwo)``;
 
 const LinksTitle = styled.div`
-  font-family: "Roboto-Medium", Helvetica;
+  font-family: ${theme.fonts.medium}; /* Use theme medium font */
   font-size: 1.125rem;
-  color: #000;
+  color: ${({ theme }) => theme.colors.linksTitle}; /* Use theme text secondary color */
   text-align: left;
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    font-size: 1rem;
-  }
 
   @media (max-width: 820px) {
     text-align: center;
@@ -242,14 +186,10 @@ const LinksTitle = styled.div`
 `;
 
 const PagesTitle = styled.div`
-  font-family: "Baloo 2-Bold", Helvetica;
-  font-size: 1rem;
-  color: #000;
+  font-family: ${theme.fonts.balooBold}; /* Use theme bold font */
+  font-size: 1.125rem;
+  color: ${({ theme }) => theme.colors.linksTitle};
   text-align: left;
-
-  @media (min-width: 821px) and (max-width: 847px) {
-    font-size: 1rem;
-  }
 
   @media (max-width: 820px) {
     text-align: center;
@@ -323,39 +263,19 @@ const Footer = () => {
           </FrameTwo>
           <FrameFour>
             <PagesTitle>Pages</PagesTitle>
-            <a
-              href="https://www.panahon.gov.ph/"
-              style={{ textDecoration: 'none' }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://www.panahon.gov.ph/" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
               <StyledLink>Hydro-Met</StyledLink>
             </a>
-            <a
-              href="https://hazardhunter.georisk.gov.ph/map"
-              style={{ textDecoration: 'none' }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://hazardhunter.georisk.gov.ph/map" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
               <StyledLink>Hazard Map</StyledLink>
             </a>
             <a href="/" style={{ textDecoration: 'none' }}>
               <StyledLink>Wave</StyledLink>
             </a>
-            <a
-              href="/services"
-              style={{ textDecoration: 'none' }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="/services" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
               <StyledLink>Services</StyledLink>
             </a>
-            <a
-              href="/blog"
-              style={{ textDecoration: 'none' }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="/blog" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
               <StyledLink>Blog</StyledLink>
             </a>
           </FrameFour>
