@@ -8,11 +8,13 @@ const StyledHeaderNavbar = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-  background-color: #ffffff;
+  background: ${({ theme }) => theme.colors.bgHeader}; /* Transparent background */
+  backdrop-filter: ${({ theme }) => theme.colors.backdropFilter}; /* Apply blur for glass effect */
+  -webkit-backdrop-filter: ${({ theme }) => theme.colors.backdropFilter}; /* Safari support */
   position: sticky;
   top: 0;
   z-index: 100;
-  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")}; /* Disable pointer events when loading */
+  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   @media (max-width: 768px) {
     background: transparent;
@@ -42,8 +44,8 @@ const PagasaLogoInstance = styled(PagasaLogo)`
 `;
 
 const Div = styled.div`
-  color: #01b0ef;
-  font-family: "Inter-Bold", Helvetica;
+  color: ${({ theme }) => theme.colors.highlight};
+  font-family: ${({ theme }) => theme.fonts.bold};
   font-size: 24px;
   font-weight: 700;
 `;
@@ -53,7 +55,7 @@ const Navbar = styled.div`
   gap: 30px;
 
   @media (max-width: 768px) {
-    display: none; /* Hide on mobile */
+    display: none;
   }
 `;
 
@@ -65,8 +67,8 @@ const MobileMenu = styled.div`
     position: absolute;
     top: 50px;
     left: 54%;
-    transform: translateX(-50%);  // Centers the menu horizontally
-    width: 150px;  // Reduced the width
+    transform: translateX(-50%);
+    width: 150px;
     flex-direction: column;
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     padding: 0.5rem 0.8rem;
@@ -79,14 +81,11 @@ const MobileMenu = styled.div`
 
     ${({ open }) =>
     open &&
-    `
-      transform: translateY(0);
-      opacity: 1;
-    `}
+    `transform: translateY(0); opacity: 1;`}
 
     & a {
       font-size: 0.95rem;
-      color: white; /* ← updated from rgb(54, 56, 56) */
+      color: ${({ theme }) => theme.colors.white};
       text-decoration: none;
       padding: 8px 12px;
       margin: 4px 0;
@@ -94,7 +93,8 @@ const MobileMenu = styled.div`
       font-weight: 400;
       letter-spacing: 0.5px;
       transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-  }
+    }
+
     & a:hover {
       background-color: #34495e;
       color: #3498db;
@@ -108,22 +108,23 @@ const MobileMenu = styled.div`
 
     & a:active {
       background-color: #1abc9c;
-      color: #ffffff;
+      color: ${({ theme }) => theme.colors.white};
     }
   }
 `;
 
 const StyledNavLink = styled(NavLink)`
-  color: black;
+  color: ${({ theme }) => theme.mode === "dark" ? theme.colors.textPrimary : theme.colors.header};
   text-decoration: none;
   padding: 10px 0;
-  
+  transition: color 0.3s ease;
+
   &.active,
   &:hover {
-    color: #01b0ef;
+    color: ${({ theme }) => theme.mode === "dark" ? theme.colors.highlight : theme.colors.highlight}; /* Highlight color */
   }
 
-  pointer-events: ${({ isActive }) => (isActive ? "none" : "auto")}; /* Disable active links */
+  pointer-events: ${({ isActive }) => (isActive ? "none" : "auto")};
 `;
 
 const Hamburger = styled.div`
@@ -131,12 +132,26 @@ const Hamburger = styled.div`
   cursor: pointer;
   flex-direction: column;
   gap: 4px;
+  transition: all 0.3s ease;
 
   span {
     height: 3px;
     width: 25px;
-    background: #01b0ef;
+    background: ${({ theme }) => theme.colors.highlight};
     border-radius: 2px;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+
+  &.open span:nth-child(1) {
+    transform: rotate(45deg) translateY(7px);
+  }
+
+  &.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  &.open span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-7px);
   }
 
   @media (max-width: 768px) {
@@ -145,13 +160,11 @@ const Hamburger = styled.div`
 `;
 
 const HeaderNavbar = ({ isLoading }) => {
-  const location = useLocation(); // To determine the current active route
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Toggle the mobile menu
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  // Helper function to check if the link is active
   const isLinkActive = (path) => location.pathname === path;
 
   return (
@@ -170,24 +183,24 @@ const HeaderNavbar = ({ isLoading }) => {
         </a>
 
         <Navbar>
-          <StyledNavLink to="/" exact isActive={isLinkActive('/')} isLoading={isLoading}>
+          <StyledNavLink to="/" exact="true" isActive={isLinkActive('/')}>
             Home
           </StyledNavLink>
-          <StyledNavLink to="/weather" isActive={isLinkActive('/weather')} isLoading={isLoading}>
+          <StyledNavLink to="/weather" isActive={isLinkActive('/weather')}>
             Weather
           </StyledNavLink>
-          <StyledNavLink to="/edit" isActive={isLinkActive('/edit')} isLoading={isLoading}>
+          <StyledNavLink to="/edit" isActive={isLinkActive('/edit')}>
             Marine
           </StyledNavLink>
-          <StyledNavLink to="/about" isActive={isLinkActive('/about')} isLoading={isLoading}>
+          <StyledNavLink to="/about" isActive={isLinkActive('/about')}>
             About
           </StyledNavLink>
-          <StyledNavLink to="/contact" isActive={isLinkActive('/contact')} isLoading={isLoading}>
+          <StyledNavLink to="/contact" isActive={isLinkActive('/contact')}>
             Contact Us
           </StyledNavLink>
         </Navbar>
 
-        <Hamburger onClick={toggleMenu}>
+        <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
           <span />
           <span />
           <span />
