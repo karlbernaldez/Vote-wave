@@ -38,13 +38,14 @@ const BackgroundWrapper = styled.div`
 const BackgroundImage = styled.div`
   background-image: url(${bg});
   background-size: 115%;  /* Zoom effect */
-  background-position: left center;  /* Move the image towards the right */
+  background-position: left center;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  
+  filter: ${({ theme }) => theme.name === 'dark' ? 'brightness(0.6)' : 'brightness(1)'};
+
   @media (max-width: 768px) {
     background-size: cover;
     background-position: center;
@@ -145,8 +146,8 @@ const Heading = styled.div`
 `;
 
 const Title = styled.p`
-  color: #ffffff;
-  font-family: 'Roboto-Bold', Helvetica;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-family: ${({ theme }) => theme.fonts.bold};
   font-size: 60px;
   font-weight: 700;
   margin-top: -1px;
@@ -159,7 +160,6 @@ const Title = styled.p`
     text-align: center;
     line-height: 1.5;
   }
-
   @media (max-width: 480px) {
     font-size: 22px;
     text-align: left;
@@ -168,8 +168,8 @@ const Title = styled.p`
 `;
 
 const Subtitle = styled.p`
-  color: #b5b5b5;
-  font-family: 'Roboto-Regular', Helvetica;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-family: ${({ theme }) => theme.fonts.regular};
   font-size: 20px;
   font-weight: 400;
   line-height: normal;
@@ -186,7 +186,6 @@ const Subtitle = styled.p`
     width: 95%;
     line-height: 1.4;
   }
-
   @media (max-width: 480px) {
     font-size: 11px;
     text-align: left;
@@ -218,12 +217,13 @@ const ButtonsContainer = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: ${({ primary }) => (primary ? '#008080' : 'transparent')};
-  color: ${({ primary }) => (primary ? 'white' : '#008080')};
+  background-color: ${({ primary, theme }) => (primary ? theme.colors.highlight : 'transparent')};
+  color: ${({ primary, theme }) => (primary ? theme.colors.white : theme.colors.highlight)};
+  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: 16px;
   padding: 12px 24px;
   border-radius: 5px;
-  border: ${({ primary }) => (primary ? 'none' : '2px solid #008080')};
+  border: ${({ primary, theme }) => (primary ? 'none' : `2px solid ${theme.colors.highlight}`)};
   cursor: pointer;
   transition: background-color 0.3s ease, border 0.3s ease;
   display: flex;
@@ -232,7 +232,7 @@ const Button = styled.button`
   text-align: center;
 
   &:hover {
-    background-color: ${({ primary }) => (primary ? '#0088cc' : '#e0f7f7')};
+    background-color: ${({ primary, theme }) => (primary ? '#0088cc' : '#e0f7f7')};
     border-color: #0088cc;
   }
 
@@ -244,14 +244,13 @@ const Button = styled.button`
     margin: 5px 0;
     border-radius: 24px;
   }
-
   @media (max-width: 480px) {
     font-size: 10px;
     padding: 4px 14px;
-    width: fit-content; /* ✅ Shrinks button width */
+    width: fit-content;
     height: 30px;
     margin: 5px 0;
-    justify-content: flex-start; /* ✅ Align icon/text inside */
+    justify-content: flex-start;
     align-items: center;
     text-align: left;
   }
