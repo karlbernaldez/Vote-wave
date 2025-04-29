@@ -20,7 +20,7 @@ const MapWrapper = styled.div`
   position: relative;
 `;
 
-const Edit = () => {
+const Edit = ({ isDarkMode }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
   const mapRef = useRef(null);
@@ -33,7 +33,7 @@ const Edit = () => {
   return (
     <Container>
       <MapWrapper collapsed={collapsed}>
-        <MapComponent onMapLoad={handleMapLoad} />
+        <MapComponent onMapLoad={handleMapLoad} isDarkMode={isDarkMode} />
       </MapWrapper>
 
       <LayerPanel

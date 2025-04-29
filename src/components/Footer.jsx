@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useContext } from "react";
+import styled, { ThemeContext } from "styled-components";
 import Copyright from "../assets/Copyright.svg";
 import Facebook from "../assets/Facebook.svg";
 import Instagram from "../assets/Instagram.png";
@@ -7,10 +7,10 @@ import Linkedin from "../assets/Linkedin.png";
 import Twitter from "../assets/Twitter.svg";
 import { PagasaLogo } from "./Logo";
 import line1 from "../assets/line1.png";
-import { theme } from '../styles/theme';
+import { theme, darkTheme } from '../styles/theme';
 
 const FooterContainer = styled.footer`
-  background-color: ${theme.colors.background}; /* Use theme background color */
+  background-color: ${(props) => props.theme.colors.background};
   width: 100%;
   padding: 2rem 1rem;
   box-sizing: border-box;
@@ -67,15 +67,15 @@ const PagasaWrapper = styled.div`
 `;
 
 const PagasaText = styled.div`
-  color: ${theme.colors.highlight}; /* Use theme highlight color */
-  font-family: ${theme.fonts.medium};
+  color: ${(props) => props.theme.colors.highlight};
+  font-family: ${(props) => props.theme.fonts.medium};
   font-size: 1.8rem;
   font-weight: 500;
 `;
 
 const TextWrapper = styled.p`
-  color: ${theme.colors.links}; /* Use theme text secondary color */
-  font-family: ${theme.fonts.regular};
+  color: ${(props) => props.theme.colors.links};
+  font-family: ${(props) => props.theme.fonts.regular};
   font-size: 0.875rem;
   max-width: 400px;
 `;
@@ -115,8 +115,8 @@ const RightsReservedContainer = styled.div`
 `;
 
 const RightsText = styled.p`
-  color: ${theme.colors.links}; /* Use theme text secondary color */
-  font-family: ${theme.fonts.balooMedium};
+  color: ${(props) => props.theme.colors.links};
+  font-family: ${(props) => props.theme.fonts.balooMedium};
   font-size: 0.75rem;
 `;
 
@@ -156,14 +156,14 @@ const FrameThree = styled.div`
 `;
 
 const StyledLink = styled.a`
-  font-family: ${theme.fonts.light}; /* Use theme light font */
+  font-family: ${(props) => props.theme.fonts.light};
   font-size: 1rem;
-  color: ${theme.colors.links}; /* Use theme text secondary color */
+  color: ${(props) => props.theme.colors.links};
   text-align: left;
   text-decoration: none;
 
   &:hover {
-    color: ${theme.colors.highlight}; /* Use theme highlight color */
+    color: ${(props) => props.theme.colors.highlight};
     text-decoration: underline;
   }
 
@@ -175,9 +175,9 @@ const StyledLink = styled.a`
 const FrameFour = styled(FrameTwo)``;
 
 const LinksTitle = styled.div`
-  font-family: ${theme.fonts.medium}; /* Use theme medium font */
+  font-family: ${(props) => props.theme.fonts.medium};
   font-size: 1.125rem;
-  color: ${({ theme }) => theme.colors.linksTitle}; /* Use theme text secondary color */
+  color: ${(props) => props.theme.colors.linksTitle};
   text-align: left;
 
   @media (max-width: 820px) {
@@ -186,9 +186,9 @@ const LinksTitle = styled.div`
 `;
 
 const PagesTitle = styled.div`
-  font-family: ${theme.fonts.balooBold}; /* Use theme bold font */
+  font-family: ${(props) => props.theme.fonts.balooBold};
   font-size: 1.125rem;
-  color: ${({ theme }) => theme.colors.linksTitle};
+  color: ${(props) => props.theme.colors.linksTitle};
   text-align: left;
 
   @media (max-width: 820px) {
@@ -197,8 +197,10 @@ const PagesTitle = styled.div`
 `;
 
 const Footer = () => {
+  const { theme: currentTheme } = useContext(ThemeContext);  // Get the current theme
+
   return (
-    <FooterContainer>
+    <FooterContainer theme={currentTheme}>
       <FlexRow>
         <SocialContainer>
           <TextContainer>
@@ -211,11 +213,11 @@ const Footer = () => {
               <LogoContainer>
                 <PagasaLogo />
                 <PagasaWrapper>
-                  <PagasaText>PAGASA</PagasaText>
+                  <PagasaText theme={currentTheme}>PAGASA</PagasaText>
                 </PagasaWrapper>
               </LogoContainer>
             </a>
-            <TextWrapper>
+            <TextWrapper theme={currentTheme}>
               Welcome to PAGASA, we are the nation's trusted source for accurate weather forecasts,
               climate information, and astronomical services dedicated to safeguarding lives,
               livelihoods, and the future of our communities.
@@ -239,7 +241,7 @@ const Footer = () => {
 
         <LinksContainer>
           <FrameTwo>
-            <LinksTitle>Government Links</LinksTitle>
+            <LinksTitle theme={currentTheme}>Government Links</LinksTitle>
             <FrameThree>
               <StyledLink href="https://president.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the President</StyledLink>
               <StyledLink href="https://ovp.gov.ph" target="_blank" rel="noopener noreferrer">Office of the Vice President</StyledLink>
@@ -251,7 +253,7 @@ const Footer = () => {
             </FrameThree>
           </FrameTwo>
           <FrameTwo>
-            <LinksTitle>GOV.PH</LinksTitle>
+            <LinksTitle theme={currentTheme}>GOV.PH</LinksTitle>
             <FrameThree>
               <StyledLink href="https://data.gov.ph" target="_blank" rel="noopener noreferrer">
                 Open Data Portal
@@ -262,21 +264,21 @@ const Footer = () => {
             </FrameThree>
           </FrameTwo>
           <FrameFour>
-            <PagesTitle>Pages</PagesTitle>
+            <PagesTitle theme={currentTheme}>Pages</PagesTitle>
             <a href="https://www.panahon.gov.ph/" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink>Hydro-Met</StyledLink>
+              <StyledLink theme={currentTheme}>Hydro-Met</StyledLink>
             </a>
             <a href="https://hazardhunter.georisk.gov.ph/map" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink>Hazard Map</StyledLink>
+              <StyledLink theme={currentTheme}>Hazard Map</StyledLink>
             </a>
             <a href="/" style={{ textDecoration: 'none' }}>
-              <StyledLink>Wave</StyledLink>
+              <StyledLink theme={currentTheme}>Wave</StyledLink>
             </a>
             <a href="/services" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink>Services</StyledLink>
+              <StyledLink theme={currentTheme}>Services</StyledLink>
             </a>
             <a href="/blog" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink>Blog</StyledLink>
+              <StyledLink theme={currentTheme}>Blog</StyledLink>
             </a>
           </FrameFour>
         </LinksContainer>
@@ -285,9 +287,8 @@ const Footer = () => {
       <LineImage src={line1} alt="Separator line" />
 
       <RightsReservedContainer>
-        <img src={Copyright} alt="Copyright symbol" />
-        <RightsText>
-          2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
+        <RightsText theme={currentTheme}>
+        ©   2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
           All rights reserved.
         </RightsText>
       </RightsReservedContainer>
