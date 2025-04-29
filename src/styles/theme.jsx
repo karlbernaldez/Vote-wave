@@ -1,157 +1,191 @@
-import lightBg from '../assets/bg_light.png'; // the light version you made
-import darkBg from '../assets/bg_dark.png'; // the dark version
+import lightBg from '../assets/bg_light.png';
+import darkBg from '../assets/bg_dark.png';
+
+const sharedColors = {
+  blue: '#01b0ef',
+  lightBlue: '#01a0da',
+  white: '#ffffff',
+  black: '#000000',
+};
+
+const sharedFonts = {
+  thin: '"Poppins-Thin", Helvetica, sans-serif',
+  light: '"Poppins-Light", Helvetica, sans-serif',
+  regular: '"Poppins-Regular", Helvetica, sans-serif',
+  medium: '"Poppins-Medium", Helvetica, sans-serif',
+  bold: '"Poppins-Bold", Helvetica, sans-serif',
+  black: '"Poppins-Black", Helvetica, sans-serif',
+  italic: '"Poppins-Italic", Helvetica, sans-serif',
+  mediumItalic: '"Poppins-MediumItalic", Helvetica, sans-serif',
+  boldItalic: '"Poppins-BoldItalic", Helvetica, sans-serif',
+};
+
+const sharedFontSizes = {
+  xsmall: '12px',
+  small: '14px',
+  medium: '16px',
+  large: '18px',
+  xlarge: '20px',
+  xxlarge: '24px',
+};
+
+const sharedFontWeights = {
+  thin: 100,
+  light: 300,
+  regular: 400,
+  medium: 500,
+  bold: 700,
+  black: 900,
+};
+
+const sharedSpacing = {
+  xsmall: '8px',
+  small: '10px',
+  medium: '20px',
+  headerHeight: '70px',
+  freeSpaceHeight: '300px',
+  freeSpaceMarginTop: '200px',
+};
+
+const sharedBlur = {
+  regular: '12px',
+  mobile: '8px',
+};
+
+const sharedZIndex = {
+  stickyHeader: 999,
+  loadingScreen: 9999,
+};
+
+const sharedAnimations = {
+  spin: 'spin 1s linear infinite',
+};
 
 export const theme = {
   backgroundImage: lightBg,
-  colors: {
 
-    lightBackground: "#FFFFFF",  // Light background color
-    darkBackground: "#121212",   // Dark background color
-    toggleBackground: "#333333", // Background color for the toggle button
-    toggleBorder: "#000 ", // Background color for the toggle button
-    toggle: '#fccc52', // Toggle button color
-    textPrimary: '#ffffff',
-    mobileTextPrimary: '#ffffff',
-    textSecondary: '#b5b5b5',
-    white: '#fff',
+  colors: {
     highlight: '#01b0ef',
     background: '#f5f5f5',
+    lightBackground: '#FFFFFF',
+    darkBackground: '#121212',
 
-    //header
-    header: '#000',
+    textPrimary: '#000',
+    mobileTextPrimary: '#ffffff',
+    textSecondary: '#b5b5b5',
+
+    toggleBackground: '#fff',
+    toggleBorder: '#000',
+    toggle: '#fccc52',
+
     bgHeader: '#fff',
 
-    //mapbox
     mapStyles: {
-      light: 'mapbox://styles/mapbox/light-v10',  // Light mode map style
-      dark: 'mapbox://styles/mapbox/dark-v10',    // Dark mode map style
+      light: 'mapbox://styles/mapbox/light-v10',
+      dark: 'mapbox://styles/mapbox/dark-v10',
     },
 
-    //feature
     featureTitle: '#000',
     featureSubtitle: '#b5b5b5',
 
-    //footer
     linksTitle: '#000',
     links: '#666',
-    
-    // glass effects
+
     glassBackground: 'rgba(255, 255, 255, 0.12)',
     glassBorder: 'rgba(255, 255, 255, 0.2)',
     glassBackgroundMobile: 'rgba(255, 255, 255, 0.1)',
     glassBorderMobile: 'rgba(255, 255, 255, 0.15)',
+
     boxShadow: '0px 4px 30px rgba(0, 0, 0, 0.1)',
     boxShadowHover: '0px 8px 40px rgba(0, 0, 0, 0.15)',
+
     loadingBackground: 'rgba(0, 0, 0, 0.5)',
     loadingText: '#fff',
     loadingSpinnerBorder: '#f3f3f3',
     loadingSpinnerBorderTop: '#3498db',
   },
-  blur: {
-    regular: '12px',
-    mobile: '8px',
+  
+  mainColors: sharedColors,
+  fonts: sharedFonts,
+  fontSizes: sharedFontSizes,
+  fontWeights: sharedFontWeights,
+  spacing: sharedSpacing,
+  blur: sharedBlur,
+
+  borderRadius: {
+    xxsmall: '2px',
+    xsmall: '4px',
+    small: '6px',
+    medium: '8px',
   },
-  fonts: {
-    thin: '"Poppins-Thin", Helvetica, sans-serif',
-    light: '"Poppins-Light", Helvetica, sans-serif',
-    regular: '"Poppins-Regular", Helvetica, sans-serif',
-    medium: '"Poppins-Medium", Helvetica, sans-serif',
-    bold: '"Poppins-Bold", Helvetica, sans-serif',
-    black: '"Poppins-Black", Helvetica, sans-serif',
-    italic: '"Poppins-Italic", Helvetica, sans-serif',
-    mediumItalic: '"Poppins-MediumItalic", Helvetica, sans-serif',
-    boldItalic: '"Poppins-BoldItalic", Helvetica, sans-serif',
-  },
-  spacing: {
-    headerHeight: '70px',
-    freeSpaceHeight: '300px',
-    freeSpaceMarginTop: '200px',
-  },
+
   gradients: {
     background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
     stickyHeader: 'linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8))',
   },
-  zIndex: {
-    stickyHeader: 999,
-    loadingScreen: 9999,
-  },
-  animations: {
-    spin: 'spin 1s linear infinite',
-  },
-};
 
+  zIndex: sharedZIndex,
+  animations: sharedAnimations,
+};
 
 export const darkTheme = {
   backgroundImage: darkBg,
-  colors: {
 
-    lightBackground: "#121212",  // Light background color for dark mode
-    darkBackground: "#1c1c1c",   // Dark background color for dark mode
-    toggleBackground: "#000", // Background color for the toggle button
-    toggleBorder: "#fff", // Background color for the toggle button
-    toggle: '#609fca', // Toggle button color
+  colors: {
+    highlight: '#01b0ef',
+    background: '#121212',
+    lightBackground: '#121212',
+    darkBackground: '#1c1c1c',
+
     textPrimary: '#ffffff',
     mobileTextPrimary: '#ffffff',
     textSecondary: '#979797',
-    white: '#fff',
-    highlight: '#01b0ef',
-    background: '#121212',
 
-    //header
-    header: '#fff',
-    bgHeader: 'rgba(0, 0, 0, 0.3)', // This will be a transparent background
-    backdropFilter: 'blur(8px)', // Apply the blur effect (glassmorphism effect)
-    '-webkit-backdrop-filter': 'blur(8px)', // For Safari support
-    
-    //feature
+    toggleBackground: '#000',
+    toggleBorder: '#fff',
+    toggle: '#609fca',
+
+    bgHeader: 'rgba(0, 0, 0, 0.3)',
+    backdropFilter: 'blur(8px)',
+    '-webkit-backdrop-filter': 'blur(8px)',
+
     featureTitle: '#fff',
     featureSubtitle: '#fff',
-    
-    //footer
+
     linksTitle: '#fff',
     links: '#fff',
-    
-    // glass effects
-    glassBackground: 'rgba(0, 0, 0, 0.12)', // Darker glass effect
-    glassBorder: 'rgba(0, 0, 0, 0.2)', // Darker border for glass effect
-    glassBackgroundMobile: 'rgba(0, 0, 0, 0.1)', // Darker glass effect for mobile
-    glassBorderMobile: 'rgba(0, 0, 0, 0.15)', // Darker mobile border for glass effect
-    boxShadow: '0px 4px 30px rgba(255, 255, 255, 0.1)', // Lighter box shadow
-    boxShadowHover: '0px 8px 40px rgba(255, 255, 255, 0.15)', // Lighter hover shadow
-    loadingBackground: 'rgba(0, 0, 0, 0.8)', // Darker background for loading screen
-    loadingText: '#fff', // White text on loading screen
-    loadingSpinnerBorder: '#333', // Darker spinner border
-    loadingSpinnerBorderTop: '#3498db', // Bright blue spinner top
+
+    glassBackground: 'rgba(0, 0, 0, 0.12)',
+    glassBorder: 'rgba(0, 0, 0, 0.2)',
+    glassBackgroundMobile: 'rgba(0, 0, 0, 0.1)',
+    glassBorderMobile: 'rgba(0, 0, 0, 0.15)',
+
+    boxShadow: '0px 4px 30px rgba(255, 255, 255, 0.1)',
+    boxShadowHover: '0px 8px 40px rgba(255, 255, 255, 0.15)',
+
+    loadingBackground: 'rgba(0, 0, 0, 0.8)',
+    loadingText: '#fff',
+    loadingSpinnerBorder: '#333',
+    loadingSpinnerBorderTop: '#3498db',
   },
-  blur: {
-    regular: '12px',
-    mobile: '8px',
+
+  mainColors: sharedColors,
+  fonts: sharedFonts,
+  fontSizes: sharedFontSizes,
+  fontWeights: sharedFontWeights,
+  spacing: sharedSpacing,
+  blur: sharedBlur,
+
+  borderRadius: {
+    small: '4px',
+    medium: '8px',
   },
-  fonts: {
-    thin: '"Poppins-Thin", Helvetica, sans-serif',
-    light: '"Poppins-Light", Helvetica, sans-serif',
-    regular: '"Poppins-Regular", Helvetica, sans-serif',
-    medium: '"Poppins-Medium", Helvetica, sans-serif',
-    bold: '"Poppins-Bold", Helvetica, sans-serif',
-    black: '"Poppins-Black", Helvetica, sans-serif',
-    italic: '"Poppins-Italic", Helvetica, sans-serif',
-    mediumItalic: '"Poppins-MediumItalic", Helvetica, sans-serif',
-    boldItalic: '"Poppins-BoldItalic", Helvetica, sans-serif',
-  },
-  spacing: {
-    headerHeight: '70px',
-    freeSpaceHeight: '300px',
-    freeSpaceMarginTop: '200px',
-  },
+
   gradients: {
-    background: 'linear-gradient(135deg, #121212, #1f1f1f, #2a2a2a)', // Dark gradient background
-    stickyHeader: 'linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8))', // Same sticky header gradient
+    background: 'linear-gradient(135deg, #121212, #1f1f1f, #2a2a2a)',
+    stickyHeader: 'linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8))',
   },
-  zIndex: {
-    stickyHeader: 999,
-    loadingScreen: 9999,
-  },
-  animations: {
-    spin: 'spin 1s linear infinite',
-  },
+
+  zIndex: sharedZIndex,
+  animations: sharedAnimations,
 };
