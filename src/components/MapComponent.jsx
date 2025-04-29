@@ -5,12 +5,12 @@ import { useEffect, useRef } from 'react';
 // Access the token using VITE_ prefix
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const MapComponent = ({ onMapLoad }) => {
+const MapComponent = ({ onMapLoad, isDarkMode }) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
 
   useEffect(() => {
-    // Check if the map container is available
+    // Ensure map container is available
     if (!mapContainerRef.current) {
       console.error('Map container reference is not available.');
       return;
@@ -25,7 +25,9 @@ const MapComponent = ({ onMapLoad }) => {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       projection: 'mercator',
-      style: "mapbox://styles/mapbox/outdoors-v12",
+      style: isDarkMode
+        ? 'mapbox://styles/mapbox/dark-v10'
+        : 'mapbox://styles/mapbox/outdoors-v12',
       zoom: 5,
     });
 
@@ -46,7 +48,17 @@ const MapComponent = ({ onMapLoad }) => {
     return () => {
       mapRef.current?.remove(); // Cleanup map instance on unmount
     };
-  }, [onMapLoad]);
+  }, [onMapLoad]); // Only initialize once
+
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setStyle(
+        isDarkMode
+          ? 'mapbox://styles/mapbox/dark-v10'
+          : 'mapbox://styles/mapbox/outdoors-v12'
+      );
+    }
+  }, [isDarkMode]); // Update style on isDarkMode change
 
   return (
     <div

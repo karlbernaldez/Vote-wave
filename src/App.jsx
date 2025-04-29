@@ -21,6 +21,9 @@ const AppContainer = styled.div`
   overflow-x: hidden;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
+  background-color: ${({ theme, isDarkMode }) =>
+    isDarkMode ? theme.colors.darkBackground : theme.colors.lightBackground};
+
   @media (max-width: 768px) {
     background: ${({ theme }) => theme.gradients.background};
   }
@@ -85,31 +88,6 @@ const LoadingSpinner = styled.div`
   animation: ${({ theme }) => theme.animations.spin};
 `;
 
-const ThemeToggleButton = styled.button`
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: ${({ theme }) => theme.colors.highlight};
-  color: ${({ theme }) => theme.colors.white};
-  border: none;
-  padding: 12px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 16px;
-  box-shadow: ${({ theme }) => theme.colors.boxShadow};
-  transition: background-color 0.3s ease;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.boxShadowHover};
-  }
-
-  z-index: 9999;
-
-  @media (max-width: 768px) {
-    display: none;  // Hide on mobile
-  }
-`;
-
 const Layout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -153,7 +131,7 @@ const Layout = () => {
     <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
       <AppContainer noScroll={isEditPage} isLoading={isLoading}>
         <StickyHeader isLoading={isLoading}>
-          <HeaderNavbar isLoading={isLoading} />
+          <HeaderNavbar isLoading={isLoading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </StickyHeader>
 
         <MainContent isLoading={isLoading}>
@@ -167,13 +145,13 @@ const Layout = () => {
           )}
 
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home isDarkMode={isDarkMode} />} />
             <Route
               path="/edit"
               element={isMobile ? (
                 <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
               ) : (
-                <Edit />
+                <Edit isDarkMode={isDarkMode} />
               )}
             />
             <Route path="/weather" element={<Weather />} />
@@ -188,11 +166,6 @@ const Layout = () => {
             <Footer />
           </FooterWrapper>
         )}
-
-        {/* Theme Toggle Button */}
-        <ThemeToggleButton onClick={() => setIsDarkMode(!isDarkMode)}>
-          Toggle {isDarkMode ? 'Light' : 'Dark'} Mode
-        </ThemeToggleButton>
       </AppContainer>
     </ThemeProvider>
   );

@@ -1,18 +1,17 @@
-// src/components/HeroSection.jsx
-
 import React from 'react';
 import styled from 'styled-components';
-import bg from '../../assets/bg.png';
+import LightModeImage from '../../assets/meteorologist.png';  // Image for light mode
+import DarkModeImage from '../../assets/meteorologist_dark.png';    // Image for dark mode
 
 const HeroSectionContainer = styled.div`
   width: 100%;
   height: 900px;
   position: relative;
+  overflow: hidden;
 
   @media (max-width: 1366px) {
     height: 700px;
   }
-
 
   @media (max-width: 768px) {
     height: 700px;
@@ -28,6 +27,55 @@ const HeroSectionContainer = styled.div`
   }
 `;
 
+const GlassyCircle = styled.div`
+  position: absolute;
+  top: 90px;
+  left: 75%;
+  transform: translateX(-50%);
+  width: 850px;
+  height: 850px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2); /* Transparent white background */
+  display: flex;
+  justify-content: center; /* Center the image horizontally */
+  align-items: center; /* Center the image vertically */
+
+  @media (max-width: 1024px) {
+    width: 350px;
+    height: 350px;
+    top: 150px;
+    left: 80%;
+  }
+
+  @media (max-width: 768px) {
+    width: 200px;
+    height: 200px;
+  }
+
+  @media (max-width: 480px) {
+    width: 150px;
+    height: 150px;
+  }
+`;
+
+const Meteorologist = styled.img`
+  width: 800px;
+  height: auto;
+  z-index: 2;
+  margin-left: 10px;
+
+  @media (max-width: 1024px) {
+    width: 350px;
+  }
+
+  @media (max-width: 768px) {
+    width: 150px; /* Adjust width for smaller screens */
+  }
+
+  @media (max-width: 480px) {
+    width: 100px; /* Adjust width for mobile screens */
+  }
+`;
 
 const BackgroundWrapper = styled.div`
   position: relative;
@@ -36,7 +84,7 @@ const BackgroundWrapper = styled.div`
 `;
 
 const BackgroundImage = styled.div`
-  background-image: url(${bg});
+  background-image: url(${({ theme }) => theme.backgroundImage});
   background-size: 115%;  /* Zoom effect */
   background-position: left center;
   height: 100%;
@@ -57,15 +105,7 @@ const BackgroundImage = styled.div`
 `;
 
 const Gradient = styled.div`
-  background: linear-gradient(
-    270deg,
-    rgba(10, 10, 10, 0) 0%,
-    rgba(10, 10, 10, 0.2) 20%,
-    rgba(10, 10, 10, 0.4) 40%,
-    rgba(10, 10, 10, 0.6) 60%,
-    rgba(10, 10, 10, 0.8) 80%,
-    rgba(10, 10, 10, 1) 100%
-  );
+  background: ${({ theme }) => theme.gradients.background};
   height: 100%;
   position: absolute;
   top: 0;
@@ -74,15 +114,7 @@ const Gradient = styled.div`
   pointer-events: none;
 
   @media (max-width: 768px) {
-    background: linear-gradient(
-      180deg,
-      rgba(10, 10, 10, 0) 0%,
-      rgba(10, 10, 10, 0.2) 20%,
-      rgba(10, 10, 10, 0.4) 40%,
-      rgba(10, 10, 10, 0.6) 60%,
-      rgba(10, 10, 10, 0.8) 80%,
-      rgba(10, 10, 10, 1) 100%
-    );
+    background: ${({ theme }) => theme.gradients.background};
   }
 `;
 
@@ -114,7 +146,7 @@ const Heading = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 650px;
+  width: 750px;
   margin-left: 140px;
 
   @media (max-width: 1366px) {
@@ -125,6 +157,7 @@ const Heading = styled.div`
 
   @media (max-width: 1024px){
     margin-left: 60px;
+    width: 550px;
   }
 
   @media (max-width: 768px) {
@@ -262,11 +295,14 @@ const LiveMapButton = styled(Button)`
   }
 `;
 
-const HeroSection = () => {
+const HeroSection = ({ isDarkMode }) => {
+  // Use dark or light image based on the theme
+  const meteorologistImage = isDarkMode ? DarkModeImage : LightModeImage;
+
   return (
     <HeroSectionContainer>
       <BackgroundWrapper>
-        <BackgroundImage alt="Background" src={bg} />
+        <BackgroundImage />
         <Gradient />
       </BackgroundWrapper>
       <ContentContainer>
@@ -281,6 +317,9 @@ const HeroSection = () => {
           </ButtonsContainer>
         </Heading>
       </ContentContainer>
+      <GlassyCircle>
+        <Meteorologist src={meteorologistImage} alt="Meteorologist" />
+      </GlassyCircle>
     </HeroSectionContainer>
   );
 };

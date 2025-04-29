@@ -1,6 +1,15 @@
+import lightBg from '../assets/bg_light.png'; // the light version you made
+import darkBg from '../assets/bg_dark.png'; // the dark version
+
 export const theme = {
+  backgroundImage: lightBg,
   colors: {
 
+    lightBackground: "#FFFFFF",  // Light background color
+    darkBackground: "#121212",   // Dark background color
+    toggleBackground: "#333333", // Background color for the toggle button
+    toggleBorder: "#000 ", // Background color for the toggle button
+    toggle: '#fccc52', // Toggle button color
     textPrimary: '#ffffff',
     mobileTextPrimary: '#ffffff',
     textSecondary: '#b5b5b5',
@@ -12,6 +21,12 @@ export const theme = {
     header: '#000',
     bgHeader: '#fff',
 
+    //mapbox
+    mapStyles: {
+      light: 'mapbox://styles/mapbox/light-v10',  // Light mode map style
+      dark: 'mapbox://styles/mapbox/dark-v10',    // Dark mode map style
+    },
+
     //feature
     featureTitle: '#000',
     featureSubtitle: '#b5b5b5',
@@ -20,7 +35,6 @@ export const theme = {
     linksTitle: '#000',
     links: '#666',
     
-
     // glass effects
     glassBackground: 'rgba(255, 255, 255, 0.12)',
     glassBorder: 'rgba(255, 255, 255, 0.2)',
@@ -68,11 +82,17 @@ export const theme = {
 
 
 export const darkTheme = {
+  backgroundImage: darkBg,
   colors: {
 
-    textPrimary: '#000',
+    lightBackground: "#121212",  // Light background color for dark mode
+    darkBackground: "#1c1c1c",   // Dark background color for dark mode
+    toggleBackground: "#000", // Background color for the toggle button
+    toggleBorder: "#fff", // Background color for the toggle button
+    toggle: '#609fca', // Toggle button color
+    textPrimary: '#ffffff',
     mobileTextPrimary: '#ffffff',
-    textSecondary: '#b5b5b',
+    textSecondary: '#979797',
     white: '#fff',
     highlight: '#01b0ef',
     background: '#121212',
@@ -82,14 +102,14 @@ export const darkTheme = {
     bgHeader: 'rgba(0, 0, 0, 0.3)', // This will be a transparent background
     backdropFilter: 'blur(8px)', // Apply the blur effect (glassmorphism effect)
     '-webkit-backdrop-filter': 'blur(8px)', // For Safari support
-
+    
     //feature
     featureTitle: '#fff',
     featureSubtitle: '#fff',
     
     //footer
     linksTitle: '#fff',
-    links: '#66aaff',
+    links: '#fff',
     
     // glass effects
     glassBackground: 'rgba(0, 0, 0, 0.12)', // Darker glass effect
