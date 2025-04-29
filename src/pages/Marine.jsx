@@ -70,9 +70,11 @@ const OptionBox = styled.div`
   height: 36px;
   padding: 0 1rem;
   min-width: 100px;
-  background-color: ${({ active }) => (active ? "#01b0ef" : "transparent")};
-  color: ${({ active }) => (active ? "#fff" : "#000")};
-  font-family: "Roboto-Light", Helvetica, sans-serif;
+  background-color: ${({ active, theme }) =>
+    active ? theme.colors.highlight : "transparent"};
+  color: ${({ active, theme }) =>
+    active ? theme.colors.white : theme.colors.header};
+  font-family: ${({ theme }) => theme.fonts.light};
   font-size: 1rem;
   font-weight: 300;
   display: flex;
@@ -83,25 +85,22 @@ const OptionBox = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgb(0, 118, 161);
-    color: #fff;
+    background-color: ${({ theme }) => theme.colors.highlight};
+    color: ${({ theme }) => theme.colors.white};
   }
 
   @media (max-width: 768px) {
     min-width: 90px;
     font-size: 0.9rem;
     padding: 0 0.75rem;
-    color: ${({ active }) => (active ? "#fff" : "#fef")}; /* Changed font color */
   }
 
   @media (max-width: 480px) {
     min-width: 80px;
     font-size: 0.85rem;
     padding: 0 0.5rem;
-    color: ${({ active }) => (active ? "#fff" : "#fef")}; /* Changed font color */
   }
 `;
-
 
 // CHART + LEGEND
 const Line = styled.img`
