@@ -66,6 +66,16 @@ const Navbar = styled.div`
   }
 `;
 
+const MobileWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem; // Space between toggle and hamburger
+
+  @media (max-width: 939px) {
+    margin-right: 1rem; 
+  }
+`;
+
 const MobileMenu = styled.div`
   display: none;
 
@@ -77,7 +87,7 @@ const MobileMenu = styled.div`
     transform: translateX(-50%);
     width: 150px;
     flex-direction: column;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    background: ${({ theme }) => theme.gradients.background};
     padding: 0.5rem 0.8rem;
     box-shadow: ${({ theme }) => theme.colors.boxShadow};
     z-index: 99;
@@ -124,6 +134,7 @@ const Hamburger = styled.div`
   flex-direction: column;
   gap: 4px;
   transition: all 0.3s ease;
+  margin-left: .2rem;
 
   span {
     height: 3px;
@@ -134,7 +145,7 @@ const Hamburger = styled.div`
   }
 
   &.open span:nth-child(1) {
-    transform: rotate(45deg) translateY(7px);
+    transform: rotate(45deg) translateY(10px);
   }
 
   &.open span:nth-child(2) {
@@ -142,7 +153,7 @@ const Hamburger = styled.div`
   }
 
   &.open span:nth-child(3) {
-    transform: rotate(-45deg) translateY(-7px);
+    transform: rotate(-45deg) translateY(-10px);
   }
 
   @media (max-width: 939px) {
@@ -173,15 +184,26 @@ const ThemeToggleButton = styled.button`
   }
 
   @media (max-width: 939px) {
-    margin-right: -8rem; // Adjust margin for smaller screens
+    margin-right: -.5rem; // Adjust margin for smaller screens
     padding: .2rem .8rem;
+    padding: 2px 8px;
+    font-size: ${({ theme }) => theme.fontSizes.medium};
   }
+
+  @media (max-width: 300px) {
+    display: none;
+  }
+    
 `;
 
 const IconContainer = styled.div`
   display: flex;
   transition: transform 0.3s ease; // Smooth transition for glide effect
   transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(10px)' : 'translateX(-10px)')};
+
+  @media (max-width: 939px) {
+    transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(6px)' : 'translateX(-6px)')};
+  }
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
@@ -235,14 +257,15 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
           </StyledNavLink>
         </Navbar>
 
-        {/* Theme toggle button */}
-        <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-
-        <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
-          <span />
-          <span />
-          <span />
-        </Hamburger>
+        {/* ✅ Wrap ThemeToggle and Hamburger inside a new wrapper */}
+        <MobileWrapper>
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
+            <span />
+            <span />
+            <span />
+          </Hamburger>
+        </MobileWrapper>
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
@@ -263,6 +286,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
         </StyledNavLink>
       </MobileMenu>
     </StyledHeaderNavbar>
+
   );
 };
 
