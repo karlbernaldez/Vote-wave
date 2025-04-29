@@ -47,8 +47,8 @@ const PagasaLogoInstance = styled(PagasaLogo)`
 const Div = styled.div`
   color: ${({ theme }) => theme.colors.highlight};
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: 24px;
-  font-weight: 700;
+  font-size: ${({ theme }) => theme.fontSizes.xxlarge};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
 `;
 
 const Navbar = styled.div`
@@ -79,9 +79,9 @@ const MobileMenu = styled.div`
     flex-direction: column;
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     padding: 0.5rem 0.8rem;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: ${({ theme }) => theme.colors.boxShadow};
     z-index: 99;
-    border-radius: 6px;
+    border-radius: ${({ theme }) => theme.borderRadius.small};
     transform: translateY(-10px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
@@ -91,44 +91,28 @@ const MobileMenu = styled.div`
     `transform: translateY(0); opacity: 1;`}
 
     & a {
-      font-size: 0.95rem;
-      color: ${({ theme }) => theme.colors.white};
+      font-size: ${({ theme }) => theme.fontSizes.small};
+      color: ${({ theme }) => theme.colors.mobileTextPrimary};
       text-decoration: none;
       padding: 8px 12px;
       margin: 4px 0;
-      border-radius: 4px;
-      font-weight: 400;
+      border-radius: ${({ theme }) => theme.borderRadius.xsmall};
+      font-weight: ${({ theme }) => theme.fontWeights.regular};
       letter-spacing: 0.5px;
       transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-    }
-
-    & a:hover {
-      background-color: #34495e;
-      color: #3498db;
-      transform: scale(1.02);
-    }
-
-    & a:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.6);
-    }
-
-    & a:active {
-      background-color: #1abc9c;
-      color: ${({ theme }) => theme.colors.white};
     }
   }
 `;
 
 const StyledNavLink = styled(NavLink)`
-  color: ${({ theme }) => theme.mode === "dark" ? theme.colors.textPrimary : theme.colors.header};
+  color: ${({ theme }) => theme.colors.textPrimary};
   text-decoration: none;
   padding: 10px 0;
   transition: color 0.3s ease;
 
   &.active,
   &:hover {
-    color: ${({ theme }) => theme.mode === "dark" ? theme.colors.highlight : theme.colors.highlight};
+    color: ${({ theme }) => theme.colors.highlight};
   }
 
   pointer-events: ${({ isactive }) => (isactive ? "none" : "auto")};
@@ -145,7 +129,7 @@ const Hamburger = styled.div`
     height: 3px;
     width: 25px;
     background: ${({ theme }) => theme.colors.highlight};
-    border-radius: 2px;
+    border-radius: ${({ theme }) => theme.borderRadius.xxsmall};
     transition: transform 0.3s ease, background 0.3s ease;
   }
 
@@ -173,7 +157,7 @@ const ThemeToggleButton = styled.button`
   padding: 4px 16px;
   border-radius: 50px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: ${({ theme }) => theme.fontSizes.xlarge};
 
   gap: 8px;
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
