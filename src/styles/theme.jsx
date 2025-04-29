@@ -120,8 +120,8 @@ export const theme = {
   },
 
   gradients: {
-    background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
-    stickyHeader: 'linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8))',
+    background: '#ffffff',
+    stickyHeader: '#ffffff',
   },
 
   zIndex: sharedZIndex,
@@ -182,7 +182,7 @@ export const darkTheme = {
   },
 
   gradients: {
-    background: 'linear-gradient(135deg, #121212, #1f1f1f, #2a2a2a)',
+    background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
     stickyHeader: 'linear-gradient(to right, rgba(13, 13, 13, 0.7), rgba(33, 33, 33, 0.8))',
   },
 
