@@ -230,11 +230,11 @@ const LiveMapButton = styled(Button)`
 
 const GlassyCircle = styled.div`
   position: absolute;
-  top: 6.3rem;
+  top: 6.5rem;
   left: 90rem;
   transform: translateX(-50%);
-  width: 35rem;
-  height: 35rem;
+  width: 45rem;
+  height: 45rem;
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.background};
   display: flex;
@@ -291,7 +291,7 @@ const GlassyCircle = styled.div`
 
 const Meteorologist = styled.img`
   width: 100%;
-  max-width: 35rem;
+  max-width: 45rem;
   height: auto;
   z-index: 2;
   margin-left: 10px;
