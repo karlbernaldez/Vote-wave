@@ -5,76 +5,18 @@ import DarkModeImage from '../../assets/meteorologist_dark.png';    // Image for
 
 const HeroSectionContainer = styled.div`
   width: 100%;
-  height: 900px;
+  height: clamp(34rem, calc(76vh + 10rem), 58rem); /* dynamic scaling */
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 1366px) {
-    height: 700px;
-  }
-
-  @media (max-width: 768px) {
-    height: 700px;
-  }
-
   @media (max-width: 480px) {
-    width: 90%;
-    height: 12rem !important;
-    margin: 1rem auto;
-    border-radius: 12px;
+    width: clamp(80%, 90vw, 90%);
+    height: clamp(10rem, 25vh, 12rem) !important;
+    margin: clamp(1rem, 4vw, 1.5rem) auto 0;
+    border-radius: ${({ theme }) => theme.borderRadius.xlarge};
     overflow: hidden;
-    margin-top: 1.5rem;
-  }
-`;
-
-const GlassyCircle = styled.div`
-  position: absolute;
-  top: 90px;
-  left: 75%;
-  transform: translateX(-50%);
-  width: 850px;
-  height: 850px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2); /* Transparent white background */
-  display: flex;
-  justify-content: center; /* Center the image horizontally */
-  align-items: center; /* Center the image vertically */
-
-  @media (max-width: 1024px) {
-    width: 350px;
-    height: 350px;
-    top: 150px;
-    left: 80%;
   }
 
-  @media (max-width: 768px) {
-    width: 200px;
-    height: 200px;
-  }
-
-  @media (max-width: 480px) {
-    width: 150px;
-    height: 150px;
-  }
-`;
-
-const Meteorologist = styled.img`
-  width: 800px;
-  height: auto;
-  z-index: 2;
-  margin-left: 10px;
-
-  @media (max-width: 1024px) {
-    width: 350px;
-  }
-
-  @media (max-width: 768px) {
-    width: 150px; /* Adjust width for smaller screens */
-  }
-
-  @media (max-width: 480px) {
-    width: 100px; /* Adjust width for mobile screens */
-  }
 `;
 
 const BackgroundWrapper = styled.div`
@@ -114,65 +56,74 @@ const Gradient = styled.div`
   pointer-events: none;
 
   @media (max-width: 768px) {
-    background: ${({ theme }) => theme.gradients.background};
+    background: ${({ theme }) => theme.gradients.backgroundMobile};
   }
 `;
 
 const ContentContainer = styled.div`
-  align-items: flex-start;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  align-items: flex-start;
+  gap: 1.5rem;
   position: absolute;
-  top: 300px;
-  left: 20px;
-  right: 20px;
+  top: clamp(150px, 28vh, 300px); /* dynamic vertical position */
+  left: clamp(10px, 3vw, 20px);
+  right: clamp(10px, 3vw, 20px);
   width: auto;
   text-align: center;
 
-  @media (max-width: 768px) {
-    top: 200px;
-  }
-
   @media (max-width: 480px) {
-    top: 150px;
-    left: 10px;
-    right: 10px;
+    top: clamp(100px, 25vh, 150px);
+    left: clamp(5px, 4vw, 10px);
+    right: clamp(5px, 4vw, 10px);
+  }
+`;
+
+const HeadingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  top: clamp(150px, 28vh, 300px); 
+  left: clamp(10px, 3vw, 20px);
+  right: clamp(10px, 3vw, 20px);
+  width: auto;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: static;
+    margin-top: 2rem;
   }
 `;
 
 const Heading = styled.div`
-  align-items: flex-start;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 750px;
-  margin-left: 140px;
-
-  @media (max-width: 1366px) {
-    margin-left: 120px;
-    margin-top: -8rem;
-    width: 750px;
-  }
-
-  @media (max-width: 1024px){
-    margin-left: 60px;
-    width: 550px;
-  }
+  align-items: flex-start;
+  gap: 0.625rem;
+  width: clamp(300px, 50vw, 750px);
+  margin-left: clamp(1rem, 10vw, 140px);
 
   @media (max-width: 768px) {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     width: 90%;
     align-items: center;
     text-align: center;
+  }
+
+  @media (max-height: 610px) {
+    margin-top: clamp(-4rem, -8vw, -6rem); /* Clamped margin-top for smaller screens */
+    gap: clamp(0.4rem, 1vw, 0.75rem); /* Clamped gap for small heights */
   }
 
   @media (max-width: 480px) {
     margin-top: -8rem;
     margin-left: 1rem;
     margin-right: auto;
-    width: 75%;
+    width: 13rem;
     align-items: center;
     text-align: center;
   }
@@ -181,71 +132,67 @@ const Heading = styled.div`
 const Title = styled.p`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: 60px;
-  font-weight: 700;
-  margin-top: -1px;
-  line-height: normal;
+  font-size: clamp(3.5rem, 4vw, ${({ theme }) => theme.fontSizes.heading});
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  margin-top: clamp(-1rem, -0.5vw, -1px);
+  line-height: 1.2;
   position: relative;
   text-align: left;
 
   @media (max-width: 768px) {
-    font-size: 42px;
     text-align: center;
     line-height: 1.5;
+    font-size: clamp(2.5rem, 6vw, 3rem);
   }
+
   @media (max-width: 480px) {
-    font-size: 22px;
+    font-size: clamp(1.1rem, 4vw, 2rem);
     text-align: left;
-    line-height: 1.5;
   }
 `;
 
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: 20px;
+  font-size: clamp(0.9rem, 2.5vw, 1.25rem); /* Clamped font-size */
   font-weight: 400;
-  line-height: normal;
-  width: auto;
-  margin: 0;
-  margin-top: -50px;
-  margin-bottom: 25px;
+  line-height: 1.4;
+  margin: clamp(-2rem, -4vw, -3rem) 0 clamp(1rem, 2vw, 1.5rem) 0; /* Clamped margin */
+  width: 95%;
   text-align: left;
 
   @media (max-width: 768px) {
-    font-size: 22px;
-    margin-top: -30px;
+    font-size: clamp(1rem, 3vw, 1.2rem); /* Clamped font-size for tablet */
     text-align: center;
-    width: 95%;
-    line-height: 1.4;
+    margin: clamp(-1.5rem, -3vw, -2rem) 0 clamp(0.5rem, 1vw, 1rem) 0; /* Clamped margin for tablet */
   }
+
   @media (max-width: 480px) {
-    font-size: 11px;
+    font-size: clamp(0.7rem, 1vw, 1rem); /* Clamped font-size for mobile */
     text-align: left;
     width: 85%;
-    margin-left: -2.5rem;
+    margin-left: clamp(-2rem, -3vw, -2.2rem); /* Clamped margin for mobile */
+    margin-top: clamp(-1.5rem, -3vw, -1rem); /* Clamped margin-top */
   }
 `;
 
 const ButtonsContainer = styled.div`
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
   justify-content: center;
-  height: 43px;
+  align-items: flex-start;
+  gap: clamp(0.5rem, 2vw, 1.25rem); /* Clamped gap */
   position: relative;
   width: auto;
-  flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    gap: 15px;
+    gap: clamp(0.4rem, 1.5vw, 1rem); /* Clamped gap for tablets */
   }
 
   @media (max-width: 480px) {
     flex-direction: column;
-    margin-top: -1.2rem;
-    align-items: flex-start;
-    justify-content: flex-start;
-    margin-left: -11.2rem;
+    margin-top: clamp(-.8rem, -1vw, -1.2rem); /* Clamped margin-top for mobile */
+    margin-left: clamp(-8rem, -15vw, -7.8rem); /* Clamped margin-left for mobile */
   }
 `;
 
@@ -253,8 +200,8 @@ const Button = styled.button`
   background-color: ${({ primary, theme }) => (primary ? theme.colors.highlight : 'transparent')};
   color: ${({ primary, theme }) => (primary ? theme.colors.white : theme.colors.highlight)};
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: 16px;
-  padding: 12px 24px;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
   border-radius: 5px;
   border: ${({ primary, theme }) => (primary ? 'none' : `2px solid ${theme.colors.highlight}`)};
   cursor: pointer;
@@ -270,21 +217,21 @@ const Button = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 24px;
-    padding: 24px 40px;
+    font-size: 1.2rem;
+    padding: 1.5rem 2.5rem;
     width: 100%;
     height: 40px;
     margin: 5px 0;
     border-radius: 24px;
   }
+
   @media (max-width: 480px) {
-    font-size: 10px;
-    padding: 4px 14px;
+    font-size: 0.625rem;
+    padding: 0.25rem 0.875rem;
     width: fit-content;
     height: 30px;
     margin: 5px 0;
     justify-content: flex-start;
-    align-items: center;
     text-align: left;
   }
 `;
@@ -295,6 +242,101 @@ const LiveMapButton = styled(Button)`
   }
 `;
 
+const GlassyCircle = styled.div`
+  position: absolute;
+  top: 1.8rem;
+  left: 90rem;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.background};
+  display: flex;
+  justify-content: center; /* Center the image horizontally */
+  align-items: center; /* Center the image vertically */
+  overflow  : hidden;
+
+  @media (max-width: 1366px) {
+    top: 5.8rem;
+    width: 30rem;
+    height: 30rem;
+    left: 70rem;
+    overflow: hidden;
+  }
+
+  @media (max-width: 480px) {
+    display: flex; /* Ensure it appears */
+    width: clamp(8.5rem, 20vw, 16rem);
+    height: clamp(8.5rem, 20vw, 16rem);
+    top: clamp(4.8rem, 10vh, 6.5rem);
+    left: 20rem;
+    transform: translate(-50%, -50%); /* Adjust the transform for better positioning */
+  }
+
+  @media (max-width: 440px) {
+    display: flex; /* Ensure it appears */
+    width: clamp(8.5rem, 20vw, 16rem);
+    height: clamp(8.5rem, 20vw, 16rem);
+    top: clamp(4.8rem, 10vh, 6.5rem);
+    left: 18.5rem;
+    transform: translate(-50%, -50%); /* Adjust the transform for better positioning */
+  }
+
+  @media (max-width: 400px) {
+    display: flex; /* Ensure it appears */
+    width: clamp(7rem, 20vw, 16rem);
+    height: clamp(7rem, 20vw, 16rem);
+    top: clamp(5rem, 10vh, 6.5rem);
+    left: clamp(17.3rem, 10vw, 32rem);
+    transform: translate(-50%, -50%); /* Adjust the transform for better positioning */
+  }
+`;
+
+const Meteorologist = styled.img`
+  width: 800px;
+  height: auto;
+  z-index: 2;
+  margin-left: 10px;
+
+  @media (max-width: 1366px) {
+    width: 30rem;
+    height: 30rem;
+  }
+
+  @media (max-width: 1024px) {
+    width: 350px;
+  }
+
+  @media (max-width: 768px) {
+    width: 150px; /* Adjust width for smaller screens */
+  }
+
+  @media (max-width: 480px) {
+    width: 8rem;
+    height: 8rem;
+  }
+  
+  @media (max-width: 400px) {
+    width: 6.8rem;
+    height: 6.8rem;
+  }
+`;
+
+const DesktopContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 clamp(2rem, 5vw, 6rem);
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 0;
+  }
+`;
+
 const HeroSection = ({ isDarkMode }) => {
   // Use dark or light image based on the theme
   const meteorologistImage = isDarkMode ? DarkModeImage : LightModeImage;
@@ -302,20 +344,21 @@ const HeroSection = ({ isDarkMode }) => {
   return (
     <HeroSectionContainer>
       <BackgroundWrapper>
-        <BackgroundImage />
         <Gradient />
       </BackgroundWrapper>
       <ContentContainer>
-        <Heading>
-          <Title>Visualize Weather. Forecast with Precision.</Title>
-          <Subtitle>
-            Interactive tools for meteorologists, researchers, and enthusiasts.
-          </Subtitle>
-          <ButtonsContainer>
-            <Button primary>Get Forecast</Button>
-            <LiveMapButton>Live Map</LiveMapButton>
-          </ButtonsContainer>
-        </Heading>
+        <DesktopContentWrapper>
+          <Heading>
+            <Title>Visualize Weather. Forecast with Precision.</Title>
+            <Subtitle>
+              Interactive tools for meteorologists, researchers, and enthusiasts.
+            </Subtitle>
+            <ButtonsContainer>
+              <Button primary>Get Forecast</Button>
+              <LiveMapButton>Live Map</LiveMapButton>
+            </ButtonsContainer>
+          </Heading>
+        </DesktopContentWrapper>
       </ContentContainer>
       <GlassyCircle>
         <Meteorologist src={meteorologistImage} alt="Meteorologist" />
