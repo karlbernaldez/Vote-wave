@@ -16,18 +16,19 @@ const MarineContainer = styled.div`
 
 // TITLE SECTION
 const TitleWrapper = styled.div`
-  background-color: #01b0ef;
+  background-color: ${({ theme }) => theme.mainColors.blue};
   height: 52px;
   width: 100%;
   max-width: 1200px;
-  margin-top: 20px;
+  margin-top: ${({ theme }) => theme.spacing.medium};
   display: flex;
   align-items: center;
   padding: 0 1rem;
   box-sizing: border-box;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
 
   @media (max-width: 768px) {
-    border-radius: 8px;
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
   }
 `;
 
@@ -43,10 +44,10 @@ const Img = styled.img`
 `;
 
 const TextWrapper = styled.div`
-  color: #fff;
-  font-family: "Roboto-Medium", Helvetica, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 500;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-family: ${({ theme }) => theme.fonts.medium};
+  font-size: ${({ theme }) => theme.fontSizes.xxlarge};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   white-space: nowrap;
 `;
 
@@ -56,12 +57,12 @@ const ChartStyles = styled.div`
   justify-content: center;
   flex-wrap: wrap;
   width: 100%;
-  gap: 10px;
+  gap: ${({ theme }) => theme.spacing.small};
   margin-top: 1.5rem;
 
   @media (max-width: 768px) {
     justify-content: center;
-    gap: 8px;
+    gap: ${({ theme }) => theme.spacing.xsmall};
     padding: 0 0.5rem;
   }
 `;
@@ -71,33 +72,35 @@ const OptionBox = styled.div`
   padding: 0 1rem;
   min-width: 100px;
   background-color: ${({ active, theme }) =>
-    active ? theme.colors.highlight : "transparent"};
+    active ? theme.mainColors.blue : 'transparent'};
   color: ${({ active, theme }) =>
-    active ? theme.colors.white : theme.colors.header};
+    active ? theme.colors.textPrimary : theme.colors.textPrimary};
   font-family: ${({ theme }) => theme.fonts.light};
-  font-size: 1rem;
-  font-weight: 300;
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-weight: ${({ theme }) => theme.fontWeights.light};
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: ${({ theme }) => theme.borderRadius.xsmall};
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.highlight};
-    color: ${({ theme }) => theme.colors.white};
+    color: ${({ theme }) => theme.colors.textPrimary};
+    transform: translateY(-3px) scale(1.05); /* lift and zoom */
+    box-shadow: 0 8px 20px rgba(1, 176, 239, 0.4); /* soft colored glow */
   }
 
   @media (max-width: 768px) {
     min-width: 90px;
-    font-size: 0.9rem;
+    font-size: ${({ theme }) => theme.fontSizes.small};
     padding: 0 0.75rem;
   }
 
   @media (max-width: 480px) {
     min-width: 80px;
-    font-size: 0.85rem;
+    font-size: ${({ theme }) => theme.fontSizes.xsmall};
     padding: 0 0.5rem;
   }
 `;
@@ -107,7 +110,7 @@ const Line = styled.img`
   width: 100%;
   max-width: 1200px;
   height: 1px;
-  margin-top: 10px;
+  margin-top: ${({ theme }) => theme.spacing.small};
 `;
 
 const ChartWrapper = styled.div`
@@ -118,6 +121,7 @@ const ChartWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
 
   > * {
     width: 100%;
@@ -131,20 +135,20 @@ const ChartWrapper = styled.div`
 `;
 
 const Legend = styled.div`
-  background-color: #01b0ef;
+  background-color: ${({ theme }) => theme.mainColors.blue};
   margin-top: 2rem;
   width: 100%;
   max-width: 1200px;
-  height: auto;
   min-height: 200px;
   padding: 1rem;
   box-sizing: border-box;
-  color: white;
+  color: ${({ theme }) => theme.colors.textPrimary};
   text-align: center;
-  font-size: 1rem;
+  font-family: ${({ theme }) => theme.fonts.light};
+  font-size: ${({ theme }) => theme.fontSizes.xxlarge};
 
   @media (max-width: 768px) {
-    font-size: 0.9rem;
+    font-size: ${({ theme }) => theme.fontSizes.xlarge};
     padding: 0.75rem;
   }
 `;
