@@ -56,12 +56,12 @@ const Navbar = styled.div`
   gap: 30px;
   margin-left: 40rem;
 
-  @media (max-width: 1024px) {
+  @media (min-width: 940px) {
     margin-left: -2rem;
     margin-right: -20rem;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: none;
   }
 `;
@@ -69,11 +69,11 @@ const Navbar = styled.div`
 const MobileMenu = styled.div`
   display: none;
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: ${({ open }) => (open ? "flex" : "none")};
     position: absolute;
     top: 50px;
-    left: 54%;
+    right: 2rem;
     transform: translateX(-50%);
     width: 150px;
     flex-direction: column;
@@ -145,7 +145,7 @@ const Hamburger = styled.div`
     transform: rotate(-45deg) translateY(-7px);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: flex;
   }
 `;
@@ -168,12 +168,13 @@ const ThemeToggleButton = styled.button`
     background-color: ${({ theme }) => theme.colors.boxShadowHover};
   }
 
-  @media (max-width: 1024px) {
+  @media (min-width: 940px) {
     margin-right: 1rem; // Adjust margin for smaller screens
   }
 
-  @media (max-width: 768px) {
-    display: none;  // Hide on mobile
+  @media (max-width: 939px) {
+    margin-right: -8rem; // Adjust margin for smaller screens
+    padding: .2rem .8rem;
   }
 `;
 
