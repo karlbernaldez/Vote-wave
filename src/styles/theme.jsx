@@ -27,6 +27,7 @@ const sharedFontSizes = {
   large: '18px',
   xlarge: '20px',
   xxlarge: '24px',
+  heading: '64px',
 };
 
 const sharedFontWeights = {
@@ -61,17 +62,26 @@ const sharedAnimations = {
   spin: 'spin 1s linear infinite',
 };
 
+const sharedBorderRadius = {
+  xxsmall: '2px',
+  xsmall: '4px',
+  small: '6px',
+  medium: '8px',
+  large: '10px',
+  xlarge: '12px',
+};
+
 export const theme = {
   backgroundImage: lightBg,
 
   colors: {
     highlight: '#01b0ef',
-    background: '#f5f5f5',
-    lightBackground: '#FFFFFF',
+    background: '#ebebeb',
+    lightBackground: '#f3f3f3',
     darkBackground: '#121212',
 
     textPrimary: '#000',
-    mobileTextPrimary: '#ffffff',
+    mobileTextPrimary: '#000',
     textSecondary: '#b5b5b5',
 
     toggleBackground: '#fff',
@@ -111,16 +121,11 @@ export const theme = {
   fontWeights: sharedFontWeights,
   spacing: sharedSpacing,
   blur: sharedBlur,
-
-  borderRadius: {
-    xxsmall: '2px',
-    xsmall: '4px',
-    small: '6px',
-    medium: '8px',
-  },
+  borderRadius: sharedBorderRadius,
 
   gradients: {
     background: '#ffffff',
+    backgroundMobile: '#f3f3f3',
     stickyHeader: '#ffffff',
   },
 
@@ -175,11 +180,7 @@ export const darkTheme = {
   fontWeights: sharedFontWeights,
   spacing: sharedSpacing,
   blur: sharedBlur,
-
-  borderRadius: {
-    small: '4px',
-    medium: '8px',
-  },
+  borderRadius: sharedBorderRadius,
 
   gradients: {
     background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
