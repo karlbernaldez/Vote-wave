@@ -47,8 +47,8 @@ const PagasaLogoInstance = styled(PagasaLogo)`
 const Div = styled.div`
   color: ${({ theme }) => theme.colors.highlight};
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: 24px;
-  font-weight: 700;
+  font-size: ${({ theme }) => theme.fontSizes.xxlarge};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
 `;
 
 const Navbar = styled.div`
@@ -56,32 +56,42 @@ const Navbar = styled.div`
   gap: 30px;
   margin-left: 40rem;
 
-  @media (max-width: 1024px) {
+  @media (min-width: 940px) {
     margin-left: -2rem;
     margin-right: -20rem;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: none;
+  }
+`;
+
+const MobileWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem; // Space between toggle and hamburger
+
+  @media (max-width: 939px) {
+    margin-right: 1rem; 
   }
 `;
 
 const MobileMenu = styled.div`
   display: none;
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: ${({ open }) => (open ? "flex" : "none")};
     position: absolute;
     top: 50px;
-    left: 54%;
+    right: 2rem;
     transform: translateX(-50%);
     width: 150px;
     flex-direction: column;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    background: ${({ theme }) => theme.gradients.background};
     padding: 0.5rem 0.8rem;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: ${({ theme }) => theme.colors.boxShadow};
     z-index: 99;
-    border-radius: 6px;
+    border-radius: ${({ theme }) => theme.borderRadius.small};
     transform: translateY(-10px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
@@ -91,44 +101,28 @@ const MobileMenu = styled.div`
     `transform: translateY(0); opacity: 1;`}
 
     & a {
-      font-size: 0.95rem;
-      color: ${({ theme }) => theme.colors.white};
+      font-size: ${({ theme }) => theme.fontSizes.small};
+      color: ${({ theme }) => theme.colors.mobileTextPrimary};
       text-decoration: none;
       padding: 8px 12px;
       margin: 4px 0;
-      border-radius: 4px;
-      font-weight: 400;
+      border-radius: ${({ theme }) => theme.borderRadius.xsmall};
+      font-weight: ${({ theme }) => theme.fontWeights.regular};
       letter-spacing: 0.5px;
       transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-    }
-
-    & a:hover {
-      background-color: #34495e;
-      color: #3498db;
-      transform: scale(1.02);
-    }
-
-    & a:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.6);
-    }
-
-    & a:active {
-      background-color: #1abc9c;
-      color: ${({ theme }) => theme.colors.white};
     }
   }
 `;
 
 const StyledNavLink = styled(NavLink)`
-  color: ${({ theme }) => theme.mode === "dark" ? theme.colors.textPrimary : theme.colors.header};
+  color: ${({ theme }) => theme.colors.textPrimary};
   text-decoration: none;
   padding: 10px 0;
   transition: color 0.3s ease;
 
   &.active,
   &:hover {
-    color: ${({ theme }) => theme.mode === "dark" ? theme.colors.highlight : theme.colors.highlight};
+    color: ${({ theme }) => theme.colors.highlight};
   }
 
   pointer-events: ${({ isactive }) => (isactive ? "none" : "auto")};
@@ -140,17 +134,18 @@ const Hamburger = styled.div`
   flex-direction: column;
   gap: 4px;
   transition: all 0.3s ease;
+  margin-left: .2rem;
 
   span {
     height: 3px;
     width: 25px;
     background: ${({ theme }) => theme.colors.highlight};
-    border-radius: 2px;
+    border-radius: ${({ theme }) => theme.borderRadius.xxsmall};
     transition: transform 0.3s ease, background 0.3s ease;
   }
 
   &.open span:nth-child(1) {
-    transform: rotate(45deg) translateY(7px);
+    transform: rotate(45deg) translateY(10px);
   }
 
   &.open span:nth-child(2) {
@@ -158,10 +153,10 @@ const Hamburger = styled.div`
   }
 
   &.open span:nth-child(3) {
-    transform: rotate(-45deg) translateY(-7px);
+    transform: rotate(-45deg) translateY(-10px);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 939px) {
     display: flex;
   }
 `;
@@ -173,7 +168,7 @@ const ThemeToggleButton = styled.button`
   padding: 4px 16px;
   border-radius: 50px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: ${({ theme }) => theme.fontSizes.xlarge};
 
   gap: 8px;
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
@@ -184,19 +179,31 @@ const ThemeToggleButton = styled.button`
     background-color: ${({ theme }) => theme.colors.boxShadowHover};
   }
 
-  @media (max-width: 1024px) {
+  @media (min-width: 940px) {
     margin-right: 1rem; // Adjust margin for smaller screens
   }
 
-  @media (max-width: 768px) {
-    display: none;  // Hide on mobile
+  @media (max-width: 939px) {
+    margin-right: -.5rem; // Adjust margin for smaller screens
+    padding: .2rem .8rem;
+    padding: 2px 8px;
+    font-size: ${({ theme }) => theme.fontSizes.medium};
   }
+
+  @media (max-width: 300px) {
+    display: none;
+  }
+    
 `;
 
 const IconContainer = styled.div`
   display: flex;
   transition: transform 0.3s ease; // Smooth transition for glide effect
   transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(10px)' : 'translateX(-10px)')};
+
+  @media (max-width: 939px) {
+    transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(6px)' : 'translateX(-6px)')};
+  }
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
@@ -250,14 +257,15 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
           </StyledNavLink>
         </Navbar>
 
-        {/* Theme toggle button */}
-        <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-
-        <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
-          <span />
-          <span />
-          <span />
-        </Hamburger>
+        {/* ✅ Wrap ThemeToggle and Hamburger inside a new wrapper */}
+        <MobileWrapper>
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
+            <span />
+            <span />
+            <span />
+          </Hamburger>
+        </MobileWrapper>
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
@@ -278,6 +286,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
         </StyledNavLink>
       </MobileMenu>
     </StyledHeaderNavbar>
+
   );
 };
 
