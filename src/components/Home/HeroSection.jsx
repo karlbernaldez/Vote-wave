@@ -5,7 +5,7 @@ import DarkModeImage from '../../assets/meteorologist_dark.png';    // Image for
 
 const HeroSectionContainer = styled.div`
   width: 100%;
-  height: clamp(34rem, calc(76vh + 10rem), 58rem); /* dynamic scaling */
+  height: 58rem;
   position: relative;
   overflow: hidden;
 
@@ -70,32 +70,12 @@ const ContentContainer = styled.div`
   left: clamp(10px, 3vw, 20px);
   right: clamp(10px, 3vw, 20px);
   width: auto;
-  text-align: center;
+  text-align: left;
 
   @media (max-width: 480px) {
     top: clamp(100px, 25vh, 150px);
     left: clamp(5px, 4vw, 10px);
     right: clamp(5px, 4vw, 10px);
-  }
-`;
-
-const HeadingWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: absolute;
-  top: clamp(150px, 28vh, 300px); 
-  left: clamp(10px, 3vw, 20px);
-  right: clamp(10px, 3vw, 20px);
-  width: auto;
-  gap: 2rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: static;
-    margin-top: 2rem;
   }
 `;
 
@@ -105,18 +85,14 @@ const Heading = styled.div`
   align-items: flex-start;
   gap: 0.625rem;
   width: clamp(300px, 50vw, 750px);
-  margin-left: clamp(1rem, 10vw, 140px);
+  margin-left: 6rem;
+  max-width: 45rem;
 
   @media (max-width: 768px) {
     margin: 0 auto;
     width: 90%;
     align-items: center;
     text-align: center;
-  }
-
-  @media (max-height: 610px) {
-    margin-top: clamp(-4rem, -8vw, -6rem); /* Clamped margin-top for smaller screens */
-    gap: clamp(0.4rem, 1vw, 0.75rem); /* Clamped gap for small heights */
   }
 
   @media (max-width: 480px) {
@@ -134,10 +110,15 @@ const Title = styled.p`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: clamp(3.5rem, 4vw, ${({ theme }) => theme.fontSizes.heading});
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  margin-top: clamp(-1rem, -0.5vw, -1px);
+  margin-top: 0;
   line-height: 1.2;
   position: relative;
   text-align: left;
+
+  
+  @media (max-width: 1024px) {
+    font-size: clamp(2.5rem, 6vw, 3rem);
+  }
 
   @media (max-width: 768px) {
     text-align: center;
@@ -160,6 +141,11 @@ const Subtitle = styled.p`
   margin: clamp(-2rem, -4vw, -3rem) 0 clamp(1rem, 2vw, 1.5rem) 0; /* Clamped margin */
   width: 95%;
   text-align: left;
+
+  @media (max-width: 1024px) {
+    font-size: clamp(.7rem, 1.6vw, 2rem);
+  }
+
 
   @media (max-width: 768px) {
     font-size: clamp(1rem, 3vw, 1.2rem); /* Clamped font-size for tablet */
@@ -200,8 +186,8 @@ const Button = styled.button`
   background-color: ${({ primary, theme }) => (primary ? theme.colors.highlight : 'transparent')};
   color: ${({ primary, theme }) => (primary ? theme.colors.white : theme.colors.highlight)};
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: clamp(0.875rem, 2vw, 1rem);
-  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 5px;
   border: ${({ primary, theme }) => (primary ? 'none' : `2px solid ${theme.colors.highlight}`)};
   cursor: pointer;
@@ -244,11 +230,11 @@ const LiveMapButton = styled(Button)`
 
 const GlassyCircle = styled.div`
   position: absolute;
-  top: 1.8rem;
+  top: 6.3rem;
   left: 90rem;
   transform: translateX(-50%);
-  width: auto;
-  height: auto;
+  width: 35rem;
+  height: 35rem;
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.background};
   display: flex;
@@ -256,12 +242,23 @@ const GlassyCircle = styled.div`
   align-items: center; /* Center the image vertically */
   overflow  : hidden;
 
-  @media (max-width: 1366px) {
-    top: 5.8rem;
-    width: 30rem;
-    height: 30rem;
-    left: 70rem;
+  @media (max-width: 1170px) {
+    width: 25rem;
+    height: 25rem;
+    left: 55rem;
+    top: 12rem;
     overflow: hidden;
+  }
+
+  @media (max-width: 1024px) {
+    width: 20rem;
+    height: 20rem;
+    left: 52rem;
+    top: 12rem;
+  }
+
+  @media (max-width: 768px) {
+    display: none; /* Hide on smaller screens */
   }
 
   @media (max-width: 480px) {
@@ -293,7 +290,8 @@ const GlassyCircle = styled.div`
 `;
 
 const Meteorologist = styled.img`
-  width: 800px;
+  width: 100%;
+  max-width: 35rem;
   height: auto;
   z-index: 2;
   margin-left: 10px;
@@ -304,11 +302,8 @@ const Meteorologist = styled.img`
   }
 
   @media (max-width: 1024px) {
-    width: 350px;
-  }
-
-  @media (max-width: 768px) {
-    width: 150px; /* Adjust width for smaller screens */
+    width: 19.8rem;
+    height: 19.8rem;
   }
 
   @media (max-width: 480px) {
@@ -322,21 +317,6 @@ const Meteorologist = styled.img`
   }
 `;
 
-const DesktopContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 clamp(2rem, 5vw, 6rem);
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: 0;
-  }
-`;
-
 const HeroSection = ({ isDarkMode }) => {
   // Use dark or light image based on the theme
   const meteorologistImage = isDarkMode ? DarkModeImage : LightModeImage;
@@ -347,18 +327,16 @@ const HeroSection = ({ isDarkMode }) => {
         <Gradient />
       </BackgroundWrapper>
       <ContentContainer>
-        <DesktopContentWrapper>
-          <Heading>
-            <Title>Visualize Weather. Forecast with Precision.</Title>
-            <Subtitle>
-              Interactive tools for meteorologists, researchers, and enthusiasts.
-            </Subtitle>
-            <ButtonsContainer>
-              <Button primary>Get Forecast</Button>
-              <LiveMapButton>Live Map</LiveMapButton>
-            </ButtonsContainer>
-          </Heading>
-        </DesktopContentWrapper>
+        <Heading>
+          <Title>Visualize Weather. Forecast with Precision.</Title>
+          <Subtitle>
+            Interactive tools for meteorologists, researchers, and enthusiasts.
+          </Subtitle>
+          <ButtonsContainer>
+            <Button primary>Get Forecast</Button>
+            <LiveMapButton>Live Map</LiveMapButton>
+          </ButtonsContainer>
+        </Heading>
       </ContentContainer>
       <GlassyCircle>
         <Meteorologist src={meteorologistImage} alt="Meteorologist" />
