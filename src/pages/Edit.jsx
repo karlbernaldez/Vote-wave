@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import MapComponent from "../components/MapComponent";
-import LayerPanel from "../components/LayerPanel";
+import LayerPanel from "../components/Edit/LayerPanel";
 import styled from "@emotion/styled";
 
 // Ensure body/html is also 100% height in your global CSS (important!)

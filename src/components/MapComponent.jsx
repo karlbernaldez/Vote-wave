@@ -26,8 +26,8 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
       container: mapContainerRef.current,
       projection: 'mercator',
       style: isDarkMode
-        ? 'mapbox://styles/mapbox/dark-v10'
-        : 'mapbox://styles/mapbox/outdoors-v12',
+        ? 'mapbox://styles/mapbox/dark-v11'
+        : 'mapbox://styles/mapbox/light-v11',
       zoom: 5,
     });
 
@@ -52,11 +52,21 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
 
   useEffect(() => {
     if (mapRef.current) {
-      mapRef.current.setStyle(
+      const map = mapRef.current;
+
+      const handleStyleChange = () => {
+        if (typeof onMapLoad === 'function') {
+          onMapLoad(map); // Call the onMapLoad function with the updated map instance
+        }
+      };
+
+      map.setStyle(
         isDarkMode
-          ? 'mapbox://styles/mapbox/dark-v10'
-          : 'mapbox://styles/mapbox/outdoors-v12'
+          ? 'mapbox://styles/mapbox/dark-v11'
+          : 'mapbox://styles/mapbox/light-v11'
       );
+
+      map.once('styledata', handleStyleChange);
     }
   }, [isDarkMode]); // Update style on isDarkMode change
 
