@@ -82,7 +82,7 @@ npm run dev
 
 ## 📝 To-Do List
 - [ ] Integrate live weather model data
-- [ ] Improve drawing tools (e.g., different colors, shapes)
+- [ ] Improve drawing tools (e.g., different colors, shapes).
 - [ ] Add export/save functionality for drawings
 
 ## 📜 License
