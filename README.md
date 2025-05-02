@@ -57,7 +57,7 @@ npm install
 ```
 
 ### 3️⃣ Add Mapbox Access Token
-1. Create a `.env` file in the root directory.
+1. Create a `.env` file in the root directory
 2. Add your **Mapbox Token**:
    ```sh
    VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
