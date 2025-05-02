@@ -83,7 +83,7 @@ npm run dev
 ## 📝 To-Do List
 - [ ] Integrate live weather model data
 - [ ] Improve drawing tools (e.g., different colors, shapes)
-- [ ] Add export/save functionality for drawings.
+- [ ] Add export/save functionality for drawings
 
 ## 📜 License
 This project is licensed under the **[MIT license](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
