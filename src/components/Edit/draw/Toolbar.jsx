@@ -8,8 +8,8 @@ const ToolbarContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
+  background-color: ${({ isDarkMode }) => (isDarkMode ? '#2d3e4f' : '#ffffff')};
+  border: 1px solid ${({ isDarkMode }) => (isDarkMode ? '#0f0f0f' : '#ccc')};
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 6px 10px;
@@ -21,22 +21,22 @@ const ToolButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ active }) => (active ? '#e0f0ff' : 'none')};
+  background: ${({ active, isDarkMode }) => (active ? (isDarkMode ? '#444' : '#e0f0ff') : 'none')};
   border: none;
   border-radius: 6px;
   font-size: 18px;
   padding: 10px;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;
-  color: ${({ active }) => (active ? '#007acc' : '#333')};
+  color: ${({ active, isDarkMode }) => (active ? (isDarkMode ? '#1e90ff' : '#007acc') : (isDarkMode ? '#ddd' : '#333'))};
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${({ isDarkMode }) => (isDarkMode ? '#555' : '#f0f0f0')};
     transform: scale(1.05);
   }
 
   &:active {
-    background-color: #d0eaff;
+    background-color: ${({ isDarkMode }) => (isDarkMode ? '#666' : '#d0eaff')};
   }
 `;
 
@@ -46,16 +46,16 @@ const CollapseToggle = styled.button`
   font-size: 20px;
   cursor: pointer;
   padding: 6px;
-  color: #333;
+  color: ${({ isDarkMode }) => (isDarkMode ? '#ddd' : '#333')};
   transition: transform 0.2s ease;
 
   &:hover {
-    color: #007acc;
+    color: ${({ isDarkMode }) => (isDarkMode ? '#1e90ff' : '#007acc')};
     transform: scale(1.1);
   }
 `;
 
-const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) => {
+const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter, isDarkMode }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -115,8 +115,8 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) =
   }, [draw, isDrawing, onToggleCanvas]);
 
   return (
-    <ToolbarContainer>
-      <CollapseToggle onClick={toggleCollapse} title={isCollapsed ? "Expand Toolbar" : "Collapse Toolbar"}>
+    <ToolbarContainer isDarkMode={isDarkMode}>
+      <CollapseToggle isDarkMode={isDarkMode} onClick={toggleCollapse} title={isCollapsed ? "Expand Toolbar" : "Collapse Toolbar"}>
         {isCollapsed ? '☰' : '✖'}
       </CollapseToggle>
 
@@ -127,6 +127,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) =
               key={tool.id}
               onClick={() => handleDrawModeChange(tool.id)}
               title={tool.label}
+              isDarkMode={isDarkMode}
             >
               {tool.icon}
             </ToolButton>
@@ -136,6 +137,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) =
             onClick={toggleDrawing}
             title={isDrawing ? "Stop Drawing (X)" : "Start Drawing (Pencil)"}
             active={isCanvasActive}
+            isDarkMode={isDarkMode}
           >
             {isDrawing ? '❌' : '🖊️'}
           </ToolButton>

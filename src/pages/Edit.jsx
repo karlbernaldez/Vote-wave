@@ -34,10 +34,11 @@ const Edit = ({ isDarkMode }) => {
   const [layers, setLayers] = useState([]);
   const [drawInstance, setDrawInstance] = useState(null);
   const [isCanvasActive, setIsCanvasActive] = useState(false);
-  const [drawCounter, setDrawCounter] = useState(0); // Initialize drawCounter state
-  const toggleCanvas = () => setIsCanvasActive(prev => !prev);
-  const [mapLoaded, setMapLoaded] = useState(false); // Track map load status
+  const [drawCounter, setDrawCounter] = useState(0);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef(null);
+
+  const toggleCanvas = () => setIsCanvasActive(prev => !prev);
 
   const handleMapLoad = (map) => {
     mapRef.current = map;
@@ -64,30 +65,36 @@ const Edit = ({ isDarkMode }) => {
 
     map.addControl(draw);
     setDrawInstance(draw);
-    setMapLoaded(true); // Set map as loaded
+    setMapLoaded(true);
   };
 
   return (
     <Container>
       <MapWrapper collapsed={collapsed}>
-        <MapComponent onMapLoad={handleMapLoad} isDarkMode={isDarkMode} />
+        <MapComponent 
+          onMapLoad={handleMapLoad} 
+          isDarkMode={isDarkMode} // Pass the dark mode flag here
+        />
       </MapWrapper>
       <DrawToolBar 
         draw={drawInstance} 
         onToggleCanvas={toggleCanvas} 
         isCanvasActive={isCanvasActive} 
+        isDarkMode={isDarkMode} // Pass dark mode flag to the toolbar
       />
       {isCanvasActive && 
         <Canvas 
           mapRef={mapRef} 
           drawCounter={drawCounter} 
-          setDrawCounter={setDrawCounter} // Pass setDrawCounter here
+          setDrawCounter={setDrawCounter} 
+          isDarkMode={isDarkMode} // Pass dark mode flag to the canvas
         />
       }
       <LayerPanel
         layers={layers}
         setLayers={setLayers}
         mapRef={mapRef}
+        isDarkMode={isDarkMode} // Pass dark mode flag to the LayerPanel
       />
     </Container>
   );

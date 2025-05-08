@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import LayerItem from "./LayerItem";
 import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
-const LayerPanel = ({ mapRef }) => {
+const LayerPanel = ({ mapRef, isDarkMode }) => {
     const [layers, setLayers] = useState([]); // For managing the layers in the layer panel
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeLayerId, setActiveLayerId] = useState(null); // Track active layer
@@ -91,7 +91,7 @@ const LayerPanel = ({ mapRef }) => {
                 ]
             }
         });
-    }
+    };
 
     const addLayer = () => {
         if (!mapRef.current) {
@@ -313,7 +313,8 @@ const LayerPanel = ({ mapRef }) => {
                 position: "absolute",
                 bottom: "2rem",
                 right: ".5rem",
-                backgroundColor: "white",
+                backgroundColor: isDarkMode ? "#2c3e50" : "white",
+                color: isDarkMode ? "white" : "black",
                 padding: "15px",
                 borderRadius: "12px",
                 zIndex: 100,
@@ -358,16 +359,17 @@ const LayerPanel = ({ mapRef }) => {
                                 isActiveLayer={activeLayerId === layer.id}
                                 setActiveLayer={setActiveLayer}
                                 index={index}
-                                onDragStart={() => { }}
-                                onDragOver={() => { }}
-                                onDrop={() => { }}
+                                onDragStart={() => {}}
+                                onDragOver={() => {}}
+                                onDrop={() => {}}
                             />
                         ))}
                     </ul>
 
                     {/* Add Layer Button */}
                     <div style={{ textAlign: "center", marginTop: "10px" }}>
-                        <button onClick={addLayer}
+                        <button
+                            onClick={addLayer}
                             style={{
                                 backgroundColor: "#4CAF50",
                                 color: "white",
@@ -388,24 +390,6 @@ const LayerPanel = ({ mapRef }) => {
                             <FaPlus /> Add GeoJson Layer
                         </button>
                     </div>
-
-                    {/* <div style={{ textAlign: "center", marginTop: "10px" }}>
-                        <button
-                            onClick={windLayer}
-                            style={{
-                                backgroundColor: "#2196F3",
-                                color: "white",
-                                border: "none",
-                                padding: "8px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                                width: "100%",
-                                marginTop: "5px"
-                            }}
-                        >
-                            🌬️ Add Wind Layer
-                        </button>
-                    </div> */}
                 </>
             )}
         </div>

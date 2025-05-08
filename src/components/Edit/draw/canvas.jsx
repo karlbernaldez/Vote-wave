@@ -125,7 +125,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
   return (
     <div>
       {/* Button to trigger download */}
-      <button onClick={downloadGeoJSON} style={{ position: 'absolute', zIndex: 100, top: '10px', left: '10px' }}>
+      <button onClick={downloadGeoJSON} style={{ position: 'absolute', zIndex: 100, top: '10px', right: '3rem' }}>
         Download GeoJSON
       </button>
 
