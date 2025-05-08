@@ -199,13 +199,33 @@ const MobileMenu = styled.div`
   }
 `;
 
-const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => (
-  <ThemeToggleButton onClick={() => setIsDarkMode(!isDarkMode)}>
-    <IconContainer isDarkMode={isDarkMode}>
-      {isDarkMode ? <FaMoon /> : <FaSun />}
-    </IconContainer>
-  </ThemeToggleButton>
-);
+const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+  const handleToggle = () => {
+    // Clear any existing timeout to reset debounce timer
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a new timeout to toggle the theme after 300ms
+    const timeoutId = setTimeout(() => {
+      setIsDarkMode(!isDarkMode);
+    }, 300); // Delay of 300ms to debounce the toggle
+
+    // Save timeout ID so we can clear it if necessary
+    setDebounceTimeout(timeoutId);
+  };
+
+  return (
+    <ThemeToggleButton onClick={handleToggle}>
+      <IconContainer isDarkMode={isDarkMode}>
+        {isDarkMode ? <FaMoon /> : <FaSun />}
+      </IconContainer>
+    </ThemeToggleButton>
+  );
+};
+
 
 const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const location = useLocation();
