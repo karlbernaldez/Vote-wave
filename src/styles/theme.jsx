@@ -91,7 +91,7 @@ export const theme = {
     bgHeader: '#fff',
 
     mapStyles: {
-      light: 'mapbox://styles/mapbox/light-v11',
+      light: 'mapbox://styles/kaloy0324/cma61lu5s006f01sid8kbhbci',
       dark: 'mapbox://styles/mapbox/dark-v11',
     },
 

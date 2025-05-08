@@ -2,41 +2,41 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { NavLink, useLocation } from "react-router-dom";
 import { PagasaLogo } from "./Logo";
-import { FaSun, FaMoon } from 'react-icons/fa'; // Import FontAwesome icons
+import { FaSun, FaMoon } from 'react-icons/fa';
 
-// Styled Components
 const StyledHeaderNavbar = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-  background: ${({ theme }) => theme.colors.bgHeader}; /* Transparent background */
-  backdrop-filter: ${({ theme }) => theme.colors.backdropFilter}; /* Apply blur for glass effect */
-  -webkit-backdrop-filter: ${({ theme }) => theme.colors.backdropFilter}; /* Safari support */
+  background: ${({ theme }) => theme.colors.bgHeader};
+  backdrop-filter: ${({ theme }) => theme.colors.backdropFilter};
+  -webkit-backdrop-filter: ${({ theme }) => theme.colors.backdropFilter};
   position: sticky;
   top: 0;
   z-index: 100;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
-
-  @media (max-width: 768px) {
-    background: transparent;
-  }
 `;
 
 const CenterWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
   height: 70px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 100vw;
   box-sizing: border-box;
 `;
 
-const Logo = styled.div`
+const Logo = styled.a`
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-left: 6rem;
+  text-decoration: none;
+  
+  @media (max-width: 939px) {
+    margin-left: 1rem;
+  }
 `;
 
 const PagasaLogoInstance = styled(PagasaLogo)`
@@ -44,74 +44,29 @@ const PagasaLogoInstance = styled(PagasaLogo)`
   width: 28px !important;
 `;
 
-const Div = styled.div`
+const Title = styled.div`
   color: ${({ theme }) => theme.colors.highlight};
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${({ theme }) => theme.fontSizes.xxlarge};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
 `;
 
-const Navbar = styled.div`
+const NavAndToggleWrapper = styled.div`
   display: flex;
-  gap: 30px;
-  margin-left: 40rem;
-
-  @media (min-width: 940px) {
-    margin-left: -2rem;
-    margin-right: -20rem;
-  }
+  align-items: center;
+  margin-left: auto;
+  gap: 15rem;
+  margin-right: 2rem;
 
   @media (max-width: 939px) {
     display: none;
   }
 `;
 
-const MobileWrapper = styled.div`
+const Navbar = styled.div`
   display: flex;
-  align-items: center;
-  gap: 1rem; // Space between toggle and hamburger
-
-  @media (max-width: 939px) {
-    margin-right: 1rem; 
-  }
-`;
-
-const MobileMenu = styled.div`
-  display: none;
-
-  @media (max-width: 939px) {
-    display: ${({ open }) => (open ? "flex" : "none")};
-    position: absolute;
-    top: 50px;
-    right: 2rem;
-    transform: translateX(-50%);
-    width: 150px;
-    flex-direction: column;
-    background: ${({ theme }) => theme.gradients.background};
-    padding: 0.5rem 0.8rem;
-    box-shadow: ${({ theme }) => theme.colors.boxShadow};
-    z-index: 99;
-    border-radius: ${({ theme }) => theme.borderRadius.small};
-    transform: translateY(-10px);
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
-
-    ${({ open }) =>
-    open &&
-    `transform: translateY(0); opacity: 1;`}
-
-    & a {
-      font-size: ${({ theme }) => theme.fontSizes.small};
-      color: ${({ theme }) => theme.colors.mobileTextPrimary};
-      text-decoration: none;
-      padding: 8px 12px;
-      margin: 4px 0;
-      border-radius: ${({ theme }) => theme.borderRadius.xsmall};
-      font-weight: ${({ theme }) => theme.fontWeights.regular};
-      letter-spacing: 0.5px;
-      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-    }
-  }
+  gap: 30px;
+  margin-left: 8rem;
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -128,13 +83,62 @@ const StyledNavLink = styled(NavLink)`
   pointer-events: ${({ isactive }) => (isactive ? "none" : "auto")};
 `;
 
-const Hamburger = styled.div`
-  display: none;
+const ThemeToggleButton = styled.button`
+  background-color: ${({ theme }) => theme.colors.toggleBackground};
+  color: ${({ theme }) => theme.colors.toggle};
+  border: 1px solid ${({ theme }) => theme.colors.toggleBorder};
+  padding: 4px 16px;
+  border-radius: 50px;
   cursor: pointer;
+  font-size: ${({ theme }) => theme.fontSizes.xlarge};
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.boxShadowHover};
+  }
+
+  @media (min-width: 940px) and (max-width: 1080px) {
+    margin-left: -10rem;
+  }
+
+  @media (max-width: 939px) {
+    padding: 2px 8px;
+    font-size: ${({ theme }) => theme.fontSizes.medium};
+  }
+
+  @media (max-width: 300px) {
+    display: none;
+  }
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  transition: transform 0.3s ease;
+  transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(10px)' : 'translateX(-10px)')};
+
+  @media (max-width: 939px) {
+    transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(6px)' : 'translateX(-6px)')};
+  }
+`;
+
+const MobileWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+
+  @media (min-width: 940px) {
+    display: none;
+  }
+`;
+
+const Hamburger = styled.div`
+  display: flex;
   flex-direction: column;
   gap: 4px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  margin-left: .2rem;
 
   span {
     height: 3px;
@@ -155,109 +159,103 @@ const Hamburger = styled.div`
   &.open span:nth-child(3) {
     transform: rotate(-45deg) translateY(-10px);
   }
-
-  @media (max-width: 939px) {
-    display: flex;
-  }
 `;
 
-const ThemeToggleButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.toggleBackground}; /* Background color for the toggle button */
-  color: ${({ theme }) => theme.colors.toggle};
-  border: 1px solid ${({ theme }) => theme.colors.toggleBorder}; /* Add a border */
-  padding: 4px 16px;
-  border-radius: 50px;
-  cursor: pointer;
-  font-size: ${({ theme }) => theme.fontSizes.xlarge};
-
-  gap: 8px;
-  box-shadow: ${({ theme }) => theme.colors.boxShadow};
-  margin-right: -20rem;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.boxShadowHover};
-  }
-
-  @media (min-width: 940px) {
-    margin-right: 1rem; // Adjust margin for smaller screens
-  }
+const MobileMenu = styled.div`
+  display: none;
 
   @media (max-width: 939px) {
-    margin-right: -.5rem; // Adjust margin for smaller screens
-    padding: .2rem .8rem;
-    padding: 2px 8px;
-    font-size: ${({ theme }) => theme.fontSizes.medium};
-  }
+    display: ${({ open }) => (open ? "flex" : "none")};
+    position: absolute;
+    top: 50px;
+    right: 2rem;
+    width: 150px;
+    flex-direction: column;
+    background: ${({ theme }) => theme.gradients.background};
+    padding: 0.5rem 0.8rem;
+    box-shadow: ${({ theme }) => theme.colors.boxShadow};
+    border-radius: ${({ theme }) => theme.borderRadius.small};
+    transform: translateY(-10px);
+    opacity: 0;
+    z-index: 99;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 
-  @media (max-width: 300px) {
-    display: none;
-  }
-    
-`;
+    ${({ open }) => open && `
+      transform: translateY(0);
+      opacity: 1;
+    `}
 
-const IconContainer = styled.div`
-  display: flex;
-  transition: transform 0.3s ease; // Smooth transition for glide effect
-  transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(10px)' : 'translateX(-10px)')};
-
-  @media (max-width: 939px) {
-    transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(6px)' : 'translateX(-6px)')};
+    & a {
+      font-size: ${({ theme }) => theme.fontSizes.small};
+      color: ${({ theme }) => theme.colors.mobileTextPrimary};
+      text-decoration: none;
+      padding: 8px 12px;
+      margin: 4px 0;
+      border-radius: ${({ theme }) => theme.borderRadius.xsmall};
+      font-weight: ${({ theme }) => theme.fontWeights.regular};
+      letter-spacing: 0.5px;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    }
   }
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+  const handleToggle = () => {
+    // Clear any existing timeout to reset debounce timer
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a new timeout to toggle the theme after 300ms
+    const timeoutId = setTimeout(() => {
+      setIsDarkMode(!isDarkMode);
+    }, 300); // Delay of 300ms to debounce the toggle
+
+    // Save timeout ID so we can clear it if necessary
+    setDebounceTimeout(timeoutId);
+  };
+
   return (
-    <ThemeToggleButton onClick={() => setIsDarkMode(!isDarkMode)}>
+    <ThemeToggleButton onClick={handleToggle}>
       <IconContainer isDarkMode={isDarkMode}>
-        {isDarkMode ? <FaMoon /> : <FaSun />} {/* Conditional rendering based on theme */}
+        {isDarkMode ? <FaMoon /> : <FaSun />}
       </IconContainer>
     </ThemeToggleButton>
   );
 };
 
+
 const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
   const isLinkActive = (path) => location.pathname === path;
 
   return (
     <StyledHeaderNavbar isLoading={isLoading}>
       <CenterWrapper>
-        <a
+        <Logo
           href="https://www.pagasa.dost.gov.ph/"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ textDecoration: 'none' }}
         >
-          <Logo>
-            <PagasaLogoInstance />
-            <Div>PAGASA</Div>
-          </Logo>
-        </a>
+          <PagasaLogoInstance />
+          <Title>PAGASA</Title>
+        </Logo>
 
-        <Navbar>
-          <StyledNavLink to="/" exact="true" activeclassname="active">
-            Home
-          </StyledNavLink>
-          <StyledNavLink to="/weather" isactive={isLinkActive('/weather')}>
-            Weather
-          </StyledNavLink>
-          <StyledNavLink to="/edit" isactive={isLinkActive('/edit')}>
-            Marine
-          </StyledNavLink>
-          <StyledNavLink to="/about" isactive={isLinkActive('/about')}>
-            About
-          </StyledNavLink>
-          <StyledNavLink to="/contact" isactive={isLinkActive('/contact')}>
-            Contact Us
-          </StyledNavLink>
-        </Navbar>
+        <NavAndToggleWrapper>
+          <Navbar>
+            <StyledNavLink to="/" exact="true" activeclassname="active">Home</StyledNavLink>
+            <StyledNavLink to="/weather" isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
+            <StyledNavLink to="/edit" isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+            <StyledNavLink to="/about" isactive={isLinkActive('/about')}>About</StyledNavLink>
+            <StyledNavLink to="/contact" isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
+          </Navbar>
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        </NavAndToggleWrapper>
 
-        {/* ✅ Wrap ThemeToggle and Hamburger inside a new wrapper */}
         <MobileWrapper>
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
           <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
@@ -269,24 +267,13 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
-        <StyledNavLink to="/" onClick={toggleMenu} isactive={isLinkActive('/')}>
-          Home
-        </StyledNavLink>
-        <StyledNavLink to="/weather" onClick={toggleMenu} isactive={isLinkActive('/weather')}>
-          Weather
-        </StyledNavLink>
-        <StyledNavLink to="/edit" onClick={toggleMenu} isactive={isLinkActive('/edit')}>
-          Marine
-        </StyledNavLink>
-        <StyledNavLink to="/about" onClick={toggleMenu} isactive={isLinkActive('/about')}>
-          About
-        </StyledNavLink>
-        <StyledNavLink to="/contact" onClick={toggleMenu} isactive={isLinkActive('/contact')}>
-          Contact Us
-        </StyledNavLink>
+        <StyledNavLink to="/" onClick={toggleMenu} isactive={isLinkActive('/')}>Home</StyledNavLink>
+        <StyledNavLink to="/weather" onClick={toggleMenu} isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
+        <StyledNavLink to="/edit" onClick={toggleMenu} isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+        <StyledNavLink to="/about" onClick={toggleMenu} isactive={isLinkActive('/about')}>About</StyledNavLink>
+        <StyledNavLink to="/contact" onClick={toggleMenu} isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
       </MobileMenu>
     </StyledHeaderNavbar>
-
   );
 };
 
