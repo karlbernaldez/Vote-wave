@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import MapComponent from "../components/MapComponent";
 import LayerPanel from "../components/Edit/LayerPanel";
@@ -37,14 +37,17 @@ const Edit = ({ isDarkMode }) => {
   const [isCanvasActive, setIsCanvasActive] = useState(false);
   const [drawCounter, setDrawCounter] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState(null);  // Store the selected point
-  const [showTitleModal, setShowTitleModal] = useState(false);  // Manage modal visibility
+  const [selectedPoint, setSelectedPoint] = useState(null);
+  const [showTitleModal, setShowTitleModal] = useState(false);
   const mapRef = useRef(null);
 
-  const toggleCanvas = () => setIsCanvasActive(prev => !prev);
+  // Toggle canvas visibility
+  const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
 
   // Handle saving the title for the created marker
-  const handleSaveMarker = (title) => {
+  const handleSaveMarker = useCallback((title) => {
+    if (!selectedPoint) return;
+
     const { lng, lat } = selectedPoint;
     const customPoint = {
       type: 'Feature',
@@ -57,7 +60,9 @@ const Edit = ({ isDarkMode }) => {
       }
     };
 
-    const source = mapRef.current.getSource('custom-points');
+    const source = mapRef.current?.getSource('custom-points');
+    if (!source) return;
+
     const currentData = source._data || {
       type: 'FeatureCollection',
       features: []
@@ -69,9 +74,10 @@ const Edit = ({ isDarkMode }) => {
     });
 
     setShowTitleModal(false);  // Close the modal after saving the title
-  };
+  }, [selectedPoint]);
 
-  const handleMapLoad = (map) => {
+  // Handle map load and setup controls, sources, and layers
+  const handleMapLoad = useCallback((map) => {
     mapRef.current = map;
 
     if (!mapRef.current) {
@@ -141,7 +147,32 @@ const Edit = ({ isDarkMode }) => {
         draw.delete(feature.id);  // Optional: remove from Draw so the tiny circle isn't shown
       }
     });
-  };
+  }, []);
+
+  // Keyboard hotkey handling
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Check if modal is open and input is focused
+      const isInputFocused = document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA";
+      const modal = document.querySelector(".modal"); // Ensure correct modal class is used
+      const isInsideModal = modal?.contains(document.activeElement);
+
+      if (showTitleModal && isInsideModal && isInputFocused) {
+        e.stopPropagation(); // Stop hotkey from triggering when typing inside modal
+        return; // Skip hotkey actions
+      }
+
+      // Example hotkey: toggle canvas with "C"
+      if (e.key === "c" || e.key === "C") {
+        toggleCanvas();
+      }
+
+      // Add other hotkeys as needed
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showTitleModal, toggleCanvas]);
 
   return (
     <Container>
