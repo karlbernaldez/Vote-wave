@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import LayerItem from "./LayerItem";
 import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
@@ -6,136 +6,185 @@ const LayerPanel = ({ mapRef }) => {
     const [layers, setLayers] = useState([]); // For managing the layers in the layer panel
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeLayerId, setActiveLayerId] = useState(null); // Track active layer
+    const fileInputRef = useRef();
+
+    const windLayer = () => {
+        mapRef.current.addSource('wind_data_source', {
+            type: 'raster-array',
+            url: 'mapbox://karlbernaldizzy.noaa_grib',
+            tileSize: 4320
+        });
+
+        mapRef.current.addLayer({
+            id: 'wind-layer',
+            type: 'raster-particle',
+            source: 'wind_data_source',
+            'source-layer': '10m_wind',
+            paint: {
+                'raster-particle-speed-factor': 0.4,
+                'raster-particle-fade-opacity-factor': 0.9,
+                'raster-particle-reset-rate-factor': 0.4,
+                'raster-particle-count': 4000,
+                'raster-particle-max-speed': 40,
+                'raster-particle-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['raster-particle-speed'],
+                    1.5,
+                    'rgba(134,163,171,256)',
+                    2.5,
+                    'rgba(126,152,188,256)',
+                    4.12,
+                    'rgba(110,143,208,256)',
+                    4.63,
+                    'rgba(110,143,208,256)',
+                    6.17,
+                    'rgba(15,147,167,256)',
+                    7.72,
+                    'rgba(15,147,167,256)',
+                    9.26,
+                    'rgba(57,163,57,256)',
+                    10.29,
+                    'rgba(57,163,57,256)',
+                    11.83,
+                    'rgba(194,134,62,256)',
+                    13.37,
+                    'rgba(194,134,63,256)',
+                    14.92,
+                    'rgba(200,66,13,256)',
+                    16.46,
+                    'rgba(200,66,13,256)',
+                    18.0,
+                    'rgba(210,0,50,256)',
+                    20.06,
+                    'rgba(215,0,50,256)',
+                    21.6,
+                    'rgba(175,80,136,256)',
+                    23.66,
+                    'rgba(175,80,136,256)',
+                    25.21,
+                    'rgba(117,74,147,256)',
+                    27.78,
+                    'rgba(117,74,147,256)',
+                    29.32,
+                    'rgba(68,105,141,256)',
+                    31.89,
+                    'rgba(68,105,141,256)',
+                    33.44,
+                    'rgba(194,251,119,256)',
+                    42.18,
+                    'rgba(194,251,119,256)',
+                    43.72,
+                    'rgba(241,255,109,256)',
+                    48.87,
+                    'rgba(241,255,109,256)',
+                    50.41,
+                    'rgba(256,256,256,256)',
+                    57.61,
+                    'rgba(256,256,256,256)',
+                    59.16,
+                    'rgba(0,256,256,256)',
+                    68.93,
+                    'rgba(0,256,256,256)',
+                    69.44,
+                    'rgba(256,37,256,256)'
+                ]
+            }
+        });
+    }
 
     const addLayer = () => {
-        const timestamp = Date.now();
-        const sourceId = `source-${timestamp}`;
-        const fillLayerId = `fill-layer-${timestamp}`;
-
         if (!mapRef.current) {
             console.error("Map is not ready yet.");
             return;
         }
 
-        const map = mapRef.current;
-        console.log("Map is Loaded:", map);
-
-        // Add source if it doesn't exist
-        if (!map.getSource(sourceId)) {
-            map.addSource(sourceId, {
-                type: 'raster-array',
-                url: 'mapbox://rasterarrayexamples.gfs-winds',
-                tileSize: 2160,
-            });
-        }
-
-        // Add fill layer
-        if (!map.getLayer(fillLayerId)) {
-            map.addLayer({
-                id: fillLayerId,
-                type: 'raster-particle',
-                source: sourceId, 'source-layer': '10winds',
-                layout: {},
-                paint: {
-                    'raster-particle-speed-factor': 0.4,
-                    'raster-particle-fade-opacity-factor': 0.9,
-                    'raster-particle-reset-rate-factor': 0.4,
-                    'raster-particle-count': 4000,
-                    'raster-particle-max-speed': 40,
-                    'raster-particle-color': [
-                      'interpolate',
-                      ['linear'],
-                      ['raster-particle-speed'],
-                      1.5,
-                      'rgba(134,163,171,256)',
-                      2.5,
-                      'rgba(126,152,188,256)',
-                      4.12,
-                      'rgba(110,143,208,256)',
-                      4.63,
-                      'rgba(110,143,208,256)',
-                      6.17,
-                      'rgba(15,147,167,256)',
-                      7.72,
-                      'rgba(15,147,167,256)',
-                      9.26,
-                      'rgba(57,163,57,256)',
-                      10.29,
-                      'rgba(57,163,57,256)',
-                      11.83,
-                      'rgba(194,134,62,256)',
-                      13.37,
-                      'rgba(194,134,63,256)',
-                      14.92,
-                      'rgba(200,66,13,256)',
-                      16.46,
-                      'rgba(200,66,13,256)',
-                      18.0,
-                      'rgba(210,0,50,256)',
-                      20.06,
-                      'rgba(215,0,50,256)',
-                      21.6,
-                      'rgba(175,80,136,256)',
-                      23.66,
-                      'rgba(175,80,136,256)',
-                      25.21,
-                      'rgba(117,74,147,256)',
-                      27.78,
-                      'rgba(117,74,147,256)',
-                      29.32,
-                      'rgba(68,105,141,256)',
-                      31.89,
-                      'rgba(68,105,141,256)',
-                      33.44,
-                      'rgba(194,251,119,256)',
-                      42.18,
-                      'rgba(194,251,119,256)',
-                      43.72,
-                      'rgba(241,255,109,256)',
-                      48.87,
-                      'rgba(241,255,109,256)',
-                      50.41,
-                      'rgba(256,256,256,256)',
-                      57.61,
-                      'rgba(256,256,256,256)',
-                      59.16,
-                      'rgba(0,256,256,256)',
-                      68.93,
-                      'rgba(0,256,256,256)',
-                      69.44,
-                      'rgba(256,37,256,256)'
-                    ]
-                  }
-            });
-        }
-
-        const baseName = "Layer";
-        let counter = 1;
-        let uniqueName = `${baseName} ${counter}`;
-
-        const existingNames = layers.map(layer => layer.name);
-
-        while (existingNames.includes(uniqueName)) {
-            counter++;
-            uniqueName = `${baseName} ${counter}`;
-        }
-
-        // Create UI Layer entry (only use fill layer ID as representative)
-        const newLayer = {
-            id: fillLayerId,
-            name: uniqueName,
-            visible: true,
-            locked: false,
-        };
-
-        setLayers(prevLayers => [...prevLayers, newLayer]);
-        console.log("Layer Added to Map and UI Layer Panel");
+        // Trigger file picker
+        fileInputRef.current.value = null; // Reset previous file
+        fileInputRef.current.click();
     };
 
+    const handleGeoJSONUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            let geojson;
+            try {
+                geojson = JSON.parse(e.target.result);
+            } catch (err) {
+                console.error("Invalid JSON:", err);
+                return;
+            }
+
+            const timestamp = Date.now();
+            const sourceId = `geojson-source-${timestamp}`;
+            const fillLayerId = `geojson-fill-${timestamp}`;
+            const lineLayerId = `geojson-line-${timestamp}`;
+
+            const map = mapRef.current;
+
+            // Add the GeoJSON source
+            map.addSource(sourceId, {
+                type: "geojson",
+                data: geojson,
+            });
+
+            // Add fill layer
+            map.addLayer({
+                id: fillLayerId,
+                type: "fill",
+                source: sourceId,
+                layout: {},
+                paint: {
+                    "fill-color": "#0080ff",
+                    "fill-opacity": 0.5,
+                },
+            });
+
+            // Add line layer
+            map.addLayer({
+                id: lineLayerId,
+                type: "line",
+                source: sourceId,
+                layout: {},
+                paint: {
+                    "line-color": "#000",
+                    "line-width": 2,
+                },
+            });
+
+            // Generate unique layer name
+            const baseName = file.name.replace(/\.[^/.]+$/, "") || "Layer";
+            let counter = 1;
+            let uniqueName = baseName;
+            const existingNames = layers.map((l) => l.name);
+            while (existingNames.includes(uniqueName)) {
+                uniqueName = `${baseName} ${counter++}`;
+            }
+
+            // Add to UI state
+            setLayers((prev) => [
+                ...prev,
+                {
+                    id: sourceId,
+                    name: uniqueName,
+                    visible: true,
+                    locked: false,
+                    fillId: fillLayerId,
+                    lineId: lineLayerId,
+                },
+            ]);
+
+            console.log("GeoJSON source + layers added:", sourceId);
+        };
+
+        reader.readAsText(file);
+    };
 
     const toggleLayerVisibility = (id) => {
         const layer = layers.find(layer => layer.id === id);
-
         if (!layer) {
             console.warn(`Layer with ID ${id} not found.`);
             return;
@@ -149,7 +198,7 @@ const LayerPanel = ({ mapRef }) => {
             return;
         }
 
-        const layerIds = [id]; // this is the fill layer ID
+        const layerIds = [layer.fillId, layer.lineId];
 
         layerIds.forEach(layerId => {
             if (map.getLayer(layerId)) {
@@ -171,7 +220,7 @@ const LayerPanel = ({ mapRef }) => {
         );
 
         console.log(
-            `Toggled visibility for layer ${id}${layer.outlineId ? ` and outline ${layer.outlineId}` : ''} to ${newVisibility ? 'visible' : 'hidden'}`
+            `Toggled visibility for layer ${layer.fillId} and ${layer.lineId} to ${newVisibility ? 'visible' : 'hidden'}`
         );
     };
 
@@ -181,51 +230,67 @@ const LayerPanel = ({ mapRef }) => {
             return;
         }
 
+        const targetLayer = layers.find(l => l.id === id);
+        if (!targetLayer) {
+            console.warn(`Layer with ID ${id} not found.`);
+            return;
+        }
+
+        const newLockedStatus = !targetLayer.locked;
+
         setLayers(prevLayers =>
             prevLayers.map(layer =>
-                layer.id === id ? { ...layer, locked: !layer.locked } : layer
+                layer.id === id ? { ...layer, locked: newLockedStatus } : layer
             )
         );
 
-        console.log(`Toggled lock for layer: ${id}`);
+        console.log(`Toggled lock for layer: ${id} => ${newLockedStatus}`);
     };
 
-
-    const removeLayer = (id) => {
+    const removeLayer = (sourceId) => {
         const map = mapRef.current;
         if (!map) {
             console.error("Map is not ready.");
             return;
         }
 
-        // Remove layer(s)
-        const layerIdsToRemove = [id, id.replace('fill-layer')];
-        layerIdsToRemove.forEach((layerId) => {
+        const targetLayer = layers.find(l => l.id === sourceId);
+        if (!targetLayer) {
+            console.warn(`Layer with source ID ${sourceId} not found.`);
+            return;
+        }
+
+        // Remove fill and line layers if they exist
+        [targetLayer.fillId, targetLayer.lineId].forEach(layerId => {
             if (map.getLayer(layerId)) {
                 map.removeLayer(layerId);
             }
         });
 
-        // Attempt to remove the source, only if no layers are using it
-        const sourceId = id.replace('fill-layer', 'source');
-        const layers = map.getStyle().layers;
-        const sourceStillUsed = layers.some(layer => layer.source === sourceId);
-
-        if (!sourceStillUsed && map.getSource(sourceId)) {
+        // Remove the source
+        if (map.getSource(sourceId)) {
             map.removeSource(sourceId);
         }
 
-        // Remove from UI layer state
-        setLayers(prevLayers => prevLayers.filter(layer => layer.id !== id));
+        // Update UI state
+        setLayers(prevLayers => prevLayers.filter(layer => layer.id !== sourceId));
+
+        console.log(`Removed layer and source: ${sourceId}`);
     };
 
     const updateLayerName = (id, newName) => {
-        // Logic to update layer name
-        setLayers((prevLayers) =>
-            prevLayers.map((layer) =>
+        if (!id) {
+            console.warn("No layer ID provided for updateLayerName.");
+            return;
+        }
+
+        setLayers(prevLayers =>
+            prevLayers.map(layer =>
                 layer.id === id ? { ...layer, name: newName } : layer
             )
         );
+
+        console.log(`Updated layer name for ${id} to "${newName}"`);
     };
 
     const setActiveLayer = (id) => {
@@ -246,7 +311,7 @@ const LayerPanel = ({ mapRef }) => {
         <div
             style={{
                 position: "absolute",
-                top: 20,
+                bottom: 20,
                 right: 20,
                 backgroundColor: "white",
                 padding: "15px",
@@ -302,8 +367,7 @@ const LayerPanel = ({ mapRef }) => {
 
                     {/* Add Layer Button */}
                     <div style={{ textAlign: "center", marginTop: "10px" }}>
-                        <button
-                            onClick={addLayer}
+                        <button onClick={addLayer}
                             style={{
                                 backgroundColor: "#4CAF50",
                                 color: "white",
@@ -314,9 +378,34 @@ const LayerPanel = ({ mapRef }) => {
                                 width: "100%",
                             }}
                         >
-                            <FaPlus /> Add Layer
+                            <input
+                                type="file"
+                                accept=".geojson,application/geo+json,application/json"
+                                ref={fileInputRef}
+                                style={{ display: "none" }}
+                                onChange={handleGeoJSONUpload}
+                            />
+                            <FaPlus /> Add GeoJson Layer
                         </button>
                     </div>
+
+                    {/* <div style={{ textAlign: "center", marginTop: "10px" }}>
+                        <button
+                            onClick={windLayer}
+                            style={{
+                                backgroundColor: "#2196F3",
+                                color: "white",
+                                border: "none",
+                                padding: "8px",
+                                borderRadius: "5px",
+                                cursor: "pointer",
+                                width: "100%",
+                                marginTop: "5px"
+                            }}
+                        >
+                            🌬️ Add Wind Layer
+                        </button>
+                    </div> */}
                 </>
             )}
         </div>

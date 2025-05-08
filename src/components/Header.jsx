@@ -56,6 +56,7 @@ const NavAndToggleWrapper = styled.div`
   align-items: center;
   margin-left: auto;
   gap: 15rem;
+  margin-right: 2rem;
 
   @media (max-width: 939px) {
     display: none;
@@ -100,7 +101,7 @@ const ThemeToggleButton = styled.button`
   @media (min-width: 940px) and (max-width: 1080px) {
     margin-left: -10rem;
   }
-    
+
   @media (max-width: 939px) {
     padding: 2px 8px;
     font-size: ${({ theme }) => theme.fontSizes.medium};
