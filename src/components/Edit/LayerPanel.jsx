@@ -311,12 +311,12 @@ const LayerPanel = ({ mapRef }) => {
         <div
             style={{
                 position: "absolute",
-                bottom: 20,
-                right: 20,
+                bottom: "2rem",
+                right: ".5rem",
                 backgroundColor: "white",
                 padding: "15px",
                 borderRadius: "12px",
-                zIndex: 3,
+                zIndex: 100,
                 width: "250px",
                 maxHeight: isCollapsed ? "50px" : "300px",
                 overflowY: isCollapsed ? "hidden" : "auto",

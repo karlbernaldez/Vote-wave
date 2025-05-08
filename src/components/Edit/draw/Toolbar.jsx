@@ -2,32 +2,62 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const ToolbarContainer = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
   display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  padding: 4px;
-  z-index: 100;
+  flex-direction: row;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 6px 10px;
+  z-index: 1000;
+  gap: 8px;
 `;
 
 const ToolButton = styled.button`
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ active }) => (active ? '#e0f0ff' : 'none')};
   border: none;
-  font-size: 20px;
+  border-radius: 6px;
+  font-size: 18px;
   padding: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  color: ${({ active }) => (active ? 'blue' : 'black')};
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  color: ${({ active }) => (active ? '#007acc' : '#333')};
 
   &:hover {
     background-color: #f0f0f0;
-    border-radius: 5px;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    background-color: #d0eaff;
+  }
+`;
+
+const CollapseToggle = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px;
+  color: #333;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    color: #007acc;
+    transform: scale(1.1);
   }
 `;
 
 const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) => {
-  const [isDrawing, setIsDrawing] = useState(false); // State to track drawing mode
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const tools = [
     { id: 'draw_point', icon: '📍', label: 'Draw Point (m)', hotkey: 'm' },
@@ -38,7 +68,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) =
   ];
 
   const handleDrawModeChange = (mode) => {
-    if (draw && typeof draw.changeMode === 'function') {
+    if (draw?.changeMode) {
       console.log(`Switching to mode: ${mode}`);
       draw.changeMode(mode);
     } else {
@@ -50,75 +80,67 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, setDrawCounter }) =
     const key = event.key.toLowerCase();
     const tool = tools.find(t => t.hotkey === key);
 
-    if (tool) {
-      handleDrawModeChange(tool.id);
+    if (tool) handleDrawModeChange(tool.id);
+
+    if ((event.key === 'Backspace' || event.key === 'Delete') && draw?.trash) {
+      draw.trash();
+      console.log('Deleted shape');
     }
 
-    if (event.key === 'Backspace' || event.key === 'Delete') {
-      if (draw && typeof draw.trash === 'function') {
-        draw.trash();
-        console.log('Deleted shape');
-      } else {
-        console.warn('Draw instance not available or trash method missing');
-      }
-    }
-
-    if (key === 'f') {
-      // Toggle canvas with 'f' key
-      toggleDrawing();
-    }
-
-    if (key === 'x' && isDrawing) {
-      // Stop drawing when 'x' is pressed
-      stopDrawing();
-    }
+    if (key === 'f') toggleDrawing();
+    if (key === 'x' && isDrawing) stopDrawing();
   };
 
   const toggleDrawing = () => {
-    if (isDrawing) {
-      stopDrawing();
-    } else {
-      startDrawing();
-    }
+    isDrawing ? stopDrawing() : startDrawing();
   };
 
   const startDrawing = () => {
     setIsDrawing(true);
-    if (onToggleCanvas) onToggleCanvas(true);
+    onToggleCanvas?.(true);
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
-    if (onToggleCanvas) onToggleCanvas(false);
+    onToggleCanvas?.(false);
+  };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => !prev);
   };
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, [draw, isDrawing, onToggleCanvas]);
 
   return (
     <ToolbarContainer>
-      {tools.map(tool => (
-        <ToolButton
-          key={tool.id}
-          onClick={() => handleDrawModeChange(tool.id)}
-          title={tool.label}
-        >
-          {tool.icon}
-        </ToolButton>
-      ))}
+      <CollapseToggle onClick={toggleCollapse} title={isCollapsed ? "Expand Toolbar" : "Collapse Toolbar"}>
+        {isCollapsed ? '☰' : '✖'}
+      </CollapseToggle>
 
-      {/* Pen tool button for Canvas */}
-      <ToolButton
-        onClick={toggleDrawing}
-        title={isDrawing ? "Stop Drawing (X)" : "Start Drawing (Pencil)"}
-        active={isCanvasActive}
-      >
-        {isDrawing ? '❌' : '🖊️'}
-      </ToolButton>
+      {!isCollapsed && (
+        <>
+          {tools.map(tool => (
+            <ToolButton
+              key={tool.id}
+              onClick={() => handleDrawModeChange(tool.id)}
+              title={tool.label}
+            >
+              {tool.icon}
+            </ToolButton>
+          ))}
+
+          <ToolButton
+            onClick={toggleDrawing}
+            title={isDrawing ? "Stop Drawing (X)" : "Start Drawing (Pencil)"}
+            active={isCanvasActive}
+          >
+            {isDrawing ? '❌' : '🖊️'}
+          </ToolButton>
+        </>
+      )}
     </ToolbarContainer>
   );
 };
