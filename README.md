@@ -49,7 +49,7 @@ This web application provides an interactive weather forecasting platform using 
  ┃ ┃ ┃ ┣ 📜 LayerpanelStyles.js
  ┃ ┃ ┃ ┣ 📜 ToolBarStyles.js
  ┃ ┃ ┃ ┗ 📂 utils
- ┃ ┃ ┃ ┣ 📜 ToolBarUtils.js
+ ┃ ┃ ┃ ┃ ┣ 📜 ToolBarUtils.js
  ┃ ┃ ┃ ┃ ┣ 📜 layerUtils.js
  ┃ ┃ ┃ ┣ 📜 LayerItem.jsx
  ┃ ┃ ┃ ┣ 📜 LayerPanel.jsx
