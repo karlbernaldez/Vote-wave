@@ -37,23 +37,52 @@ This web application provides an interactive weather forecasting platform using 
  ┃ ┣ 📂 components
  ┃ ┃ ┣ 📂 Edit
  ┃ ┃ ┃ ┣ 📂 draw
+ ┃ ┃ ┃ ┃ ┣ 📜 canvas.jsx
+ ┃ ┃ ┃ ┃ ┣ 📜 circle.js
+ ┃ ┃ ┃ ┃ ┣ 📜 control.js
+ ┃ ┃ ┃ ┃ ┣ 📜 linestring.js
+ ┃ ┃ ┃ ┃ ┣ 📜 rectangle.js
+ ┃ ┃ ┃ ┃ ┣ 📜 simple_select.js
+ ┃ ┃ ┃ ┃ ┣ 📜 styles.js
+ ┃ ┃ ┃ ┃ ┣ 📜 util.js
  ┃ ┃ ┃ ┗ 📂 utils
+ ┃ ┃ ┃ ┃ ┣ 📜 layerUtils.js
+ ┃ ┃ ┃ ┣ 📜 LayerItem.jsx
+ ┃ ┃ ┃ ┣ 📜 LayerPanel.jsx
+ ┃ ┃ ┃ ┣ 📜 LayerpanelStyles.js
+ ┃ ┃ ┃ ┣ 📜 MapComponent.jsx
+ ┃ ┃ ┃ ┣ 📜 Toolbar.jsx
  ┃ ┃ ┣ 📂 Home
+ ┃ ┃ ┃ ┣ 📜 Feature.jsx
+ ┃ ┃ ┃ ┣ 📜 HeroSection.jsx
  ┃ ┃ ┣ 📂 Marine
+ ┃ ┃ ┃ ┣ 📜 Chart.jsx
+ ┃ ┃ ┃ ┣ 📜 MarineStyle.jsx
+ ┃ ┃ ┃ ┣ 📜 OptionBox.jsx
+ ┃ ┃ ┃ ┣ 📜 toggleSelection.jsx
  ┃ ┃ ┗ 📂 modals
+ ┃ ┃ ┃ ┣ 📜 MarkerTitleModal.jsx
+ ┃ ┃ ┃ ┣ 📜 MobileAccessModal.jsx
+ ┃ ┃ ┣ 📜 Footer.jsx
+ ┃ ┃ ┣ 📜 Header.jsx
+ ┃ ┃ ┣ 📜 Logo.jsx
  ┃ ┣ 📂 hooks
+ ┃ ┃ ┣ 📜 useIsMobile.jsx
  ┃ ┣ 📂 pages
+ ┃ ┃ ┣ 📜 Edit.jsx
+ ┃ ┃ ┣ 📜 Home.jsx
+ ┃ ┃ ┣ 📜 Marine.jsx
  ┃ ┣ 📂 styles
- ┃ ┃ ┣ 📜 app.css
- ┃ ┃ ┗ 📜 map.css
+ ┃ ┃ ┣ 📜 index.css
+ ┃ ┃ ┗ 📜 theme.jsx
  ┃ ┣ 📂 utils
+ ┃ ┃ ┣ 📜 mapSetup.js
+ ┃ ┃ ┣ 📜 mapUtils.js
  ┃ ┣ 📜 App.jsx
- ┃ ┗ 📜 main.jsx
+ ┃ ┗ 📜 index.js
  ┣ 📜 .env
  ┣ 📜 package.json
  ┣ 📜 README.md
- ┣ 📜 vite.config.js
- ┗ 📜 tsconfig.json
 ```
 
 ## 🛠 Installation & Setup
