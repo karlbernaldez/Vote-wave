@@ -13,6 +13,7 @@ const LayerItem = ({
     onDragStart, // Drag start handler
     onDragOver, // Drag over handler
     onDrop, // Drop handler
+    isDarkMode
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(layer.name);
@@ -76,7 +77,12 @@ const LayerItem = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                backgroundColor: isActiveLayer ? "#007bff" : "#f5f5f5", // Change background if active
+                backgroundColor: isActiveLayer
+                    ? "#007bff"
+                    : isDarkMode
+                        ? "#444" // darker background for dark mode
+                        : "#f5f5f5", // light background for light mode
+                color: isDarkMode ? "white" : "black", // ensure text is visible
                 padding: "8px",
                 borderRadius: "6px",
                 marginBottom: "8px",

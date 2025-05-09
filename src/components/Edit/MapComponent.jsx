@@ -19,7 +19,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
       return;
     }
 
-    // Only initialize map once
+    // Initialize map only if it's not already initialized
     if (!mapRef.current) {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
@@ -49,7 +49,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
       });
     }
 
-    // Cleanup
+    // Cleanup map instance when component unmounts
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -58,16 +58,16 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
     };
   }, []); // Only run once on mount
 
-  // Handle theme switch
+  // Update the map style when isDarkMode changes
   useEffect(() => {
-    if (mapRef.current && mapRef.current.isStyleLoaded()) {
+    if (mapRef.current) {
       mapRef.current.setStyle(
         isDarkMode
           ? 'mapbox://styles/mapbox/dark-v11'
           : 'mapbox://styles/mapbox/light-v11'
       );
     }
-  }, [isDarkMode]);
+  }, [isDarkMode]); // Re-run whenever isDarkMode changes
 
   return (
     <div

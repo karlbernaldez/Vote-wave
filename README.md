@@ -45,11 +45,14 @@ This web application provides an interactive weather forecasting platform using 
  ┃ ┃ ┃ ┃ ┣ 📜 simple_select.js
  ┃ ┃ ┃ ┃ ┣ 📜 styles.js
  ┃ ┃ ┃ ┃ ┣ 📜 util.js
+ ┃ ┃ ┃ ┗ 📂 styles
+ ┃ ┃ ┃ ┣ 📜 LayerpanelStyles.js
+ ┃ ┃ ┃ ┣ 📜 ToolBarStyles.js
  ┃ ┃ ┃ ┗ 📂 utils
+ ┃ ┃ ┃ ┃ ┣ 📜 ToolBarUtils.js
  ┃ ┃ ┃ ┃ ┣ 📜 layerUtils.js
  ┃ ┃ ┃ ┣ 📜 LayerItem.jsx
  ┃ ┃ ┃ ┣ 📜 LayerPanel.jsx
- ┃ ┃ ┃ ┣ 📜 LayerpanelStyles.js
  ┃ ┃ ┃ ┣ 📜 MapComponent.jsx
  ┃ ┃ ┃ ┣ 📜 Toolbar.jsx
  ┃ ┃ ┣ 📂 Home
