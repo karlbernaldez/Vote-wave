@@ -15,33 +15,45 @@ This web application provides an interactive weather forecasting platform using 
 ```
 📦 wave-app
  ┣ 📂 public
+ ┃ ┣ 📜 index.html
+ ┃ ┣ ⚡ map-pin.png 
  ┃ ┗ ⚡ pagasa-logo.png
  ┣ 📂 src
+ ┃ ┣ 📂 api
  ┃ ┣ 📂 assets
- ┃ ┃ ┣ 📜 BarChart.jsx
- ┃ ┃ ┣ 📜 Global.jsx
- ┃ ┃ ┣ 📜 InkBottle.jsx
+ ┃ ┃ ┣ 📂 features_cover_images
+ ┃ ┃ ┣ 🖼️ chart_sample.png
+ ┃ ┃ ┣ 🖼️ colorImpairedImage.png
+ ┃ ┃ ┣ 🖼️ combo_chart.png
+ ┃ ┃ ┣ 📄 Copyright.svg
+ ┃ ┃ ┣ 📄 Facebook.svg
+ ┃ ┃ ┣ 🖼️ Instagram.png
+ ┃ ┃ ┣ 📄 Line.png
+ ┃ ┃ ┣ 📄 line1.png
+ ┃ ┃ ┣ 🖼️ Linkedin.png
+ ┃ ┃ ┣ 🖼️ meteorologist.png
+ ┃ ┃ ┣ 🖼️ meteorologist_dark.png
+ ┃ ┃ ┣ 📄 Twitter.svg
  ┃ ┣ 📂 components
- ┃ ┃ ┣ 📂 Sidebar
- ┃ ┃ ┃ ┣ 📜 SidebarHeader.jsx
- ┃ ┃ ┃ ┣ 📜 Switch.jsx
- ┃ ┃ ┃ ┣ 📜 Typography.jsx
- ┃ ┃ ┣ 📜 Navbar.jsx
- ┃ ┃ ┣ 📜 Sidebar.jsx
- ┃ ┃ ┣ 📜 MapComponent.jsx
- ┃ ┃ ┗ 📜 DrawingOverlay.jsx
+ ┃ ┃ ┣ 📂 Edit
+ ┃ ┃ ┃ ┣ 📂 draw
+ ┃ ┃ ┃ ┗ 📂 utils
+ ┃ ┃ ┣ 📂 Home
+ ┃ ┃ ┣ 📂 Marine
+ ┃ ┃ ┗ 📂 modals
+ ┃ ┣ 📂 hooks
  ┃ ┣ 📂 pages
- ┃ ┃ ┗ 📜 Home.jsx
  ┃ ┣ 📂 styles
- ┃ ┃ ┗ 📜 app.css
+ ┃ ┃ ┣ 📜 app.css
  ┃ ┃ ┗ 📜 map.css
+ ┃ ┣ 📂 utils
  ┃ ┣ 📜 App.jsx
  ┃ ┗ 📜 main.jsx
  ┣ 📜 .env
  ┣ 📜 package.json
  ┣ 📜 README.md
- ┗ 📜 vite.config.js
- ┣ 📜 tsconfig.json
+ ┣ 📜 vite.config.js
+ ┗ 📜 tsconfig.json
 ```
 
 ## 🛠 Installation & Setup
