@@ -15,33 +15,77 @@ This web application provides an interactive weather forecasting platform using 
 ```
 📦 wave-app
  ┣ 📂 public
+ ┃ ┣ 📜 index.html
+ ┃ ┣ ⚡ map-pin.png 
  ┃ ┗ ⚡ pagasa-logo.png
  ┣ 📂 src
+ ┃ ┣ 📂 api
  ┃ ┣ 📂 assets
- ┃ ┃ ┣ 📜 BarChart.jsx
- ┃ ┃ ┣ 📜 Global.jsx
- ┃ ┃ ┣ 📜 InkBottle.jsx
+ ┃ ┃ ┣ 📂 features_cover_images
+ ┃ ┃ ┣ 🖼️ chart_sample.png
+ ┃ ┃ ┣ 🖼️ colorImpairedImage.png
+ ┃ ┃ ┣ 🖼️ combo_chart.png
+ ┃ ┃ ┣ 📄 Copyright.svg
+ ┃ ┃ ┣ 📄 Facebook.svg
+ ┃ ┃ ┣ 🖼️ Instagram.png
+ ┃ ┃ ┣ 📄 Line.png
+ ┃ ┃ ┣ 📄 line1.png
+ ┃ ┃ ┣ 🖼️ Linkedin.png
+ ┃ ┃ ┣ 🖼️ meteorologist.png
+ ┃ ┃ ┣ 🖼️ meteorologist_dark.png
+ ┃ ┃ ┣ 📄 Twitter.svg
  ┃ ┣ 📂 components
- ┃ ┃ ┣ 📂 Sidebar
- ┃ ┃ ┃ ┣ 📜 SidebarHeader.jsx
- ┃ ┃ ┃ ┣ 📜 Switch.jsx
- ┃ ┃ ┃ ┣ 📜 Typography.jsx
- ┃ ┃ ┣ 📜 Navbar.jsx
- ┃ ┃ ┣ 📜 Sidebar.jsx
- ┃ ┃ ┣ 📜 MapComponent.jsx
- ┃ ┃ ┗ 📜 DrawingOverlay.jsx
+ ┃ ┃ ┣ 📂 Edit
+ ┃ ┃ ┃ ┣ 📂 draw
+ ┃ ┃ ┃ ┃ ┣ 📜 canvas.jsx
+ ┃ ┃ ┃ ┃ ┣ 📜 circle.js
+ ┃ ┃ ┃ ┃ ┣ 📜 control.js
+ ┃ ┃ ┃ ┃ ┣ 📜 linestring.js
+ ┃ ┃ ┃ ┃ ┣ 📜 rectangle.js
+ ┃ ┃ ┃ ┃ ┣ 📜 simple_select.js
+ ┃ ┃ ┃ ┃ ┣ 📜 styles.js
+ ┃ ┃ ┃ ┃ ┣ 📜 util.js
+ ┃ ┃ ┃ ┗ 📂 styles
+ ┃ ┃ ┃ ┣ 📜 LayerpanelStyles.js
+ ┃ ┃ ┃ ┣ 📜 ToolBarStyles.js
+ ┃ ┃ ┃ ┗ 📂 utils
+ ┃ ┃ ┃ ┣ 📜 ToolBarUtils.js
+ ┃ ┃ ┃ ┃ ┣ 📜 layerUtils.js
+ ┃ ┃ ┃ ┣ 📜 LayerItem.jsx
+ ┃ ┃ ┃ ┣ 📜 LayerPanel.jsx
+ ┃ ┃ ┃ ┣ 📜 MapComponent.jsx
+ ┃ ┃ ┃ ┣ 📜 Toolbar.jsx
+ ┃ ┃ ┣ 📂 Home
+ ┃ ┃ ┃ ┣ 📜 Feature.jsx
+ ┃ ┃ ┃ ┣ 📜 HeroSection.jsx
+ ┃ ┃ ┣ 📂 Marine
+ ┃ ┃ ┃ ┣ 📜 Chart.jsx
+ ┃ ┃ ┃ ┣ 📜 MarineStyle.jsx
+ ┃ ┃ ┃ ┣ 📜 OptionBox.jsx
+ ┃ ┃ ┃ ┣ 📜 toggleSelection.jsx
+ ┃ ┃ ┗ 📂 modals
+ ┃ ┃ ┃ ┣ 📜 MarkerTitleModal.jsx
+ ┃ ┃ ┃ ┣ 📜 MobileAccessModal.jsx
+ ┃ ┃ ┣ 📜 Footer.jsx
+ ┃ ┃ ┣ 📜 Header.jsx
+ ┃ ┃ ┣ 📜 Logo.jsx
+ ┃ ┣ 📂 hooks
+ ┃ ┃ ┣ 📜 useIsMobile.jsx
  ┃ ┣ 📂 pages
- ┃ ┃ ┗ 📜 Home.jsx
+ ┃ ┃ ┣ 📜 Edit.jsx
+ ┃ ┃ ┣ 📜 Home.jsx
+ ┃ ┃ ┣ 📜 Marine.jsx
  ┃ ┣ 📂 styles
- ┃ ┃ ┗ 📜 app.css
- ┃ ┃ ┗ 📜 map.css
+ ┃ ┃ ┣ 📜 index.css
+ ┃ ┃ ┗ 📜 theme.jsx
+ ┃ ┣ 📂 utils
+ ┃ ┃ ┣ 📜 mapSetup.js
+ ┃ ┃ ┣ 📜 mapUtils.js
  ┃ ┣ 📜 App.jsx
- ┃ ┗ 📜 main.jsx
+ ┃ ┗ 📜 index.js
  ┣ 📜 .env
  ┣ 📜 package.json
  ┣ 📜 README.md
- ┗ 📜 vite.config.js
- ┣ 📜 tsconfig.json
 ```
 
 ## 🛠 Installation & Setup
@@ -57,7 +101,7 @@ npm install
 ```
 
 ### 3️⃣ Add Mapbox Access Token
-1. Create a `.env` file in the root directory.
+1. Create a `.env` file in the root directory
 2. Add your **Mapbox Token**:
    ```sh
    VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
@@ -82,11 +126,11 @@ npm run dev
 
 ## 📝 To-Do List
 - [ ] Integrate live weather model data
-- [ ] Improve drawing tools (e.g., different colors, shapes)
+- [ ] Improve drawing tools (e.g., different colors, shapes).
 - [ ] Add export/save functionality for drawings
 
 ## 📜 License
-This project is licensed under the **[Apache-2.0 license](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
+This project is licensed under the **[MIT license](https://github.com/karlbernaldez/Vote-wave/blob/main/LICENSE)**.
 
 ## 🙌 Contributing
 Feel free to submit issues or pull requests to improve the app!

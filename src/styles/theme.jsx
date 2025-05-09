@@ -43,6 +43,7 @@ const sharedSpacing = {
   xsmall: '8px',
   small: '10px',
   medium: '20px',
+  large: '30px',
   headerHeight: '70px',
   freeSpaceHeight: '300px',
   freeSpaceMarginTop: '200px',
@@ -139,7 +140,7 @@ export const darkTheme = {
   colors: {
     highlight: '#01b0ef',
     background: '#121212',
-    lightBackground: '#121212',
+    lightBackground: '#2c3e50',
     darkBackground: '#1c1c1c',
 
     textPrimary: '#ffffff',

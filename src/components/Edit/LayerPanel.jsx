@@ -2,13 +2,16 @@ import React, { useState, useRef } from "react";
 import LayerItem from "./LayerItem";
 import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { addWindLayer, addGeoJsonLayer, toggleLayerVisibility, toggleLayerLock, removeLayer, updateLayerName } from "./utils/layerUtils";
-import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./LayerPanelStyles"; // Import styles
+import { theme, darkTheme } from '../../styles/theme';
+import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./styles/LayerPanelStyles"; 
 
 const LayerPanel = ({ mapRef, isDarkMode }) => {
-    const [layers, setLayers] = useState([]); // For managing the layers in the layer panel
+    const [layers, setLayers] = useState([]); 
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [activeLayerId, setActiveLayerId] = useState(null); // Track active layer
+    const [activeLayerId, setActiveLayerId] = useState(null); 
     const fileInputRef = useRef();
+
+    const currentTheme = isDarkMode ? darkTheme : theme;
 
     const windLayer = () => {
         if (!mapRef.current) return;
@@ -18,7 +21,6 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
     const handleGeoJSONUpload = (event) => {
         const file = event.target.files[0];
         if (!file || !mapRef.current) return;
-
         addGeoJsonLayer(mapRef.current, file, layers, setLayers);
     };
 
@@ -28,35 +30,30 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
             return;
         }
 
-        // Trigger file picker
-        fileInputRef.current.value = null; // Reset previous file
+        fileInputRef.current.value = null; 
         fileInputRef.current.click();
     };
 
     const setActiveLayer = (id) => {
-        // Find the layer in your UI state
         const layer = layers.find(layer => layer.id === id);
-
         if (!layer) {
             console.warn(`Layer with ID ${id} not found.`);
             return;
         }
-
-        // Logic to set the active layer
         setActiveLayerId(id);
         console.log(`Layer ${id} is now active.`);
     };
 
     return (
-        <div style={panelStyle(isDarkMode, isCollapsed)}>
-            <div style={headerStyle(isCollapsed)} onClick={() => setIsCollapsed(!isCollapsed)}>
+        <div style={panelStyle(currentTheme, isCollapsed)}>
+            <div style={headerStyle(currentTheme, isCollapsed)} onClick={() => setIsCollapsed(!isCollapsed)}>
                 <span>Layers</span>
                 <div>{isCollapsed ? <FaChevronUp /> : <FaChevronDown />}</div>
             </div>
 
             {!isCollapsed && (
                 <>
-                    <ul style={listStyle}>
+                    <ul style={listStyle(currentTheme)}>
                         {layers.map((layer, index) => (
                             <LayerItem
                                 key={layer.id}
@@ -76,15 +73,13 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
                                 isActiveLayer={activeLayerId === layer.id}
                                 setActiveLayer={setActiveLayer}
                                 index={index}
-                                onDragStart={() => { }}
-                                onDragOver={() => { }}
-                                onDrop={() => { }}
+                                isDarkMode={isDarkMode}
                             />
                         ))}
                     </ul>
 
-                    <div style={footerStyle}>
-                        <button onClick={addLayer} style={buttonStyle}>
+                    <div style={footerStyle(currentTheme)}>
+                        <button onClick={addLayer} style={buttonStyle(currentTheme)}>
                             <input
                                 type="file"
                                 accept=".geojson,application/geo+json,application/json"
