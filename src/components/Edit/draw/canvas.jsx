@@ -6,7 +6,16 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
   const isDrawing = useRef(false);
   const map = mapRef.current;
 
-  // Function to convert drawing to GeoJSON format
+  // Prevent page scroll during touch drawing
+  useEffect(() => {
+    const preventScroll = (e) => e.preventDefault();
+    document.body.addEventListener('touchmove', preventScroll, { passive: false });
+
+    return () => {
+      document.body.removeEventListener('touchmove', preventScroll);
+    };
+  }, []);
+
   const convertToGeoJSON = () => {
     if (!mapRef.current) {
       console.error('Map reference is not available!');
@@ -16,7 +25,6 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
     const geojsonFeatures = lines.map((line) => {
       const coords = [];
 
-      // Convert each screen point to map coordinates (lng, lat)
       for (let i = 0; i < line.points.length; i += 2) {
         const x = line.points[i];
         const y = line.points[i + 1];
@@ -40,7 +48,6 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
     };
   };
 
-  // Function to trigger the download of the GeoJSON file
   const downloadGeoJSON = () => {
     const geojson = convertToGeoJSON();
     if (!geojson) return;
@@ -54,13 +61,13 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
     link.click();
   };
 
-  const handleMouseDown = (e) => {
+  const handlePointerDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
     setLines([...lines, { points: [pos.x, pos.y] }]);
   };
 
-  const handleMouseMove = (e) => {
+  const handlePointerMove = (e) => {
     if (!isDrawing.current) return;
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
@@ -71,25 +78,22 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
     setLines(updatedLines);
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     isDrawing.current = false;
     const geojson = convertToGeoJSON();
 
-    // Increment the counter for each drawing and update the state
     setDrawCounter((prevCounter) => prevCounter + 1);
 
-    const sourceId = `draw-${drawCounter + 1}`;  // Unique ID for each source
-    const layerId = `layer-${drawCounter + 1}`;  // Unique ID for each layer
+    const sourceId = `draw-${drawCounter + 1}`;
+    const layerId = `layer-${drawCounter + 1}`;
 
-    // Log the generated source and layer IDs for debugging
     console.log(`Drawing finished. Generating source and layer with IDs:`);
     console.log(`Source ID: ${sourceId}`);
     console.log(`Layer ID: ${layerId}`);
 
-    // Add the source with the unique ID
     if (map.getSource(sourceId)) {
       console.log(`Source with ID ${sourceId} already exists. Removing it.`);
-      map.removeSource(sourceId); // Remove existing source if it exists
+      map.removeSource(sourceId);
     }
 
     map.addSource(sourceId, {
@@ -97,13 +101,11 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
       data: geojson,
     });
 
-    // Log source addition
     console.log(`Source with ID ${sourceId} added to the map.`);
 
-    // Add the layer with the unique ID
     if (map.getLayer(layerId)) {
       console.log(`Layer with ID ${layerId} already exists. Removing it.`);
-      map.removeLayer(layerId); // Remove existing layer if it exists
+      map.removeLayer(layerId);
     }
 
     map.addLayer({
@@ -114,27 +116,28 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
       paint: {
         'line-color': '#0080ff',
         'line-opacity': 0.5,
-        'line-width': 2, // Customize the line width if needed
+        'line-width': 2,
       },
     });
 
-    // Log layer addition
     console.log(`Layer with ID ${layerId} added to the map.`);
   };
 
   return (
     <div>
-      {/* Button to trigger download */}
-      <button onClick={downloadGeoJSON} style={{ position: 'absolute', zIndex: 100, top: '10px', right: '3rem' }}>
+      <button
+        onClick={downloadGeoJSON}
+        style={{ position: 'absolute', zIndex: 100, top: '10px', right: '3rem' }}
+      >
         Download GeoJSON
       </button>
 
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         style={{
           position: 'absolute',
           top: 0,
