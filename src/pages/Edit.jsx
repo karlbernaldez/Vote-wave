@@ -7,6 +7,7 @@ import styled from "@emotion/styled";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import { handleSaveMarker as saveMarkerFn } from "../utils/mapUtils";
 import { setupMap } from "../utils/mapSetup";
+import { fetchFeatures } from '../api/featureServices';
 
 const Container = styled.div`
   position: relative;
@@ -34,22 +35,41 @@ const Edit = ({ isDarkMode }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false); // <- NEW state for delay
+
   const mapRef = useRef(null);
-  setLayersRef.current = setLayers; 
+  setLayersRef.current = setLayers;
 
   const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
 
   const handleSaveMarker = saveMarkerFn(selectedPoint, mapRef, setShowTitleModal);
 
-  const handleMapLoad = useCallback((map) => {
-    setupMap({
-      map,
-      mapRef,
-      setDrawInstance,
-      setMapLoaded,
-      setSelectedPoint,
-      setShowTitleModal
-    });
+  const handleMapLoad = useCallback(async (map) => {
+    try {
+      const savedFeatures = await fetchFeatures();
+
+      const initialLayers = savedFeatures.map(f => ({
+        id: f.sourceId,
+        name: f.name || 'Untitled Feature',
+        visible: true,
+        locked: false,
+      }));
+
+      setLayers(initialLayers);
+
+      setupMap({
+        map,
+        mapRef,
+        setDrawInstance,
+        setMapLoaded,
+        setSelectedPoint: () => {},
+        setShowTitleModal: () => {},
+        initialFeatures: savedFeatures,
+      });
+    } catch (error) {
+      console.error('Failed to load saved features:', error);
+      setupMap({ map, mapRef, setDrawInstance, setMapLoaded });
+    }
   }, []);
 
   useEffect(() => {
@@ -72,20 +92,32 @@ const Edit = ({ isDarkMode }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showTitleModal, toggleCanvas]);
 
+  useEffect(() => {
+    const toolbarDelay = setTimeout(() => {
+      setShowToolbar(true);
+    }, 1000); // Delay in milliseconds
+
+    return () => clearTimeout(toolbarDelay);
+  }, []);
+
   return (
     <Container>
       <MapWrapper collapsed={collapsed}>
         <MapComponent onMapLoad={handleMapLoad} isDarkMode={isDarkMode} />
       </MapWrapper>
-      <DrawToolBar
-        draw={drawInstance}
-        onToggleCanvas={toggleCanvas}
-        isCanvasActive={isCanvasActive}
-        isDarkMode={isDarkMode}
-        layers={layers}
-        setLayers={setLayers}
-        setLayersRef={setLayersRef} // Passing the ref properly
-      />
+
+      {showToolbar && (
+        <DrawToolBar
+          draw={drawInstance}
+          onToggleCanvas={toggleCanvas}
+          isCanvasActive={isCanvasActive}
+          isDarkMode={isDarkMode}
+          layers={layers}
+          setLayers={setLayers}
+          setLayersRef={setLayersRef}
+        />
+      )}
+
       {isCanvasActive && (
         <Canvas
           mapRef={mapRef}
@@ -94,6 +126,7 @@ const Edit = ({ isDarkMode }) => {
           isDarkMode={isDarkMode}
         />
       )}
+
       <LayerPanel
         layers={layers}
         setLayers={setLayers}
@@ -101,6 +134,7 @@ const Edit = ({ isDarkMode }) => {
         isDarkMode={isDarkMode}
         draw={drawInstance}
       />
+
       <MarkerTitleModal
         isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}

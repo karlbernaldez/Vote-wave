@@ -1,4 +1,5 @@
 // components/utils/layerUtils.js
+import { deleteFeature } from '../../../api/featureServices';
 
 export function addWindLayer(map) {
     map.addSource('wind_data_source', {
@@ -181,16 +182,30 @@ export function toggleLayerLock(layer, setLayers) {
     );
 }
 
-export function removeLayer(map, layer, setLayers, draw) {
-    if (!map || !layer) return;
-    const { fillId, lineId, id } = layer;
+export async function removeLayer(map, layer, setLayers, draw) {
+  if (!map || !layer) return;
+  const { fillId, lineId, id } = layer;
 
-    if (map.getLayer(fillId)) map.removeLayer(fillId);
-    if (map.getLayer(lineId)) map.removeLayer(lineId);
-    if (map.getSource(id)) map.removeSource(id);
-    console.log("ID: ",id)
-    draw.delete(id)
-    setLayers((prev) => prev.filter((l) => l.id !== id));
+  if (map.getLayer(fillId)) map.removeLayer(fillId);
+  if (map.getLayer(lineId)) map.removeLayer(lineId);
+  if (map.getSource(id)) map.removeSource(id);
+
+  setLayers((prev) => prev.filter((l) => l.id !== id));
+  await removeFeature(draw, id);
+}
+
+export async function removeFeature(draw, id) {
+  // Delete from Mapbox Draw
+  if (draw && typeof draw.delete === 'function') {
+    draw.trash();
+  }
+
+  // Delete from backend
+  try {
+    await deleteFeature(id);
+  } catch (error) {
+    console.error(`Failed to delete feature ${id} from backend.`, error);
+  }
 }
 
 export function updateLayerName(layerId, newName, setLayers) {

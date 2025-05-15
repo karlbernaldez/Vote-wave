@@ -1,3 +1,5 @@
+import { removeFeature } from "./layerUtils";
+
 export const handleDrawModeChange = (mode, draw, setLayersRef) => {
   if (draw?.changeMode) {
     console.log(`Switching to mode: ${mode}`);
@@ -17,9 +19,7 @@ export const handleKeyPress = (
   const key = event.key.toLowerCase();
   const tool = tools.find(t => t.hotkey === key);
 
-  console.log("HANDLEKEYPRESS FUNCTION");
-
-  // Handle drawing mode change (if tool is pressed)
+  // Handle drawing mode change (if tool is pressed)r
   if (tool) {
     handleDrawModeChange(tool.id, draw, setLayersRef);
   }
@@ -30,20 +30,18 @@ export const handleKeyPress = (
 
     if (selectedFeatures?.features?.length) {
       selectedFeatures.features.forEach(feature => {
-        const sourceId = feature.properties?.sourceId;
+        const featureID = feature.properties?.featureID;
+        const layerID = feature.properties?.layerID
 
-        if (sourceId) {
-          console.log("Deleted shape sourceID:", feature.id);
-
-          setLayersRef((prevLayers) => prevLayers.filter((l) => l.id !== feature.id));
-          // Trigger the delete in draw (to remove the feature from the map)
-          draw.delete(feature.id); // Delete selected shapes
+        if (layerID) {
+          setLayersRef((prevLayers) => prevLayers.filter((l) => l.id !== layerID));
+          removeFeature(draw, layerID)
         } else {
           console.warn("Deleted feature is missing sourceId in properties.");
         }
       });
     } else {
-      console.log("No features selected for deletion.");
+      console.error("No features selected for deletion.");
     }
   }
 

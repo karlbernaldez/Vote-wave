@@ -106,12 +106,14 @@ const Layout = () => {
   useEffect(() => {
     setIsLoading(true);
 
+    const timeout = isEditPage ? 1000 : 500;
+
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, timeout);
 
     return () => clearTimeout(timer);
-  }, [location]);
+  }, [location, isEditPage]);
 
   const handleModalClose = () => {
     setModalVisible(false);

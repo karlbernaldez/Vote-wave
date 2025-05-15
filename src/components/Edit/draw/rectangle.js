@@ -1,3 +1,5 @@
+import { saveFeature } from '../../../api/featureServices';
+
 // from https://github.com/thegisdev/mapbox-gl-draw-rectangle-mode
 const doubleClickZoom = {
   enable: (ctx) => {
@@ -31,12 +33,12 @@ const DrawRectangle = {
     const { setLayersRef, mode } = options;
 
     const timestamp = Date.now();
-    const sourceId = 'Rectangle-' + timestamp;
+    const layerID = 'Rectangle-' + timestamp;
 
     const rectangle = this.newFeature({
       type: 'Feature',
       properties: {
-        sourceId: sourceId, // ✅ assign sourceId directly here
+        layerID: layerID, // ✅ assign sourceId directly here
       },
       geometry: {
         type: 'Polygon',
@@ -114,45 +116,54 @@ const DrawRectangle = {
     if (e.keyCode === 27) return this.changeMode('simple_select');
   },
   onStop: function (state) {
-    console.log('rectangle mode stop');
     doubleClickZoom.enable(this);
     this.updateUIClasses({ mouse: 'none' });
     this.activateUIButton();
 
     if (this.getFeature(state.rectangle.id) === undefined) return;
     const feature = this.getFeature(state.rectangle.id);
-  
+    const layerID = feature.properties.layerID
+
     state.rectangle.removeCoordinate('0.4');
 
     if (state.rectangle.isValid()) {
+      const geojson = state.rectangle.toGeoJSON();
+      geojson.properties.featureID = feature.id
+
       // Trigger the 'draw.create' event with the feature data
       this.map.fire('draw.create', {
-        features: [state.rectangle.toGeoJSON()]
+        features: [geojson],
       });
 
-      // ✅ Add a new layer and trigger re-render in React
-      if (state.setLayersRef?.current) {
-        const sourceId = feature.id;
-        const baseName = 'Rectangle Layer';
-        console.log(sourceId)
+      // Save the feature asynchronously
+      saveFeature({
+        geometry: geojson.geometry,
+        properties: geojson.properties || {},
+        name: 'Rectangle Layer',
+        sourceId: feature.properties.layerID,
+      }).then(() => {
+      }).catch((err) => {
+        console.error('Error saving feature:', err);
+      });
 
-        // Use React state updater to add the new layer
+      // Update React layer state if setLayersRef is provided
+      if (state.setLayersRef?.current) {
+        const layerID = feature.properties.layerID;
+        const baseName = 'Rectangle Layer';
+
         state.setLayersRef.current((prevLayers) => {
-          console.log('Previous Layers:', prevLayers); // Debug log to check previous layers
           let counter = 1;
           let uniqueName = baseName;
           const existingNames = prevLayers.map((l) => l.name);
 
-          // Ensure unique layer name
           while (existingNames.includes(uniqueName)) {
             uniqueName = `${baseName} ${counter++}`;
           }
 
-          // Add the new layer to the state array
           return [
             ...prevLayers,
             {
-              id: sourceId,
+              id: layerID,
               name: uniqueName,
               visible: true,
               locked: false,
@@ -180,4 +191,4 @@ const DrawRectangle = {
   }
 };
 
-module.exports = DrawRectangle;
+export default DrawRectangle;
