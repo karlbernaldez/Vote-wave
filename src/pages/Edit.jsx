@@ -27,6 +27,7 @@ const MapWrapper = styled.div`
 const Edit = ({ isDarkMode }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
+  const setLayersRef = useRef();
   const [drawInstance, setDrawInstance] = useState(null);
   const [isCanvasActive, setIsCanvasActive] = useState(false);
   const [drawCounter, setDrawCounter] = useState(0);
@@ -34,6 +35,7 @@ const Edit = ({ isDarkMode }) => {
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
   const mapRef = useRef(null);
+  setLayersRef.current = setLayers; 
 
   const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
 
@@ -80,6 +82,9 @@ const Edit = ({ isDarkMode }) => {
         onToggleCanvas={toggleCanvas}
         isCanvasActive={isCanvasActive}
         isDarkMode={isDarkMode}
+        layers={layers}
+        setLayers={setLayers}
+        setLayersRef={setLayersRef} // Passing the ref properly
       />
       {isCanvasActive && (
         <Canvas
@@ -94,6 +99,7 @@ const Edit = ({ isDarkMode }) => {
         setLayers={setLayers}
         mapRef={mapRef}
         isDarkMode={isDarkMode}
+        draw={drawInstance}
       />
       <MarkerTitleModal
         isOpen={showTitleModal}

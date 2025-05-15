@@ -5,8 +5,7 @@ import { addWindLayer, addGeoJsonLayer, toggleLayerVisibility, toggleLayerLock, 
 import { theme, darkTheme } from '../../styles/theme';
 import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./styles/LayerPanelStyles";
 
-const LayerPanel = ({ mapRef, isDarkMode }) => {
-    const [layers, setLayers] = useState([]);
+const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeLayerId, setActiveLayerId] = useState(null);
     const [dragging, setDragging] = useState(false); // State to track dragging
@@ -14,7 +13,7 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
     const fileInputRef = useRef();
 
     const currentTheme = isDarkMode ? darkTheme : theme;
-
+    
     const windLayer = () => {
         if (!mapRef.current) return;
         addWindLayer(mapRef.current);
@@ -37,14 +36,25 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
     };
 
     const setActiveLayer = (id) => {
-        const layer = layers.find(layer => layer.id === id);
-        if (!layer) {
-            console.warn(`Layer with ID ${id} not found.`);
-            return;
+    const layer = layers.find(layer => layer.id === id);
+    if (!layer) {
+        console.warn(`Layer with ID ${id} not found.`);
+        return;
+    }
+
+    setActiveLayerId(id);
+    console.log(`Layer ${id} is now active.`);
+
+    // Select the corresponding feature in Mapbox Draw
+    if (draw && typeof draw.changeMode === "function" && typeof draw.get === "function") {
+        const feature = draw.get(id); // Check if the feature exists
+        if (feature) {
+            draw.changeMode("simple_select", { featureIds: [id] });
+        } else {
+            console.warn(`Feature with ID ${id} not found in draw.`);
         }
-        setActiveLayerId(id);
-        console.log(`Layer ${id} is now active.`);
-    };
+    }
+};
 
     return (
         <div
@@ -65,7 +75,7 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
                                 layer={layer}
                                 toggleLayerVisibility={() => toggleLayerVisibility(mapRef.current, layer, setLayers)}
                                 toggleLayerLock={() => toggleLayerLock(layer, setLayers)}
-                                removeLayer={() => removeLayer(mapRef.current, layer, setLayers)}
+                                removeLayer={() => removeLayer(mapRef.current, layer, setLayers, draw)}
                                 updateLayerName={(newName) => updateLayerName(layer.id, newName, setLayers)}
                                 isActiveLayer={activeLayerId === layer.id}
                                 setActiveLayer={setActiveLayer}
@@ -75,6 +85,7 @@ const LayerPanel = ({ mapRef, isDarkMode }) => {
                                 onDragStart={(e) => handleDragStart(e, index, setDragging, setDraggedLayerIndex)}
                                 onDragOver={handleDragOver}  // Enable drag over event for each layer
                                 onDrop={(e) => handleDrop(e, index, draggedLayerIndex, layers, setLayers, setDragging)}  // Handle drop event for each layer
+                                draw={draw}
                             />
                         ))}
                     </ul>

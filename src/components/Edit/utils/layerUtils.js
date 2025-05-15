@@ -146,6 +146,8 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
             },
         ]);
 
+        
+
         console.log("GeoJSON source + layers added:", sourceId);
     };
 
@@ -179,14 +181,15 @@ export function toggleLayerLock(layer, setLayers) {
     );
 }
 
-export function removeLayer(map, layer, setLayers) {
+export function removeLayer(map, layer, setLayers, draw) {
     if (!map || !layer) return;
     const { fillId, lineId, id } = layer;
 
     if (map.getLayer(fillId)) map.removeLayer(fillId);
     if (map.getLayer(lineId)) map.removeLayer(lineId);
     if (map.getSource(id)) map.removeSource(id);
-
+    console.log("ID: ",id)
+    draw.delete(id)
     setLayers((prev) => prev.filter((l) => l.id !== id));
 }
 

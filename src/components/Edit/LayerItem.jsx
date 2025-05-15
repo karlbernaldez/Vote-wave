@@ -13,7 +13,8 @@ const LayerItem = ({
     onDragStart, // Drag start handler
     onDragOver, // Drag over handler
     onDrop, // Drop handler
-    isDarkMode
+    isDarkMode,
+    draw
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(layer.name);
@@ -68,7 +69,8 @@ const LayerItem = ({
 
     const handleLayerClick = () => {
         setActiveLayer(layer.id);
-    };
+        
+    }
 
     return (
         <li

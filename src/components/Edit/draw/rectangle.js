@@ -27,26 +27,36 @@ const doubleClickZoom = {
 
 const DrawRectangle = {
   // When the mode starts this function will be called.
-  onSetup: function () {
+  onSetup: function (options = {}) {
+    const { setLayersRef, mode } = options;
+
+    const timestamp = Date.now();
+    const sourceId = 'Rectangle-' + timestamp;
+
     const rectangle = this.newFeature({
       type: 'Feature',
-      properties: {},
+      properties: {
+        sourceId: sourceId, // ✅ assign sourceId directly here
+      },
       geometry: {
         type: 'Polygon',
-        coordinates: [[]]
-      }
+        coordinates: [[]],
+      },
     });
+
     this.addFeature(rectangle);
     this.clearSelectedFeatures();
     doubleClickZoom.disable(this);
     this.updateUIClasses({ mouse: 'add' });
-    this.setActionableState({
-      trash: true
-    });
+    this.setActionableState({ trash: true });
+
     return {
-      rectangle
+      rectangle,
+      setLayersRef,
+      mode,
     };
   },
+
   // support mobile taps
   onTap: function (state, e) {
     // emulate 'move mouse' to update feature coords
@@ -104,19 +114,52 @@ const DrawRectangle = {
     if (e.keyCode === 27) return this.changeMode('simple_select');
   },
   onStop: function (state) {
+    console.log('rectangle mode stop');
     doubleClickZoom.enable(this);
     this.updateUIClasses({ mouse: 'none' });
     this.activateUIButton();
 
-    // check to see if we've deleted this feature
     if (this.getFeature(state.rectangle.id) === undefined) return;
-
-    // remove last added coordinate
+    const feature = this.getFeature(state.rectangle.id);
+  
     state.rectangle.removeCoordinate('0.4');
+
     if (state.rectangle.isValid()) {
+      // Trigger the 'draw.create' event with the feature data
       this.map.fire('draw.create', {
         features: [state.rectangle.toGeoJSON()]
       });
+
+      // ✅ Add a new layer and trigger re-render in React
+      if (state.setLayersRef?.current) {
+        const sourceId = feature.id;
+        const baseName = 'Rectangle Layer';
+        console.log(sourceId)
+
+        // Use React state updater to add the new layer
+        state.setLayersRef.current((prevLayers) => {
+          console.log('Previous Layers:', prevLayers); // Debug log to check previous layers
+          let counter = 1;
+          let uniqueName = baseName;
+          const existingNames = prevLayers.map((l) => l.name);
+
+          // Ensure unique layer name
+          while (existingNames.includes(uniqueName)) {
+            uniqueName = `${baseName} ${counter++}`;
+          }
+
+          // Add the new layer to the state array
+          return [
+            ...prevLayers,
+            {
+              id: sourceId,
+              name: uniqueName,
+              visible: true,
+              locked: false,
+            },
+          ];
+        });
+      }
     } else {
       this.deleteFeature([state.rectangle.id], { silent: true });
       this.changeMode('simple_select', {}, { silent: true });
