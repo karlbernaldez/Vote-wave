@@ -8,7 +8,7 @@ import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./
 const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeLayerId, setActiveLayerId] = useState(null);
-    const [dragging, setDragging] = useState(false); // State to track dragging
+    const [setDragging] = useState(false); // State to track dragging
     const [draggedLayerIndex, setDraggedLayerIndex] = useState(null); // Track which layer is being dragged
     const fileInputRef = useRef();
 

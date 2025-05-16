@@ -30,12 +30,13 @@ export const handleKeyPress = (
 
     if (selectedFeatures?.features?.length) {
       selectedFeatures.features.forEach(feature => {
+        console.log("FEATURE PROPERTIES: ", feature.properties)
         const featureID = feature.properties?.featureID;
         const layerID = feature.properties?.layerID
 
         if (layerID) {
           setLayersRef((prevLayers) => prevLayers.filter((l) => l.id !== layerID));
-          removeFeature(draw, layerID)
+          removeFeature(draw, layerID, featureID)
         } else {
           console.warn("Deleted feature is missing sourceId in properties.");
         }

@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { ToolbarContainer, ToolButton, CollapseToggle } from './styles/ToolBarStyles';
 import { handleDrawModeChange, handleKeyPress, toggleDrawing, startDrawing, stopDrawing, toggleCollapse } from './utils/ToolBarUtils';
 
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
 
-const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isDarkMode, layers, setLayersRef, setLayers }) => {
+const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
 
@@ -45,7 +45,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isDarkMode, layers,
       setLayersRef, // ✅ Use correct updater function here
       setLayers // ✅ Pass again if needed elsewhere in the function
     );
-  }, [draw, isDrawing, tools, onToggleCanvas, setLayers]);
+  }, [draw, isDrawing, tools, onToggleCanvas, setLayers, setLayersRef]);
 
   const toggleCollapseToolbar = () => toggleCollapse(setIsCollapsed);
 
@@ -55,9 +55,9 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isDarkMode, layers,
   }, [handleDrawing]); // Now, handleDrawing is stable and doesn't change on every render
 
   return (
-    <ToolbarContainer isDarkMode={isDarkMode}>
+    <ToolbarContainer isdarkmode={isdarkmode}>
       <CollapseToggle
-        isDarkMode={isDarkMode}
+        isdarkmode={isdarkmode}
         onClick={toggleCollapseToolbar}
         title={isCollapsed ? 'Expand Toolbar' : 'Collapse Toolbar'}
       >
@@ -75,7 +75,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isDarkMode, layers,
                   : handleDrawModeChange(tool.id, draw, setLayersRef)
               }
               title={tool.label}
-              isDarkMode={isDarkMode}
+              isdarkmode={isdarkmode}
             >
               {tool.icon}
             </ToolButton>
@@ -87,7 +87,7 @@ const DrawToolbar = ({ draw, onToggleCanvas, isCanvasActive, isDarkMode, layers,
             }
             title={isDrawing ? 'Stop Drawing (X)' : 'Start Drawing (Pencil)'}
             active={isCanvasActive}
-            isDarkMode={isDarkMode}
+            isdarkmode={isdarkmode}
           >
             {isDrawing ? '❌' : '🖊️'}
           </ToolButton>

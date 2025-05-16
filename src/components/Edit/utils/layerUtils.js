@@ -182,7 +182,7 @@ export function toggleLayerLock(layer, setLayers) {
     );
 }
 
-export async function removeLayer(map, layer, setLayers, draw) {
+export async function removeLayer(map, layer, setLayers) {
   if (!map || !layer) return;
   const { fillId, lineId, id } = layer;
 
@@ -191,20 +191,21 @@ export async function removeLayer(map, layer, setLayers, draw) {
   if (map.getSource(id)) map.removeSource(id);
 
   setLayers((prev) => prev.filter((l) => l.id !== id));
-  await removeFeature(draw, id);
 }
 
-export async function removeFeature(draw, id) {
+export async function removeFeature(draw, layerID, featureID) {
   // Delete from Mapbox Draw
   if (draw && typeof draw.delete === 'function') {
     draw.trash();
+    draw.delete(featureID)
+    console.log(`REMOVED Layer ${layerID} with Feature ID ${featureID}`)
   }
 
   // Delete from backend
   try {
-    await deleteFeature(id);
+    await deleteFeature(layerID);
   } catch (error) {
-    console.error(`Failed to delete feature ${id} from backend.`, error);
+    console.error(`Failed to delete feature ${layerID} from backend.`, error);
   }
 }
 

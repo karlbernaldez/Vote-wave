@@ -39,6 +39,7 @@ const DrawRectangle = {
       type: 'Feature',
       properties: {
         layerID: layerID, // ✅ assign sourceId directly here
+        featureID: null,
       },
       geometry: {
         type: 'Polygon',
@@ -121,14 +122,17 @@ const DrawRectangle = {
     this.activateUIButton();
 
     if (this.getFeature(state.rectangle.id) === undefined) return;
+    state.rectangle.properties.featureID = state.rectangle.id
+    console.log("RECTANGLE PROPERTIES: ", state.rectangle)
     const feature = this.getFeature(state.rectangle.id);
-    const layerID = feature.properties.layerID
+    console.log("Rectangle Feature ID: ", feature.id)
 
     state.rectangle.removeCoordinate('0.4');
 
     if (state.rectangle.isValid()) {
       const geojson = state.rectangle.toGeoJSON();
       geojson.properties.featureID = feature.id
+      console.log("GEOJSON PROPERTIES: " , geojson.properties)
 
       // Trigger the 'draw.create' event with the feature data
       this.map.fire('draw.create', {
@@ -140,7 +144,7 @@ const DrawRectangle = {
         geometry: geojson.geometry,
         properties: geojson.properties || {},
         name: 'Rectangle Layer',
-        sourceId: feature.properties.layerID,
+        sourceId: geojson.properties.layerID,
       }).then(() => {
       }).catch((err) => {
         console.error('Error saving feature:', err);
@@ -148,7 +152,7 @@ const DrawRectangle = {
 
       // Update React layer state if setLayersRef is provided
       if (state.setLayersRef?.current) {
-        const layerID = feature.properties.layerID;
+        const layerID = geojson.properties.layerID;
         const baseName = 'Rectangle Layer';
 
         state.setLayersRef.current((prevLayers) => {
@@ -164,6 +168,7 @@ const DrawRectangle = {
             ...prevLayers,
             {
               id: layerID,
+              sourceID: geojson.properties.featureID,
               name: uniqueName,
               visible: true,
               locked: false,

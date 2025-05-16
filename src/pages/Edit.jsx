@@ -124,6 +124,7 @@ const Edit = ({ isDarkMode }) => {
           drawCounter={drawCounter}
           setDrawCounter={setDrawCounter}
           isDarkMode={isDarkMode}
+          setLayersRef={setLayersRef}
         />
       )}
 
