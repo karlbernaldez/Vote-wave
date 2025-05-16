@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaTrash, FaLock, FaLockOpen, FaEye, FaEyeSlash } from "react-icons/fa";
+import { removeFeature } from "./utils/layerUtils";
 
 const LayerItem = ({
     layer,
@@ -13,7 +14,8 @@ const LayerItem = ({
     onDragStart, // Drag start handler
     onDragOver, // Drag over handler
     onDrop, // Drop handler
-    isDarkMode
+    isDarkMode,
+    draw
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(layer.name);
@@ -56,19 +58,21 @@ const LayerItem = ({
         setIsEditing(true); // Enable editing on double-click
     };
 
-    const handleDelete = (layerId) => {
+    const handleDelete = (layer, layerId) => {
         if (layer.locked) {
             if (window.confirm("Are you sure you want to delete this locked layer?")) {
                 removeLayer(layerId);
             }
         } else {
             removeLayer(layerId);
+            removeFeature(draw, layer.id ,layer.sourceID)
         }
     };
 
     const handleLayerClick = () => {
         setActiveLayer(layer.id);
-    };
+        
+    }
 
     return (
         <li
@@ -157,7 +161,7 @@ const LayerItem = ({
 
             {/* Remove Layer Button */}
             <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(layer.id); }} // Custom delete handler
+                onClick={(e) => { e.stopPropagation(); handleDelete(layer, layer.id); }} // Custom delete handler
                 style={{
                     background: "none",
                     border: "none",

@@ -7,7 +7,7 @@ import drawStyles from "../components/Edit/draw/styles";
 
 const mapboxgl = require('mapbox-gl');
 
-export const setupMap = ({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal }) => {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, initialFeatures = [] }) {
   mapRef.current = map;
   map.addControl(new mapboxgl.NavigationControl());
 
@@ -25,6 +25,9 @@ export const setupMap = ({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   });
 
   map.addControl(draw);
+  initialFeatures.forEach(feature => {
+    draw.add(feature);
+  });
   setDrawInstance(draw);
   setMapLoaded(true);
 

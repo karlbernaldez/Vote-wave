@@ -1,3 +1,5 @@
+import { saveFeature } from '../../../api/featureServices';
+
 // from https://github.com/thegisdev/mapbox-gl-draw-rectangle-mode
 const doubleClickZoom = {
   enable: (ctx) => {
@@ -27,26 +29,37 @@ const doubleClickZoom = {
 
 const DrawRectangle = {
   // When the mode starts this function will be called.
-  onSetup: function () {
+  onSetup: function (options = {}) {
+    const { setLayersRef, mode } = options;
+
+    const timestamp = Date.now();
+    const layerID = 'Rectangle-' + timestamp;
+
     const rectangle = this.newFeature({
       type: 'Feature',
-      properties: {},
+      properties: {
+        layerID: layerID, // ✅ assign sourceId directly here
+        featureID: null,
+      },
       geometry: {
         type: 'Polygon',
-        coordinates: [[]]
-      }
+        coordinates: [[]],
+      },
     });
+
     this.addFeature(rectangle);
     this.clearSelectedFeatures();
     doubleClickZoom.disable(this);
     this.updateUIClasses({ mouse: 'add' });
-    this.setActionableState({
-      trash: true
-    });
+    this.setActionableState({ trash: true });
+
     return {
-      rectangle
+      rectangle,
+      setLayersRef,
+      mode,
     };
   },
+
   // support mobile taps
   onTap: function (state, e) {
     // emulate 'move mouse' to update feature coords
@@ -108,15 +121,61 @@ const DrawRectangle = {
     this.updateUIClasses({ mouse: 'none' });
     this.activateUIButton();
 
-    // check to see if we've deleted this feature
     if (this.getFeature(state.rectangle.id) === undefined) return;
+    state.rectangle.properties.featureID = state.rectangle.id
+    console.log("RECTANGLE PROPERTIES: ", state.rectangle)
+    const feature = this.getFeature(state.rectangle.id);
+    console.log("Rectangle Feature ID: ", feature.id)
 
-    // remove last added coordinate
     state.rectangle.removeCoordinate('0.4');
+
     if (state.rectangle.isValid()) {
+      const geojson = state.rectangle.toGeoJSON();
+      geojson.properties.featureID = feature.id
+      console.log("GEOJSON PROPERTIES: " , geojson.properties)
+
+      // Trigger the 'draw.create' event with the feature data
       this.map.fire('draw.create', {
-        features: [state.rectangle.toGeoJSON()]
+        features: [geojson],
       });
+
+      // Save the feature asynchronously
+      saveFeature({
+        geometry: geojson.geometry,
+        properties: geojson.properties || {},
+        name: 'Rectangle Layer',
+        sourceId: geojson.properties.layerID,
+      }).then(() => {
+      }).catch((err) => {
+        console.error('Error saving feature:', err);
+      });
+
+      // Update React layer state if setLayersRef is provided
+      if (state.setLayersRef?.current) {
+        const layerID = geojson.properties.layerID;
+        const baseName = 'Rectangle Layer';
+
+        state.setLayersRef.current((prevLayers) => {
+          let counter = 1;
+          let uniqueName = baseName;
+          const existingNames = prevLayers.map((l) => l.name);
+
+          while (existingNames.includes(uniqueName)) {
+            uniqueName = `${baseName} ${counter++}`;
+          }
+
+          return [
+            ...prevLayers,
+            {
+              id: layerID,
+              sourceID: geojson.properties.featureID,
+              name: uniqueName,
+              visible: true,
+              locked: false,
+            },
+          ];
+        });
+      }
     } else {
       this.deleteFeature([state.rectangle.id], { silent: true });
       this.changeMode('simple_select', {}, { silent: true });
@@ -137,4 +196,4 @@ const DrawRectangle = {
   }
 };
 
-module.exports = DrawRectangle;
+export default DrawRectangle;

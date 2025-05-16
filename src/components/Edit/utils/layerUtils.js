@@ -1,4 +1,5 @@
 // components/utils/layerUtils.js
+import { deleteFeature } from '../../../api/featureServices';
 
 export function addWindLayer(map) {
     map.addSource('wind_data_source', {
@@ -146,6 +147,8 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
             },
         ]);
 
+        
+
         console.log("GeoJSON source + layers added:", sourceId);
     };
 
@@ -179,15 +182,31 @@ export function toggleLayerLock(layer, setLayers) {
     );
 }
 
-export function removeLayer(map, layer, setLayers) {
-    if (!map || !layer) return;
-    const { fillId, lineId, id } = layer;
+export async function removeLayer(map, layer, setLayers) {
+  if (!map || !layer) return;
+  const { fillId, lineId, id } = layer;
 
-    if (map.getLayer(fillId)) map.removeLayer(fillId);
-    if (map.getLayer(lineId)) map.removeLayer(lineId);
-    if (map.getSource(id)) map.removeSource(id);
+  if (map.getLayer(fillId)) map.removeLayer(fillId);
+  if (map.getLayer(lineId)) map.removeLayer(lineId);
+  if (map.getSource(id)) map.removeSource(id);
 
-    setLayers((prev) => prev.filter((l) => l.id !== id));
+  setLayers((prev) => prev.filter((l) => l.id !== id));
+}
+
+export async function removeFeature(draw, layerID, featureID) {
+  // Delete from Mapbox Draw
+  if (draw && typeof draw.delete === 'function') {
+    draw.trash();
+    draw.delete(featureID)
+    console.log(`REMOVED Layer ${layerID} with Feature ID ${featureID}`)
+  }
+
+  // Delete from backend
+  try {
+    await deleteFeature(layerID);
+  } catch (error) {
+    console.error(`Failed to delete feature ${layerID} from backend.`, error);
+  }
 }
 
 export function updateLayerName(layerId, newName, setLayers) {
@@ -195,3 +214,27 @@ export function updateLayerName(layerId, newName, setLayers) {
         prev.map((l) => (l.id === layerId ? { ...l, name: newName } : l))
     );
 }
+
+export const handleDragStart = (event, index, setDragging, setDraggedLayerIndex) => {
+    setDragging(true);
+    setDraggedLayerIndex(index); // Set the index of the layer being dragged
+    event.dataTransfer.setData("text/plain", ""); // Necessary for the drag operation to work
+};
+
+export const handleDragOver = (event) => {
+    event.preventDefault(); // Necessary to allow dropping
+};
+
+export const handleDrop = (event, index, draggedLayerIndex, layers, setLayers, setDragging) => {
+    event.preventDefault(); // Prevent default behavior (e.g., opening the file)
+    setDragging(false); // Stop the dragging state
+
+    // Reorder layers after the drop event
+    if (draggedLayerIndex !== null && draggedLayerIndex !== index) {
+        const layersCopy = [...layers];
+        const draggedLayer = layersCopy[draggedLayerIndex];
+        layersCopy.splice(draggedLayerIndex, 1); // Remove dragged layer
+        layersCopy.splice(index, 0, draggedLayer); // Insert it at the new position
+        setLayers(layersCopy); // Update state with the new layer order
+    }
+};

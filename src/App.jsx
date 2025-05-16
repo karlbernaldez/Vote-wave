@@ -17,12 +17,12 @@ const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow-y: ${({ noScroll }) => (noScroll ? "hidden" : "auto")};
+  overflow-y: ${({ $noscroll }) => ($noscroll ? "hidden" : "auto")};
   overflow-x: hidden;
-  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
+  pointer-events: ${({ $isloading }) => ($isloading ? "none" : "auto")};
 
-  background-color: ${({ theme, isDarkMode }) =>
-    isDarkMode ? theme.colors.darkBackground : theme.colors.lightBackground};
+  background-color: ${({ theme, $isDarkMode }) =>
+    $isDarkMode ? theme.colors.darkBackground : theme.colors.lightBackground};
 
   @media (max-width: 768px) {
     background: ${({ theme }) => theme.gradients.background};
@@ -47,13 +47,13 @@ const MainContent = styled.main`
   display: flex;
   flex-direction: column;
   padding-top: ${({ theme }) => theme.spacing.headerHeight};
-  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')};
+  pointer-events: ${({ isloading }) => (isloading ? 'none' : 'auto')};
 `;
 
 const FooterWrapper = styled.div`
   flex-shrink: 0;
   margin-top: auto;
-  pointer-events: ${({ isLoading }) => (isLoading ? 'none' : 'auto')};
+  pointer-events: ${({ isloading }) => (isloading ? 'none' : 'auto')};
 `;
 
 const FreeSpace = styled.div`
@@ -94,7 +94,7 @@ const Layout = () => {
   const isEditPage = location.pathname === '/edit';
   const [modalVisible, setModalVisible] = useState(false);
   const [redirect, setRedirect] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
   useEffect(() => {
@@ -106,12 +106,14 @@ const Layout = () => {
   useEffect(() => {
     setIsLoading(true);
 
+    const timeout = isEditPage ? 1000 : 500;
+
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, timeout);
 
     return () => clearTimeout(timer);
-  }, [location]);
+  }, [location, isEditPage]);
 
   const handleModalClose = () => {
     setModalVisible(false);
@@ -129,13 +131,13 @@ const Layout = () => {
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
-      <AppContainer noScroll={isEditPage} isLoading={isLoading}>
-        <StickyHeader isLoading={isLoading}>
-          <HeaderNavbar isLoading={isLoading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <AppContainer $noscroll={isEditPage} $isloading={isloading}>
+        <StickyHeader isloading={isloading}>
+          <HeaderNavbar isloading={isloading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </StickyHeader>
 
-        <MainContent isLoading={isLoading}>
-          {isLoading && (
+        <MainContent isloading={isloading}>
+          {isloading && (
             <LoadingScreen>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                 <LoadingSpinner />
@@ -162,7 +164,7 @@ const Layout = () => {
         </MainContent>
 
         {!isEditPage && (
-          <FooterWrapper isLoading={isLoading}>
+          <FooterWrapper isloading={isloading}>
             <Footer />
           </FooterWrapper>
         )}

@@ -1,7 +1,7 @@
 import { Stage, Layer, Line } from 'react-konva';
 import { useRef, useState, useEffect } from 'react';
 
-const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
+const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) => {
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
   const map = mapRef.current;
@@ -79,18 +79,20 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
   };
 
   const handlePointerUp = () => {
+    if (!map) return;
+
     isDrawing.current = false;
     const geojson = convertToGeoJSON();
 
-    setDrawCounter((prevCounter) => prevCounter + 1);
-
-    const sourceId = `draw-${drawCounter + 1}`;
-    const layerId = `layer-${drawCounter + 1}`;
+    const nextCounter = drawCounter + 1; // Calculate next value first
+    const sourceId = `draw-${nextCounter}`;
+    const layerId = `layer-${nextCounter}`;
 
     console.log(`Drawing finished. Generating source and layer with IDs:`);
     console.log(`Source ID: ${sourceId}`);
     console.log(`Layer ID: ${layerId}`);
 
+    // Remove existing source/layer if necessary
     if (map.getSource(sourceId)) {
       console.log(`Source with ID ${sourceId} already exists. Removing it.`);
       map.removeSource(sourceId);
@@ -119,6 +121,34 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter }) => {
         'line-width': 2,
       },
     });
+
+    // Update React state
+    if (typeof setLayersRef?.current === 'function') {
+      const baseName = 'Freehand Layer';
+
+      setLayersRef.current((prevLayers) => {
+        let counter = 1;
+        let uniqueName = baseName;
+        const existingNames = prevLayers.map((l) => l.name);
+
+        while (existingNames.includes(uniqueName)) {
+          uniqueName = `${baseName} ${counter++}`;
+        }
+
+        return [
+          ...prevLayers,
+          {
+            id: layerId, // ✅ Corrected casing
+            name: uniqueName,
+            visible: true,
+            locked: false,
+          },
+        ];
+      });
+    }
+
+    // Finally update drawCounter
+    setDrawCounter(nextCounter);
 
     console.log(`Layer with ID ${layerId} added to the map.`);
   };
