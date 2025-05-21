@@ -15,7 +15,8 @@ const LayerItem = ({
     onDragOver, // Drag over handler
     onDrop, // Drop handler
     isDarkMode,
-    draw
+    draw,
+    mapRef
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(layer.name);
@@ -65,13 +66,15 @@ const LayerItem = ({
             }
         } else {
             removeLayer(layerId);
-            removeFeature(draw, layer.id ,layer.sourceID)
+            console.log(layerId)
+            removeFeature(draw, layer.id, layer.sourceID, mapRef)
+
         }
     };
 
     const handleLayerClick = () => {
         setActiveLayer(layer.id);
-        
+
     }
 
     return (

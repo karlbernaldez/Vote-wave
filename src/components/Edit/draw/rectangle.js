@@ -143,7 +143,7 @@ const DrawRectangle = {
       saveFeature({
         geometry: geojson.geometry,
         properties: geojson.properties || {},
-        name: 'Rectangle Layer',
+        name: geojson.properties.layerID,
         sourceId: geojson.properties.layerID,
       }).then(() => {
       }).catch((err) => {

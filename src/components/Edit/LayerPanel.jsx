@@ -86,6 +86,7 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                                 onDragOver={handleDragOver}  // Enable drag over event for each layer
                                 onDrop={(e) => handleDrop(e, index, draggedLayerIndex, layers, setLayers, setDragging)}  // Handle drop event for each layer
                                 draw={draw}
+                                mapRef={mapRef.current}
                             />
                         ))}
                     </ul>

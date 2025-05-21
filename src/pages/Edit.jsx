@@ -47,6 +47,7 @@ const Edit = ({ isDarkMode }) => {
   const handleMapLoad = useCallback(async (map) => {
     try {
       const savedFeatures = await fetchFeatures();
+      savedFeatures.forEach(feature => console.log(feature._id));
 
       const initialLayers = savedFeatures.map(f => ({
         id: f.sourceId,
@@ -121,6 +122,7 @@ const Edit = ({ isDarkMode }) => {
       {isCanvasActive && (
         <Canvas
           mapRef={mapRef}
+          drawRef={drawInstance}
           drawCounter={drawCounter}
           setDrawCounter={setDrawCounter}
           isDarkMode={isDarkMode}
