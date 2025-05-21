@@ -1,6 +1,6 @@
 import { Stage, Layer, Line } from 'react-konva';
 import { useRef, useState, useEffect } from 'react';
-
+import { saveFeature } from '../../../api/featureServices';
 const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) => {
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
@@ -86,7 +86,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) =>
 
     const nextCounter = drawCounter + 1; // Calculate next value first
     const sourceId = `draw-${nextCounter}`;
-    const layerId = `layer-${nextCounter}`;
+    const layerId = `freehand-${nextCounter}`;
 
     console.log(`Drawing finished. Generating source and layer with IDs:`);
     console.log(`Source ID: ${sourceId}`);
@@ -121,6 +121,24 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) =>
         'line-width': 2,
       },
     });
+    console.log(`Layer with ID ${layerId} added to the map.`);
+
+    if (geojson.features.length > 0) {
+      const feature = geojson.features[0]; // Since each draw produces one feature
+
+      saveFeature({
+        geometry: feature.geometry,
+        properties: feature.properties || {},
+        name: 'Freehand Layer',
+        sourceId: sourceId,
+      })
+        .then(() => {
+          console.log('Feature saved successfully.');
+        })
+        .catch((err) => {
+          console.error('Error saving feature:', err);
+        });
+    }
 
     // Update React state
     if (typeof setLayersRef?.current === 'function') {
@@ -139,6 +157,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) =>
           ...prevLayers,
           {
             id: layerId, // ✅ Corrected casing
+            sourceID:sourceId,
             name: uniqueName,
             visible: true,
             locked: false,
@@ -149,8 +168,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef }) =>
 
     // Finally update drawCounter
     setDrawCounter(nextCounter);
-
-    console.log(`Layer with ID ${layerId} added to the map.`);
+    setLines([]);
   };
 
   return (

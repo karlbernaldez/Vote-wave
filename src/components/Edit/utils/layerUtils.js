@@ -186,14 +186,15 @@ export async function removeLayer(map, layer, setLayers) {
   if (!map || !layer) return;
   const { fillId, lineId, id } = layer;
 
-  if (map.getLayer(fillId)) map.removeLayer(fillId);
-  if (map.getLayer(lineId)) map.removeLayer(lineId);
-  if (map.getSource(id)) map.removeSource(id);
-
+  if (fillId && map.getLayer(fillId)) map.removeLayer(fillId);
+  if (lineId && map.getLayer(lineId)) map.removeLayer(lineId);
+  if (id && map.getSource(id)) map.removeSource(id);
+  
   setLayers((prev) => prev.filter((l) => l.id !== id));
 }
 
-export async function removeFeature(draw, layerID, featureID) {
+export async function removeFeature(draw, layerID, featureID, layer) {
+    
   // Delete from Mapbox Draw
   if (draw && typeof draw.delete === 'function') {
     draw.trash();

@@ -5,15 +5,13 @@ import { MdHourglassEmpty } from 'react-icons/md';
 
 const Overlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000; /* Make sure it's higher than the toolbar */
+  pointer-events: all;
 `;
 
 const ModalContainer = styled(motion.div)`
