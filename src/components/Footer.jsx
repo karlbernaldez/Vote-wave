@@ -265,21 +265,23 @@ const Footer = () => {
           </FrameTwo>
           <FrameFour>
             <PagesTitle theme={currentTheme}>Pages</PagesTitle>
-            <a href="https://www.panahon.gov.ph/" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink theme={currentTheme}>Hydro-Met</StyledLink>
-            </a>
-            <a href="https://hazardhunter.georisk.gov.ph/map" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink theme={currentTheme}>Hazard Map</StyledLink>
-            </a>
-            <a href="/" style={{ textDecoration: 'none' }}>
-              <StyledLink theme={currentTheme}>Wave</StyledLink>
-            </a>
-            <a href="/services" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink theme={currentTheme}>Services</StyledLink>
-            </a>
-            <a href="/blog" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
-              <StyledLink theme={currentTheme}>Blog</StyledLink>
-            </a>
+            {[
+              { href: "https://www.panahon.gov.ph/", label: "Hydro-Met", external: true },
+              { href: "https://hazardhunter.georisk.gov.ph/map", label: "Hazard Map", external: true },
+              { href: "/", label: "Wave" },
+              { href: "/services", label: "Services", external: true },
+              { href: "/blog", label: "Blog", external: true },
+            ].map(({ href, label, external }) => (
+              <StyledLink
+                key={label}
+                href={href}
+                theme={currentTheme}
+                style={{ textDecoration: 'none' }}
+                {...(external && { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                {label}
+              </StyledLink>
+            ))}
           </FrameFour>
         </LinksContainer>
       </FlexRow>
@@ -288,7 +290,7 @@ const Footer = () => {
 
       <RightsReservedContainer>
         <RightsText theme={currentTheme}>
-        ©   2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
+          ©   2025 Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA).
           All rights reserved.
         </RightsText>
       </RightsReservedContainer>
