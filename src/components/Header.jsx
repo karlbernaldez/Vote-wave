@@ -219,7 +219,7 @@ const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
 
   return (
     <ThemeToggleButton onClick={handleToggle}>
-      <IconContainer isDarkMode={isDarkMode}>
+      <IconContainer $isDarkMode={isDarkMode}>
         {isDarkMode ? <FaMoon /> : <FaSun />}
       </IconContainer>
     </ThemeToggleButton>
@@ -248,16 +248,16 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
         <NavAndToggleWrapper>
           <Navbar>
             <StyledNavLink to="/" exact="true" activeclassname="active">Home</StyledNavLink>
-            <StyledNavLink to="/weather" isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-            <StyledNavLink to="/edit" isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
-            <StyledNavLink to="/about" isactive={isLinkActive('/about')}>About</StyledNavLink>
-            <StyledNavLink to="/contact" isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
+            <StyledNavLink to="/weather" $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
+            <StyledNavLink to="/edit" $isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+            <StyledNavLink to="/about" $isactive={isLinkActive('/about')}>About</StyledNavLink>
+            <StyledNavLink to="/contact" $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
           </Navbar>
-          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <ThemeToggle $isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </NavAndToggleWrapper>
 
         <MobileWrapper>
-          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <ThemeToggle $isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
           <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
             <span />
             <span />
@@ -267,11 +267,11 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
-        <StyledNavLink to="/" onClick={toggleMenu} isactive={isLinkActive('/')}>Home</StyledNavLink>
-        <StyledNavLink to="/weather" onClick={toggleMenu} isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-        <StyledNavLink to="/edit" onClick={toggleMenu} isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
-        <StyledNavLink to="/about" onClick={toggleMenu} isactive={isLinkActive('/about')}>About</StyledNavLink>
-        <StyledNavLink to="/contact" onClick={toggleMenu} isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
+        <StyledNavLink to="/" onClick={toggleMenu} $isactive={isLinkActive('/')}>Home</StyledNavLink>
+        <StyledNavLink to="/weather" onClick={toggleMenu} $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
+        <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+        <StyledNavLink to="/about" onClick={toggleMenu} $isactive={isLinkActive('/about')}>About</StyledNavLink>
+        <StyledNavLink to="/contact" onClick={toggleMenu} $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
       </MobileMenu>
     </StyledHeaderNavbar>
   );

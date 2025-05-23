@@ -11,6 +11,10 @@ import useIsMobile from './hooks/useIsMobile';
 import MobileAccessModal from './components/modals/MobileAccessModal';
 import { ThemeProvider } from 'styled-components';
 import { darkTheme, theme } from './styles/theme';
+import createLogger from '@adovelopers/logado';
+
+const logger = createLogger();
+logger.info('Server started');
 
 // Styled components for Layout
 const AppContainer = styled.div`
@@ -132,11 +136,11 @@ const Layout = () => {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
       <AppContainer $noscroll={isEditPage} $isloading={isloading}>
-        <StickyHeader isloading={isloading}>
-          <HeaderNavbar isloading={isloading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        <StickyHeader $isloading={isloading}>
+          <HeaderNavbar $isloading={isloading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </StickyHeader>
 
-        <MainContent isloading={isloading}>
+        <MainContent $isloading={isloading}>
           {isloading && (
             <LoadingScreen>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -164,7 +168,7 @@ const Layout = () => {
         </MainContent>
 
         {!isEditPage && (
-          <FooterWrapper isloading={isloading}>
+          <FooterWrapper $isloading={isloading}>
             <Footer />
           </FooterWrapper>
         )}

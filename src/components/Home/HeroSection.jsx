@@ -183,13 +183,13 @@ const ButtonsContainer = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: ${({ primary, theme }) => (primary ? theme.colors.highlight : 'transparent')};
-  color: ${({ primary, theme }) => (primary ? theme.colors.white : theme.colors.highlight)};
+  background-color: ${({ $primary, theme }) => ($primary ? theme.colors.highlight : 'transparent')};
+  color: ${({ $primary, theme }) => ($primary ? theme.colors.white : theme.colors.highlight)};
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
   border-radius: 5px;
-  border: ${({ primary, theme }) => (primary ? 'none' : `2px solid ${theme.colors.highlight}`)};
+  border: ${({ $primary, theme }) => ($primary ? 'none' : `2px solid ${theme.colors.highlight}`)};
   cursor: pointer;
   transition: background-color 0.3s ease, border 0.3s ease;
   display: flex;
@@ -198,7 +198,7 @@ const Button = styled.button`
   text-align: center;
 
   &:hover {
-    background-color: ${({ primary, theme }) => (primary ? '#0088cc' : '#e0f7f7')};
+    background-color: ${({ $primary }) => ($primary ? '#0088cc' : '#e0f7f7')};
     border-color: #0088cc;
   }
 
@@ -333,7 +333,7 @@ const HeroSection = ({ isDarkMode }) => {
             Interactive tools for meteorologists, researchers, and enthusiasts.
           </Subtitle>
           <ButtonsContainer>
-            <Button primary>Get Forecast</Button>
+            <Button $primary>Get Forecast</Button>
             <LiveMapButton>Live Map</LiveMapButton>
           </ButtonsContainer>
         </Heading>
