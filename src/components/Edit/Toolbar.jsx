@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import storm from "../../assets/draw_icons/hurricane.png"
+
 import {
   ToolbarContainer,
   ToolButton,
@@ -21,7 +23,9 @@ const DrawToolbar = ({
   isCanvasActive,
   isdarkmode,
   setLayersRef,
-  setLayers
+  setLayers,
+  closedMode,
+  setClosedMode,
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -40,7 +44,7 @@ const DrawToolbar = ({
   };
 
   const tools = useMemo(() => [
-    { id: 'draw_point', icon: '📍', label: 'Draw Point (M)', hotkey: 'm' },
+    { id: 'draw_point', icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />, label: 'Draw Storm (M)', hotkey: 'm' },
     { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
     { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
     { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
@@ -105,6 +109,23 @@ const DrawToolbar = ({
             >
               {isDrawing ? '❌' : '🖊️'}
             </ToolButton>
+
+            {isCanvasActive && (
+              <ToolButton
+                title={closedMode ? 'Closed Shape Mode (O)' : 'Open Shape Mode (C)'}
+                active={true}
+                isdarkmode={isdarkmode}
+                onClick={() => setClosedMode((prev) => !prev)}
+                style={{
+                  backgroundColor: closedMode ? '#4CAF50' : '#F44336',
+                  color: 'white'
+                }}
+              >
+                <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  {closedMode ? 'O' : 'C'}
+                </span>
+              </ToolButton>
+            )}
           </>
         )}
       </ToolbarContainer>

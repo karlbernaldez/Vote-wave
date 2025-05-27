@@ -116,18 +116,18 @@ const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
               <MdPlace size={22} color="#2563eb" />
             </IconWrapper>
 
-            <Title>Enter Marker Title</Title>
+            <Title>Enter Typhoon or Storm Name</Title>
 
             <Input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. Weather Station"
+              placeholder="e.g. Kristine"
               onKeyDown={handleKeyDown} // Add the onKeyDown event handler
             />
 
             <ActionButton onClick={handleSave}>
-              Save Marker
+              Add Marker
             </ActionButton>
           </ModalContainer>
         </Overlay>
