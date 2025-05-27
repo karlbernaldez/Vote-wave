@@ -36,6 +36,7 @@ const Edit = ({ isDarkMode }) => {
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false); // <- NEW state for delay
+  const [closedMode, setClosedMode] = useState(false);
 
   const mapRef = useRef(null);
   setLayersRef.current = setLayers;
@@ -63,13 +64,13 @@ const Edit = ({ isDarkMode }) => {
         mapRef,
         setDrawInstance,
         setMapLoaded,
-        setSelectedPoint: () => {},
-        setShowTitleModal: () => {},
+        setSelectedPoint,
+        setShowTitleModal,
         initialFeatures: savedFeatures,
       });
     } catch (error) {
       console.error('Failed to load saved features:', error);
-      setupMap({ map, mapRef, setDrawInstance, setMapLoaded });
+      setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal });
     }
   }, []);
 
@@ -116,6 +117,8 @@ const Edit = ({ isDarkMode }) => {
           layers={layers}
           setLayers={setLayers}
           setLayersRef={setLayersRef}
+          closedMode={closedMode}
+          setClosedMode={setClosedMode}  
         />
       )}
 
@@ -127,6 +130,7 @@ const Edit = ({ isDarkMode }) => {
           setDrawCounter={setDrawCounter}
           isDarkMode={isDarkMode}
           setLayersRef={setLayersRef}
+          closedMode={closedMode}
         />
       )}
 

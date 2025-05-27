@@ -31,7 +31,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   setDrawInstance(draw);
   setMapLoaded(true);
 
-  map.loadImage('/map-pin.png', (error, image) => {
+  map.loadImage('/hurricane.png', (error, image) => {
     if (!error && !map.hasImage('custom-marker')) {
       map.addImage('custom-marker', image);
     }
@@ -46,12 +46,14 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     id: 'custom-points-layer',
     type: 'symbol',
     source: 'custom-points',
+    minzoom: 0,    // Set the minimum zoom level (0 = always visible when zoomed out)
+    maxzoom: 24,   // Set the maximum zoom level (24 = always visible when zoomed in)
     layout: {
       'icon-image': 'custom-marker',
-      'icon-size': 0.2,
+      'icon-size': 0.09,
       'text-field': ['get', 'title'],
       'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-      'text-offset': [0, 1.50],
+      'text-offset': [0, 1.25],
       'text-anchor': 'top'
     }
   });
