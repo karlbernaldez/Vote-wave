@@ -219,7 +219,7 @@ const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
 
   return (
     <ThemeToggleButton onClick={handleToggle}>
-      <IconContainer $isDarkMode={isDarkMode}>
+      <IconContainer isDarkMode={isDarkMode}>
         {isDarkMode ? <FaMoon /> : <FaSun />}
       </IconContainer>
     </ThemeToggleButton>
@@ -253,11 +253,11 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
             <StyledNavLink to="/about" $isactive={isLinkActive('/about')}>About</StyledNavLink>
             <StyledNavLink to="/contact" $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
           </Navbar>
-          <ThemeToggle $isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </NavAndToggleWrapper>
 
         <MobileWrapper>
-          <ThemeToggle $isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
           <Hamburger className={menuOpen ? "open" : ""} onClick={toggleMenu}>
             <span />
             <span />
