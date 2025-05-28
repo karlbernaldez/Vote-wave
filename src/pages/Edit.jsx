@@ -3,6 +3,7 @@ import MapComponent from "../components/Edit/MapComponent";
 import LayerPanel from "../components/Edit/LayerPanel";
 import DrawToolBar from "../components/Edit/Toolbar";
 import Canvas from "../components/Edit/draw/canvas";
+import FlagCanvas from "../components/Edit/draw/front"
 import styled from "@emotion/styled";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import { handleSaveMarker as saveMarkerFn } from "../utils/mapUtils";
@@ -31,6 +32,7 @@ const Edit = ({ isDarkMode }) => {
   const setLayersRef = useRef();
   const [drawInstance, setDrawInstance] = useState(null);
   const [isCanvasActive, setIsCanvasActive] = useState(false);
+  const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
   const [drawCounter, setDrawCounter] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -42,6 +44,7 @@ const Edit = ({ isDarkMode }) => {
   setLayersRef.current = setLayers;
 
   const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
+  const toggleFlagCanvas = useCallback(() => setIsFlagCanvasActive(prev => !prev), []);
 
   const handleSaveMarker = saveMarkerFn(selectedPoint, mapRef, setShowTitleModal);
 
@@ -88,11 +91,15 @@ const Edit = ({ isDarkMode }) => {
       if (e.key === "c" || e.key === "C") {
         toggleCanvas();
       }
+
+      if (e.key === "q" || e.key === "Q") {
+        toggleFlagCanvas();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showTitleModal, toggleCanvas]);
+  }, [showTitleModal, toggleCanvas, toggleFlagCanvas]);
 
   useEffect(() => {
     const toolbarDelay = setTimeout(() => {
@@ -111,8 +118,11 @@ const Edit = ({ isDarkMode }) => {
       {showToolbar && (
         <DrawToolBar
           draw={drawInstance}
+          mapRef={mapRef}
           onToggleCanvas={toggleCanvas}
+          onToggleFlagCanvas={toggleFlagCanvas}
           isCanvasActive={isCanvasActive}
+          isFlagCanvasActive={isFlagCanvasActive}
           isDarkMode={isDarkMode}
           layers={layers}
           setLayers={setLayers}
@@ -134,6 +144,19 @@ const Edit = ({ isDarkMode }) => {
         />
       )}
 
+      {isFlagCanvasActive && (
+        <FlagCanvas
+          mapRef={mapRef}
+          drawRef={drawInstance}
+          drawCounter={drawCounter}
+          setDrawCounter={setDrawCounter}
+          isDarkMode={isDarkMode}
+          setLayersRef={setLayersRef}
+          closedMode={closedMode}
+          isFlagCanvas={true}
+        />
+      )}
+
       <LayerPanel
         layers={layers}
         setLayers={setLayers}
@@ -147,6 +170,7 @@ const Edit = ({ isDarkMode }) => {
         onClose={() => setShowTitleModal(false)}
         onSave={handleSaveMarker}
       />
+      
     </Container>
   );
 };
