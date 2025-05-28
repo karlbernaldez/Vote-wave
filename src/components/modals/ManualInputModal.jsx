@@ -57,13 +57,40 @@ const Button = styled.button`
   }
 `;
 
+const isValidFloat = (value) => {
+  if (typeof value !== 'string') return false;
+  if (value.trim() === '') return false;
+  return !isNaN(value) && !isNaN(parseFloat(value));
+};
+
 const ManualInputModal = ({ isOpen, onClose, onSubmit }) => {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
+  const [title, setTitle] = useState('');
 
-  const handleSubmit = () => {
-    if (!lat || !lng) return alert('Both latitude and longitude are required.');
-    onSubmit({ lat: parseFloat(lat), lng: parseFloat(lng) });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!isValidFloat(lat)) {
+      return alert('Please enter a valid latitude number.');
+    }
+    if (!isValidFloat(lng)) {
+      return alert('Please enter a valid longitude number.');
+    }
+    if (!title.trim()) {
+      return alert('Storm Title is required.');
+    }
+
+    onSubmit({
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
+      title: title.trim(),
+    });
+
+    // Clear inputs after submit (optional)
+    setLat('');
+    setLng('');
+    setTitle('');
     onClose();
   };
 
@@ -77,20 +104,28 @@ const ManualInputModal = ({ isOpen, onClose, onSubmit }) => {
             exit={{ opacity: 0, y: -20 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Title>Enter Coordinates</Title>
-            <Input
-              type="number"
-              placeholder="Latitude"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="Longitude"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-            />
-            <Button onClick={handleSubmit}>Submit</Button>
+            <form onSubmit={handleSubmit}>
+              <Title>Enter Storm Marker</Title>
+              <Input
+                type="number"
+                placeholder="Latitude"
+                value={lat}
+                onChange={(e) => setLat(e.target.value)}
+              />
+              <Input
+                type="number"
+                placeholder="Longitude"
+                value={lng}
+                onChange={(e) => setLng(e.target.value)}
+              />
+              <Input
+                type="text"
+                placeholder="Storm Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
           </ModalContainer>
         </Overlay>
       )}

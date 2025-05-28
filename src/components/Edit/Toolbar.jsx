@@ -87,15 +87,12 @@ const DrawToolbar = ({
   };
 
   const handleManualInputSubmit = (data) => {
-    console.log('Manual input submitted:', data);
+  console.log('Manual input submitted:', data);
+  saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal)(data.title);
+  setManualInputData(data);
+  toggleModal('manualInput', false);
+};
 
-    // Temporary: Use default title
-    const saveFn = saveMarkerFn(data, mapRef, setShowTitleModal);
-    saveFn("Manual Marker");
-
-    setManualInputData(data);
-    toggleModal('manualInput', false);
-  };
 
   const handleDrawing = useCallback((event) => {
     handleKeyPress(
