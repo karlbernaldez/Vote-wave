@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import storm from "../../assets/draw_icons/hurricane.png"
+import storm from "../../assets/draw_icons/hurricane.png";
 
 import {
   ToolbarContainer,
@@ -51,6 +51,21 @@ const DrawToolbar = ({
     { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' }
   ], []);
 
+  // Fix: Handle clicking a tool, deactivate drawing if active before switching tools
+  const handleToolClick = (tool) => {
+    if (tool.modal) {
+      toggleModal(tool.modal, true);
+      return;
+    }
+
+    if (isDrawing) {
+      // Stop drawing and deactivate canvas mode
+      stopDrawing(setIsDrawing, onToggleCanvas);
+    }
+
+    handleDrawModeChange(tool.id, draw, setLayersRef);
+  };
+
   const handleDrawing = useCallback((event) => {
     handleKeyPress(
       event,
@@ -92,11 +107,7 @@ const DrawToolbar = ({
                 key={tool.id}
                 title={tool.label}
                 isdarkmode={isdarkmode}
-                onClick={() =>
-                  tool.modal
-                    ? toggleModal(tool.modal, true)
-                    : handleDrawModeChange(tool.id, draw, setLayersRef)
-                }
+                onClick={() => handleToolClick(tool)}
               >
                 {tool.icon}
               </ToolButton>
@@ -130,7 +141,7 @@ const DrawToolbar = ({
         )}
       </ToolbarContainer>
 
-      {/* ✅ Modal rendered outside toolbar */}
+      {/* Modal rendered outside toolbar */}
       <FeatureNotAvailableModal
         isOpen={openModals.featureNotAvailable}
         onClose={() => toggleModal('featureNotAvailable', false)}
