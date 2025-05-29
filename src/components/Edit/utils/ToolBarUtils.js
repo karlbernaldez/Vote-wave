@@ -21,6 +21,7 @@ export const handleKeyPress = (
 
   // Handle drawing mode change (if tool is pressed)r
   if (tool) {
+    if (tool.id === 'low_pressure') {tool.id = 'draw_point';} // Normalize to draw_point for low_pressure
     handleDrawModeChange(tool.id, draw, setLayersRef);
   }
 
@@ -60,7 +61,7 @@ export const toggleDrawing = (isDrawing, setIsDrawing, onToggleCanvas) => {
 };
 
 export const toggleFlagDrawing = (isFlagDrawing, setIsFlagDrawing, onToggleFlagCanvas) => {
-  isFlagDrawing ? stopDrawing(setIsFlagDrawing, onToggleFlagCanvas) : startFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+  isFlagDrawing ? stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas) : startFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
 };
 
 export const startDrawing = (setIsDrawing, onToggleCanvas) => {

@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import storm from "../../assets/draw_icons/hurricane.png";
+import lpa from "../../assets/draw_icons/LPA.png";
 import PointInputChoiceModal from '../modals/MarkerChoice';
 import ManualInputModal from '../modals/ManualInputModal';
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
-import { handleSaveMarker as saveMarkerFn } from "../../utils/mapUtils";
+import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
 
 import {
   ToolbarContainer,
@@ -34,18 +35,21 @@ const DrawToolbar = ({
   setLayers,
   closedMode,
   setClosedMode,
+  setType,
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isFlagDrawing, setIsFlagDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [selectedToolType, setSelectedToolType] = useState(null);
+  const [manualInputData, setManualInputData] = useState(null);
+  const [showTitleModal, setShowTitleModal] = useState(false);
+  const selectedToolRef = useRef(null);
+
   const [openModals, setOpenModals] = useState({
     featureNotAvailable: false,
     pointInputChoice: false,
     manualInput: false,
   });
-
-  const [manualInputData, setManualInputData] = useState(null);
-  const [showTitleModal, setShowTitleModal] = useState(false); // ✅ Needed for saveMarkerFn
 
   useEffect(() => {
     if (setLayersRef?.current !== setLayers) {
@@ -58,7 +62,20 @@ const DrawToolbar = ({
   };
 
   const tools = useMemo(() => [
-    { id: 'draw_point', icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />, label: 'Draw Storm (M)', hotkey: 'm', modal: 'pointInputChoice' },
+    {
+      id: 'low_pressure',
+      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 20, height: 20 }} />,
+      label: 'Low Pressure Area (A)',
+      hotkey: 'a',
+      modal: 'pointInputChoice',
+    },
+    {
+      id: 'draw_point',
+      icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />,
+      label: 'Draw Storm (M)',
+      hotkey: 'm',
+      modal: 'pointInputChoice',
+    },
     { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
     { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
     { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
@@ -66,6 +83,16 @@ const DrawToolbar = ({
   ], []);
 
   const handleToolClick = (tool) => {
+    selectedToolRef.current = tool.id;
+
+    // Update the selected tool type state locally
+    setSelectedToolType(tool.id);
+
+    // Also update the type state in Edit component via setType prop
+    if (setType) {
+      setType(tool.id);
+    }
+
     if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
     if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
 
@@ -79,20 +106,31 @@ const DrawToolbar = ({
 
   const handlePointInputChoice = (method) => {
     toggleModal('pointInputChoice', false);
+    const selectedType = selectedToolRef.current || 'draw_point'; // use a ref or state
+
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      handleDrawModeChange('draw_point', draw, setLayersRef);
+      // Don't call an invalid mode
+      if (selectedType === 'draw_point') {
+        handleDrawModeChange('draw_point', draw, setLayersRef);
+      } else if (selectedType === 'low_pressure') {
+        // Activate a click-to-drop marker flow, or manual input
+        handleDrawModeChange('draw_point', draw, setLayersRef);
+      }
     }
   };
 
   const handleManualInputSubmit = (data) => {
-  console.log('Manual input submitted:', data);
-  saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal)(data.title);
-  setManualInputData(data);
-  toggleModal('manualInput', false);
-};
+    const selectedType = selectedToolRef.current || 'draw_point';
 
+    // Update the type in Edit (if needed)
+    if (setType) setType(selectedType);
+
+    saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(data.title);
+    setManualInputData(data);
+    toggleModal('manualInput', false);
+  };
 
   const handleDrawing = useCallback((event) => {
     handleKeyPress(
@@ -168,7 +206,13 @@ const DrawToolbar = ({
             <ToolButton
               title={isFlagDrawing ? 'Stop Flag Drawing (X)' : 'Start Flag Drawing (🚩)'}
               isdarkmode={isdarkmode}
-              onClick={() => toggleFlagDrawing(isFlagDrawing, setIsFlagDrawing, onToggleFlagCanvas)}
+              onClick={() => {
+                // Turn off freehand if it's active
+                if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+
+                // Toggle flag drawing mode
+                toggleFlagDrawing(isFlagDrawing, setIsFlagDrawing, onToggleFlagCanvas);
+              }}
             >
               {isFlagDrawing ? '❌' : '🚩'}
             </ToolButton>
@@ -177,10 +221,17 @@ const DrawToolbar = ({
               title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
               active={isCanvasActive}
               isdarkmode={isdarkmode}
-              onClick={() => toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas)}
+              onClick={() => {
+                // Turn off flag if it's active
+                if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+
+                // Toggle freehand drawing mode
+                toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas);
+              }}
             >
               {isDrawing ? '❌' : '🖊️'}
             </ToolButton>
+
 
             {isCanvasActive && (
               <ToolButton
