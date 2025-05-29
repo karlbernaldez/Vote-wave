@@ -25,7 +25,6 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
         const file = event.target.files[0];
         if (!file || !mapRef.current) return;
         addGeoJsonLayer(mapRef.current, file, layers, setLayers);
-        addWindLayer(mapRef.current);
     };
 
     const addLayer = () => {
@@ -99,7 +98,7 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                             ))}
                         </ul>
 
-                        <div style={footerStyle(currentTheme)}>
+                        <div style={{ ...footerStyle(currentTheme), display: "flex", flexDirection: "column", gap: "10px" }}>
                             <button onClick={addLayer} style={buttonStyle(currentTheme)}>
                                 <input
                                     type="file"
@@ -108,7 +107,11 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                                     style={{ display: "none" }}
                                     onChange={handleGeoJSONUpload}
                                 />
-                                <FaPlus /> Add GeoJson Layer
+                                <FaPlus style={{ marginRight: 4 }} /> Add GeoJSON Layer
+                            </button>
+
+                            <button onClick={windLayer} style={buttonStyle(currentTheme)}>
+                                <FaPlus style={{ marginRight: 4 }} /> Add Wind Layer
                             </button>
                         </div>
                     </>
