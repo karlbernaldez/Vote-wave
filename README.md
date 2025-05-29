@@ -86,6 +86,7 @@ This web application provides an interactive weather forecasting platform using 
  ┣ 📜 .env
  ┣ 📜 package.json
  ┣ 📜 README.md
+ ┣ 📜 LICENSE
 ```
 
 ## 🛠 Installation & Setup
