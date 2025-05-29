@@ -1,3 +1,14 @@
+//  ╔═══════════════════════════════════════════════════════════════════════╗
+//  ║                        🌪 Component B Project 1                       ║
+//  ╠═══════════════════════════════════════════════════════════════════════╣
+//  ║  📁 Project       : DOST-MECO-TECO-VOTE III Component-B               ║
+//  ║  📝 Description   :  Weather forecasting platform                     ║
+//  ║  👨‍💻 Author        : Karl Santiago Bernaldez                           ║
+//  ║  📅 Created       : 2025-03-24                                        ║
+//  ║  🕓 Last Updated  : 2025-05-29                                        ║
+//  ║  🧭 Version       : v1.0.0                                            ║
+//  ╚═══════════════════════════════════════════════════════════════════════╝
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
