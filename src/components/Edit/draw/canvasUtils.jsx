@@ -71,7 +71,8 @@ export const handlePointerUp = async (
   setDrawCounter,
   setLayersRef,
   saveFeature,
-  closedMode
+  closedMode,
+  labelValue = 5 // ✅ new default label value
 ) => {
   const map = mapRef.current;
   if (!map) return;
@@ -90,44 +91,40 @@ export const handlePointerUp = async (
       const updatedLines = [...lines];
       updatedLines[lastLineIndex] = lastLine;
       setLines(updatedLines);
-      lines = updatedLines; // update local reference for further use
+      lines = updatedLines;
     }
   }
 
-  // --- PROCEED WITH ORIGINAL FUNCTIONALITY ---
+  // --- CONVERT TO GEOJSON ---
   const geojson = convertToGeoJSON(lines, mapRef);
 
   const nextCounter = drawCounter + 1;
   const sourceId = `draw-${nextCounter}`;
   const layerId = `freehand-${nextCounter}`;
-
-  // Remove existing source/layer for drawing line if necessary
-  if (map.getSource(sourceId)) {
-    map.removeSource(sourceId);
-  }
-  if (map.getLayer(layerId)) {
-    map.removeLayer(layerId);
-  }
-
-  // Insert drawing line layer below custom-points-layer if exists, else top
   const beforeLayer = map.getLayer('custom-points-layer') ? 'custom-points-layer' : undefined;
+
+  if (map.getSource(sourceId)) map.removeSource(sourceId);
+  if (map.getLayer(layerId)) map.removeLayer(layerId);
 
   map.addSource(sourceId, {
     type: 'geojson',
     data: geojson,
   });
 
-  map.addLayer({
-    id: layerId,
-    type: 'line',
-    source: sourceId,
-    layout: {},
-    paint: {
-      'line-color': '#0080ff',
-      'line-opacity': 0.5,
-      'line-width': 2,
+  map.addLayer(
+    {
+      id: layerId,
+      type: 'line',
+      source: sourceId,
+      layout: {},
+      paint: {
+        'line-color': '#0080ff',
+        'line-opacity': 0.5,
+        'line-width': 2,
+      },
     },
-  }, beforeLayer);
+    beforeLayer
+  );
 
   // --- ADD LABELS ---
   if (lines.length > 0) {
@@ -136,18 +133,12 @@ export const handlePointerUp = async (
       const labelSourceId = `label-${nextCounter}`;
       const labelLayerId = `label-layer-${nextCounter}`;
 
-      // Remove old label source/layer if exists
-      if (map.getLayer(labelLayerId)) {
-        map.removeLayer(labelLayerId);
-      }
-      if (map.getSource(labelSourceId)) {
-        map.removeSource(labelSourceId);
-      }
+      if (map.getLayer(labelLayerId)) map.removeLayer(labelLayerId);
+      if (map.getSource(labelSourceId)) map.removeSource(labelSourceId);
 
       let features = [];
 
       if (closedMode) {
-        // Label at closing point (first point), default "5"
         const firstX = lastLine.points[0];
         const firstY = lastLine.points[1];
         const lngLat = map.unproject([firstX, firstY]);
@@ -158,11 +149,10 @@ export const handlePointerUp = async (
             coordinates: [lngLat.lng, lngLat.lat],
           },
           properties: {
-            text: '5',
+            text: String(labelValue), // ✅ use dynamic label value
           },
         });
       } else {
-        // Label at both ends, default "3"
         const firstX = lastLine.points[0];
         const firstY = lastLine.points[1];
         const lastX = lastLine.points[lastLine.points.length - 2];
@@ -179,7 +169,7 @@ export const handlePointerUp = async (
               coordinates: [firstLngLat.lng, firstLngLat.lat],
             },
             properties: {
-              text: '3',
+              text: String(labelValue), // ✅ dynamic
             },
           },
           {
@@ -189,42 +179,42 @@ export const handlePointerUp = async (
               coordinates: [lastLngLat.lng, lastLngLat.lat],
             },
             properties: {
-              text: '3',
+              text: String(labelValue), // ✅ dynamic
             },
           }
         );
       }
 
-      const labelGeoJSON = {
-        type: 'FeatureCollection',
-        features,
-      };
-
       map.addSource(labelSourceId, {
         type: 'geojson',
-        data: labelGeoJSON,
+        data: {
+          type: 'FeatureCollection',
+          features,
+        },
       });
 
-      map.addLayer({
-        id: labelLayerId,
-        type: 'symbol',
-        source: labelSourceId,
-        layout: {
-          'text-field': ['get', 'text'],
-          'text-size': 18,
-          'text-anchor': 'bottom',
-          'text-offset': [0, 0.5],
+      map.addLayer(
+        {
+          id: labelLayerId,
+          type: 'symbol',
+          source: labelSourceId,
+          layout: {
+            'text-field': ['get', 'text'],
+            'text-size': 18,
+            'text-anchor': 'bottom',
+            'text-offset': [0, 0.5],
+          },
+          paint: {
+            'text-color': '#FF0000',
+            'text-halo-color': '#FFFFFF',
+            'text-halo-width': 2,
+          },
         },
-        paint: {
-          'text-color': '#FF0000',
-          'text-halo-color': '#FFFFFF',
-          'text-halo-width': 2,
-        },
-      }, beforeLayer);
+        beforeLayer
+      );
     }
   }
 
-  // Bring custom-points-layer to top so it doesn't get hidden
   if (map.getLayer('custom-points-layer')) {
     try {
       map.moveLayer('custom-points-layer');
@@ -233,7 +223,6 @@ export const handlePointerUp = async (
     }
   }
 
-  // Update React state and save feature with unique name
   if (typeof setLayersRef?.current === 'function') {
     const baseName = 'Freehand Layer';
 
@@ -254,13 +243,9 @@ export const handlePointerUp = async (
           properties: feature.properties || {},
           name: uniqueName,
           sourceId: sourceId,
-        })
-          .then(() => {
-            console.log('Feature saved successfully.');
-          })
-          .catch((err) => {
-            console.error('Error saving feature:', err);
-          });
+        }).catch((err) => {
+          console.error('Error saving feature:', err);
+        });
       }
 
       return [

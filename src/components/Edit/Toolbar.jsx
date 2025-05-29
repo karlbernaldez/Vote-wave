@@ -1,36 +1,54 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import storm from "../../assets/draw_icons/hurricane.png"
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import storm from "../../assets/draw_icons/hurricane.png";
+import lpa from "../../assets/draw_icons/LPA.png";
+import PointInputChoiceModal from '../modals/MarkerChoice';
+import ManualInputModal from '../modals/ManualInputModal';
+import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
+import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
 
 import {
   ToolbarContainer,
   ToolButton,
   CollapseToggle
 } from './styles/ToolBarStyles';
+
 import {
   handleDrawModeChange,
   handleKeyPress,
   toggleDrawing,
+  toggleFlagDrawing,
   startDrawing,
+  startFlagDrawing,
   stopDrawing,
+  stopFlagDrawing,
   toggleCollapse
 } from './utils/ToolBarUtils';
 
-import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
-
 const DrawToolbar = ({
   draw,
+  mapRef,
   onToggleCanvas,
+  onToggleFlagCanvas,
   isCanvasActive,
   isdarkmode,
   setLayersRef,
   setLayers,
   closedMode,
   setClosedMode,
+  setType,
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isFlagDrawing, setIsFlagDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [selectedToolType, setSelectedToolType] = useState(null);
+  const [manualInputData, setManualInputData] = useState(null);
+  const [showTitleModal, setShowTitleModal] = useState(false);
+  const selectedToolRef = useRef(null);
+
   const [openModals, setOpenModals] = useState({
-    featureNotAvailable: false
+    featureNotAvailable: false,
+    pointInputChoice: false,
+    manualInput: false,
   });
 
   useEffect(() => {
@@ -44,12 +62,75 @@ const DrawToolbar = ({
   };
 
   const tools = useMemo(() => [
-    { id: 'draw_point', icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />, label: 'Draw Storm (M)', hotkey: 'm' },
+    {
+      id: 'low_pressure',
+      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 20, height: 20 }} />,
+      label: 'Low Pressure Area (A)',
+      hotkey: 'a',
+      modal: 'pointInputChoice',
+    },
+    {
+      id: 'draw_point',
+      icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />,
+      label: 'Draw Storm (M)',
+      hotkey: 'm',
+      modal: 'pointInputChoice',
+    },
     { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
     { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
     { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
-    { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' }
+    { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' },
   ], []);
+
+  const handleToolClick = (tool) => {
+    selectedToolRef.current = tool.id;
+
+    // Update the selected tool type state locally
+    setSelectedToolType(tool.id);
+
+    // Also update the type state in Edit component via setType prop
+    if (setType) {
+      setType(tool.id);
+    }
+
+    if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+    if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+
+    if (tool.modal) {
+      toggleModal(tool.modal, true);
+      return;
+    }
+
+    handleDrawModeChange(tool.id, draw, setLayersRef);
+  };
+
+  const handlePointInputChoice = (method) => {
+    toggleModal('pointInputChoice', false);
+    const selectedType = selectedToolRef.current || 'draw_point'; // use a ref or state
+
+    if (method === 'manual') {
+      toggleModal('manualInput', true);
+    } else if (method === 'map') {
+      // Don't call an invalid mode
+      if (selectedType === 'draw_point') {
+        handleDrawModeChange('draw_point', draw, setLayersRef);
+      } else if (selectedType === 'low_pressure') {
+        // Activate a click-to-drop marker flow, or manual input
+        handleDrawModeChange('draw_point', draw, setLayersRef);
+      }
+    }
+  };
+
+  const handleManualInputSubmit = (data) => {
+    const selectedType = selectedToolRef.current || 'draw_point';
+
+    // Update the type in Edit (if needed)
+    if (setType) setType(selectedType);
+
+    saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(data.title);
+    setManualInputData(data);
+    toggleModal('manualInput', false);
+  };
 
   const handleDrawing = useCallback((event) => {
     handleKeyPress(
@@ -58,14 +139,19 @@ const DrawToolbar = ({
       draw,
       isDrawing,
       toggleDrawing,
+      toggleFlagDrawing,
       startDrawing,
+      startFlagDrawing,
       stopDrawing,
+      stopFlagDrawing,
       setIsDrawing,
+      setIsFlagDrawing,
       onToggleCanvas,
+      onToggleFlagCanvas,
       setLayersRef,
       setLayers
     );
-  }, [tools, draw, isDrawing, onToggleCanvas, setLayersRef, setLayers]);
+  }, [tools, draw, isDrawing, isFlagDrawing, onToggleCanvas, onToggleFlagCanvas, setLayersRef, setLayers]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleDrawing);
@@ -76,6 +162,25 @@ const DrawToolbar = ({
 
   return (
     <>
+      {/* Modals */}
+      <PointInputChoiceModal
+        isOpen={openModals.pointInputChoice}
+        onClose={() => toggleModal('pointInputChoice', false)}
+        onSelect={handlePointInputChoice}
+      />
+
+      <FeatureNotAvailableModal
+        isOpen={openModals.featureNotAvailable}
+        onClose={() => toggleModal('featureNotAvailable', false)}
+      />
+
+      <ManualInputModal
+        isOpen={openModals.manualInput}
+        onClose={() => toggleModal('manualInput', false)}
+        onSubmit={handleManualInputSubmit}
+      />
+
+      {/* Toolbar */}
       <ToolbarContainer isdarkmode={isdarkmode}>
         <CollapseToggle
           title={isCollapsed ? 'Expand Toolbar' : 'Collapse Toolbar'}
@@ -92,33 +197,51 @@ const DrawToolbar = ({
                 key={tool.id}
                 title={tool.label}
                 isdarkmode={isdarkmode}
-                onClick={() =>
-                  tool.modal
-                    ? toggleModal(tool.modal, true)
-                    : handleDrawModeChange(tool.id, draw, setLayersRef)
-                }
+                onClick={() => handleToolClick(tool)}
               >
                 {tool.icon}
               </ToolButton>
             ))}
+
             <ToolButton
-              title={isDrawing ? 'Stop Drawing (X)' : 'Start Drawing (🖊️)'}
+              title={isFlagDrawing ? 'Stop Flag Drawing (X)' : 'Start Flag Drawing (🚩)'}
+              isdarkmode={isdarkmode}
+              onClick={() => {
+                // Turn off freehand if it's active
+                if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+
+                // Toggle flag drawing mode
+                toggleFlagDrawing(isFlagDrawing, setIsFlagDrawing, onToggleFlagCanvas);
+              }}
+            >
+              {isFlagDrawing ? '❌' : '🚩'}
+            </ToolButton>
+
+            <ToolButton
+              title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
               active={isCanvasActive}
               isdarkmode={isdarkmode}
-              onClick={() => toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas)}
+              onClick={() => {
+                // Turn off flag if it's active
+                if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+
+                // Toggle freehand drawing mode
+                toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas);
+              }}
             >
               {isDrawing ? '❌' : '🖊️'}
             </ToolButton>
 
+
             {isCanvasActive && (
               <ToolButton
                 title={closedMode ? 'Closed Shape Mode (O)' : 'Open Shape Mode (C)'}
-                active={true}
+                active
                 isdarkmode={isdarkmode}
                 onClick={() => setClosedMode((prev) => !prev)}
                 style={{
                   backgroundColor: closedMode ? '#4CAF50' : '#F44336',
-                  color: 'white'
+                  color: 'white',
                 }}
               >
                 <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
@@ -129,12 +252,6 @@ const DrawToolbar = ({
           </>
         )}
       </ToolbarContainer>
-
-      {/* ✅ Modal rendered outside toolbar */}
-      <FeatureNotAvailableModal
-        isOpen={openModals.featureNotAvailable}
-        onClose={() => toggleModal('featureNotAvailable', false)}
-      />
     </>
   );
 };

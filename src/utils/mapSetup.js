@@ -7,7 +7,15 @@ import drawStyles from "../components/Edit/draw/styles";
 
 const mapboxgl = require('mapbox-gl');
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, initialFeatures = [] }) {
+export function setupMap({
+  map,
+  mapRef,
+  setDrawInstance,
+  setMapLoaded,
+  setSelectedPoint,
+  setShowTitleModal,
+  initialFeatures = [],
+}) {
   mapRef.current = map;
   map.addControl(new mapboxgl.NavigationControl());
 
@@ -19,45 +27,71 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       direct_select: MapboxDraw.modes.direct_select,
       draw_line_string: DrawLineString,
       draw_rectangle: DrawRectangle,
-      draw_circle: DrawCircle
+      draw_circle: DrawCircle,
     },
-    styles: drawStyles
+    styles: drawStyles,
   });
 
   map.addControl(draw);
-  initialFeatures.forEach(feature => {
+
+  // Load custom marker images
+  const loadImageIfNeeded = (name, path) => {
+    if (!map.hasImage(name)) {
+      map.loadImage(path, (error, image) => {
+        if (!error && !map.hasImage(name)) {
+          map.addImage(name, image);
+        }
+      });
+    }
+  };
+
+  loadImageIfNeeded('typhoon-marker', '/hurricane.png');
+  loadImageIfNeeded('low-pressure-icon', '/LPA.png'); // <-- custom icon
+
+  // Add GeoJSON source for markers
+  map.addSource('typhoon-points', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  });
+
+  // Symbol layer using `icon` from each feature
+  map.addLayer({
+    id: 'typhoon-layer',
+    type: 'symbol',
+    source: 'typhoon-points',
+    layout: {
+      'icon-image': ['get', 'icon'], // dynamic from properties.icon
+      'icon-size': [
+        'case',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        0.2,  // double size for low_pressure
+        0.09   // default size
+      ],
+      'text-field': ['get', 'title'],
+      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+      'text-offset': [
+        'case',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        [0, 2.0], // higher offset for larger icon
+        [0, 1.25] // default offset
+      ],
+      'text-anchor': 'top',
+      'icon-allow-overlap': true,
+      'text-allow-overlap': true,
+    },
+    minzoom: 0,
+    maxzoom: 24,
+  });
+
+  // Add any initial features
+  initialFeatures.forEach((feature) => {
     draw.add(feature);
   });
+
   setDrawInstance(draw);
   setMapLoaded(true);
 
-  map.loadImage('/hurricane.png', (error, image) => {
-    if (!error && !map.hasImage('custom-marker')) {
-      map.addImage('custom-marker', image);
-    }
-  });
-
-  map.addSource('custom-points', {
-    type: 'geojson',
-    data: { type: 'FeatureCollection', features: [] }
-  });
-
-  map.addLayer({
-    id: 'custom-points-layer',
-    type: 'symbol',
-    source: 'custom-points',
-    minzoom: 0,    // Set the minimum zoom level (0 = always visible when zoomed out)
-    maxzoom: 24,   // Set the maximum zoom level (24 = always visible when zoomed in)
-    layout: {
-      'icon-image': 'custom-marker',
-      'icon-size': 0.09,
-      'text-field': ['get', 'title'],
-      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-      'text-offset': [0, 1.25],
-      'text-anchor': 'top'
-    }
-  });
-
+  // Listen for point feature draw and trigger modal
   map.on('draw.create', (e) => {
     const feature = e.features[0];
     if (feature?.geometry.type === 'Point') {
@@ -67,4 +101,4 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       draw.delete(feature.id);
     }
   });
-};
+}

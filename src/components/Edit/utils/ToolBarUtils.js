@@ -14,13 +14,14 @@ export const handleDrawModeChange = (mode, draw, setLayersRef) => {
 export const handleKeyPress = (
   event, tools, draw, isDrawing, toggleDrawing, 
   startDrawing, stopDrawing, setIsDrawing, 
-  onToggleCanvas, map, setLayersRef
+  onToggleCanvas, onToggleFlagCanvas, map, setLayersRef
 ) => {
   const key = event.key.toLowerCase();
   const tool = tools.find(t => t.hotkey === key);
 
   // Handle drawing mode change (if tool is pressed)r
   if (tool) {
+    if (tool.id === 'low_pressure') {tool.id = 'draw_point';} // Normalize to draw_point for low_pressure
     handleDrawModeChange(tool.id, draw, setLayersRef);
   }
 
@@ -51,10 +52,16 @@ export const handleKeyPress = (
 
   // Handle stop drawing with 'x'
   if (key === 'x' && isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+
+  
 };
 
 export const toggleDrawing = (isDrawing, setIsDrawing, onToggleCanvas) => {
   isDrawing ? stopDrawing(setIsDrawing, onToggleCanvas) : startDrawing(setIsDrawing, onToggleCanvas);
+};
+
+export const toggleFlagDrawing = (isFlagDrawing, setIsFlagDrawing, onToggleFlagCanvas) => {
+  isFlagDrawing ? stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas) : startFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
 };
 
 export const startDrawing = (setIsDrawing, onToggleCanvas) => {
@@ -62,9 +69,19 @@ export const startDrawing = (setIsDrawing, onToggleCanvas) => {
   onToggleCanvas?.(true);
 };
 
-export const stopDrawing = (setIsDrawing, onToggleCanvas) => {
+export const startFlagDrawing = (setIsFlagDrawing, onToggleFlagCanvas) => {
+  setIsFlagDrawing(true);
+  onToggleFlagCanvas?.(true);
+};
+
+export const stopDrawing = (setIsDrawing, onToggleFlagCanvas) => {
   setIsDrawing(false);
-  onToggleCanvas?.(false);
+  onToggleFlagCanvas?.(false);
+};
+
+export const stopFlagDrawing = (setIsFlagDrawing, onToggleFlagCanvas) => {
+  setIsFlagDrawing(false);
+  onToggleFlagCanvas?.(false);
 };
 
 export const toggleCollapse = (setIsCollapsed) => {
