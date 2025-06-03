@@ -19,22 +19,26 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
       return;
     }
 
-    // Initialize map only if it's not already initialized
     if (!mapRef.current) {
+      // Clear container div to make sure it's empty
+      while (mapContainerRef.current.firstChild) {
+        mapContainerRef.current.removeChild(mapContainerRef.current.firstChild);
+      }
+
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         projection: 'mercator',
         style: isDarkMode
           ? 'mapbox://styles/mapbox/dark-v11'
           : 'mapbox://styles/mapbox/light-v11',
-        center: [122, 12], // Adjust as needed
+        center: [122, 12],
         zoom: 5,
       });
 
       map.fitBounds(
         [
-          [114.0, 5.0],   // Southwest
-          [130.0, 21.0],  // Northeast
+          [114.0, 5.0],
+          [130.0, 21.0],
         ],
         {
           padding: { top: 200, bottom: 100, left: 100, right: 200 },
@@ -49,14 +53,13 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
       });
     }
 
-    // Cleanup map instance when component unmounts
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, []); // Only run once on mount
+  }, []);
 
   // Update the map style when isDarkMode changes
   useEffect(() => {

@@ -44,7 +44,8 @@ const Edit = ({ isDarkMode }) => {
   const [drawInstance, setDrawInstance] = useState(null);
   const [isCanvasActive, setIsCanvasActive] = useState(false);
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
-  const [drawCounter, setDrawCounter] = useState(0);
+  const [lineCount, setLineCount] = React.useState(0);
+  const [drawCounter, setDrawCounter] = useState(lineCount);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
@@ -61,32 +62,41 @@ const Edit = ({ isDarkMode }) => {
   const typhoonMarker = saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type);
 
   const handleMapLoad = useCallback(async (map) => {
-    try {
-      const savedFeatures = await fetchFeatures();
-      savedFeatures.forEach(feature => console.log(feature._id));
+    async function setupFeaturesAndLayers() {
+      try {
+        const savedFeatures = await fetchFeatures();
 
-      const initialLayers = savedFeatures.map(f => ({
-        id: f.sourceId,
-        name: f.name || 'Untitled Feature',
-        visible: true,
-        locked: false,
-      }));
+        const initialLayers = savedFeatures.map(f => ({
+          id: f.sourceId,
+          name: f.name || 'Untitled Feature',
+          visible: true,
+          locked: false,
+        }));
+        setLayers(initialLayers);
 
-      setLayers(initialLayers);
-
-      setupMap({
-        map,
-        mapRef,
-        setDrawInstance,
-        setMapLoaded,
-        setSelectedPoint,
-        setShowTitleModal,
-        initialFeatures: savedFeatures,
-      });
-    } catch (error) {
-      console.error('Failed to load saved features:', error);
-      setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal });
+        // Wrap features array as GeoJSON FeatureCollection
+        setupMap({
+          map,
+          mapRef,
+          setDrawInstance,
+          setMapLoaded,
+          setSelectedPoint,
+          setShowTitleModal,
+          setLineCount,
+          initialFeatures: {
+            type: 'FeatureCollection',
+            features: savedFeatures,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to load saved features:', error);
+        setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal });
+      }
     }
+    await setupFeaturesAndLayers();
+    map.on('style.load', () => {
+      setupFeaturesAndLayers();
+    });
   }, []);
 
   useEffect(() => {
@@ -154,6 +164,7 @@ const Edit = ({ isDarkMode }) => {
           isDarkMode={isDarkMode}
           setLayersRef={setLayersRef}
           closedMode={closedMode}
+          lineCount={lineCount}
         />
       )}
 
@@ -183,7 +194,7 @@ const Edit = ({ isDarkMode }) => {
         onClose={() => setShowTitleModal(false)}
         onSave={typhoonMarker}
       />
-      
+
     </Container>
   );
 };

@@ -38,7 +38,7 @@ const ValueLabelComponent = styled(({ children, value, open }) => (
   },
 }));
 
-const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, closedMode }) => {
+const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, closedMode, lineCount }) => {
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
   const [labelValue, setLabelValue] = useState(3); // Initial label value
@@ -116,6 +116,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, clos
             setLayersRef,
             saveFeature,
             closedMode,
+            lineCount,  
             labelValue // <-- pass label value here if needed
           )
         }

@@ -219,8 +219,8 @@ const DrawToolbar = ({
 
             <ToolButton
               title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
-              active={isCanvasActive}
-              isdarkmode={isdarkmode}
+              $active={isCanvasActive}
+              $isdarkmode={isdarkmode}
               onClick={() => {
                 // Turn off flag if it's active
                 if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
@@ -236,8 +236,8 @@ const DrawToolbar = ({
             {isCanvasActive && (
               <ToolButton
                 title={closedMode ? 'Closed Shape Mode (O)' : 'Open Shape Mode (C)'}
-                active
-                isdarkmode={isdarkmode}
+                $active
+                $isdarkmode={isdarkmode}
                 onClick={() => setClosedMode((prev) => !prev)}
                 style={{
                   backgroundColor: closedMode ? '#4CAF50' : '#F44336',

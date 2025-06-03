@@ -13,7 +13,10 @@ export const saveFeature = async (feature) => {
 export const fetchFeatures = async () => {
   const response = await fetch(API_BASE_URL);
   if (!response.ok) throw new Error('Failed to fetch features');
-  return response.json();
+  const data = await response.json(); // Await the JSON data
+  console.log(data); // Now you log the actual parsed data
+
+  return data;
 };
 
 export const deleteFeature = async (sourceId) => {
