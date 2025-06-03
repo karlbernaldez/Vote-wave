@@ -14,7 +14,6 @@ import {
 
 import {
   handleDrawModeChange,
-  handleKeyPress,
   toggleDrawing,
   toggleFlagDrawing,
   startDrawing,
@@ -111,11 +110,9 @@ const DrawToolbar = ({
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      // Don't call an invalid mode
       if (selectedType === 'draw_point') {
         handleDrawModeChange('draw_point', draw, setLayersRef);
       } else if (selectedType === 'low_pressure') {
-        // Activate a click-to-drop marker flow, or manual input
         handleDrawModeChange('draw_point', draw, setLayersRef);
       }
     }
@@ -133,24 +130,7 @@ const DrawToolbar = ({
   };
 
   const handleDrawing = useCallback((event) => {
-    handleKeyPress(
-      event,
-      tools,
-      draw,
-      isDrawing,
-      toggleDrawing,
-      toggleFlagDrawing,
-      startDrawing,
-      startFlagDrawing,
-      stopDrawing,
-      stopFlagDrawing,
-      setIsDrawing,
-      setIsFlagDrawing,
-      onToggleCanvas,
-      onToggleFlagCanvas,
-      setLayersRef,
-      setLayers
-    );
+    
   }, [tools, draw, isDrawing, isFlagDrawing, onToggleCanvas, onToggleFlagCanvas, setLayersRef, setLayers]);
 
   useEffect(() => {
@@ -219,8 +199,8 @@ const DrawToolbar = ({
 
             <ToolButton
               title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
-              active={isCanvasActive}
-              isdarkmode={isdarkmode}
+              $active={isCanvasActive}
+              $isdarkmode={isdarkmode}
               onClick={() => {
                 // Turn off flag if it's active
                 if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
@@ -236,8 +216,8 @@ const DrawToolbar = ({
             {isCanvasActive && (
               <ToolButton
                 title={closedMode ? 'Closed Shape Mode (O)' : 'Open Shape Mode (C)'}
-                active
-                isdarkmode={isdarkmode}
+                $active
+                $isdarkmode={isdarkmode}
                 onClick={() => setClosedMode((prev) => !prev)}
                 style={{
                   backgroundColor: closedMode ? '#4CAF50' : '#F44336',

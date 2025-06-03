@@ -1,4 +1,3 @@
-// src/components/Edit/draw/drawingHelpers.js
 
 export const convertToGeoJSON = (lines, mapRef) => {
   if (!mapRef.current) {
@@ -72,6 +71,7 @@ export const handlePointerUp = async (
   setLayersRef,
   saveFeature,
   closedMode,
+  lineCount,
   labelValue = 5 // ✅ new default label value
 ) => {
   const map = mapRef.current;
@@ -97,10 +97,10 @@ export const handlePointerUp = async (
 
   // --- CONVERT TO GEOJSON ---
   const geojson = convertToGeoJSON(lines, mapRef);
-
-  const nextCounter = drawCounter + 1;
-  const sourceId = `draw-${nextCounter}`;
-  const layerId = `freehand-${nextCounter}`;
+  const uniqueId = crypto.randomUUID();
+  const prefix = closedMode ? 'WHC' : 'WHO'; // WHC = Closed, WHO = Open
+  const sourceId = `${prefix}_-${uniqueId}`;
+  const layerId = `${prefix}_${uniqueId}`;
   const beforeLayer = map.getLayer('custom-points-layer') ? 'custom-points-layer' : undefined;
 
   if (map.getSource(sourceId)) map.removeSource(sourceId);
@@ -127,11 +127,13 @@ export const handlePointerUp = async (
   );
 
   // --- ADD LABELS ---
+  let labelCoordsToSave = [];
+
   if (lines.length > 0) {
     const lastLine = lines[lines.length - 1];
     if (lastLine.points.length >= 4) {
-      const labelSourceId = `label-${nextCounter}`;
-      const labelLayerId = `label-layer-${nextCounter}`;
+      const labelSourceId = `label-${uniqueId}`;
+      const labelLayerId = `label-layer-${uniqueId}`;
 
       if (map.getLayer(labelLayerId)) map.removeLayer(labelLayerId);
       if (map.getSource(labelSourceId)) map.removeSource(labelSourceId);
@@ -145,8 +147,8 @@ export const handlePointerUp = async (
         features.push({
           type: 'Feature',
           geometry: {
-            type: 'Point',
             coordinates: [lngLat.lng, lngLat.lat],
+            type: 'Point',
           },
           properties: {
             text: String(labelValue), // ✅ use dynamic label value
@@ -165,8 +167,8 @@ export const handlePointerUp = async (
           {
             type: 'Feature',
             geometry: {
-              type: 'Point',
               coordinates: [firstLngLat.lng, firstLngLat.lat],
+              type: 'Point',
             },
             properties: {
               text: String(labelValue), // ✅ dynamic
@@ -175,8 +177,8 @@ export const handlePointerUp = async (
           {
             type: 'Feature',
             geometry: {
-              type: 'Point',
               coordinates: [lastLngLat.lng, lastLngLat.lat],
+              type: 'Point',
             },
             properties: {
               text: String(labelValue), // ✅ dynamic
@@ -184,6 +186,10 @@ export const handlePointerUp = async (
           }
         );
       }
+
+      // Extract label coordinates for saving and logging
+      labelCoordsToSave = features.map((f) => f.geometry.coordinates);
+      console.log('Label coordinates:', labelCoordsToSave);
 
       map.addSource(labelSourceId, {
         type: 'geojson',
@@ -224,7 +230,7 @@ export const handlePointerUp = async (
   }
 
   if (typeof setLayersRef?.current === 'function') {
-    const baseName = 'Freehand Layer';
+    const baseName = 'Wave Height Layer';
 
     setLayersRef.current((prevLayers) => {
       let counter = 1;
@@ -240,9 +246,13 @@ export const handlePointerUp = async (
 
         saveFeature({
           geometry: feature.geometry,
-          properties: feature.properties || {},
+          properties: {
+            labelValue: labelValue,
+            closedMode: closedMode,
+          },
           name: uniqueName,
           sourceId: sourceId,
+          labels: labelCoordsToSave, // Save label coordinates here
         }).catch((err) => {
           console.error('Error saving feature:', err);
         });
@@ -261,6 +271,6 @@ export const handlePointerUp = async (
     });
   }
 
-  setDrawCounter(nextCounter);
+  setDrawCounter(uniqueId);
   setLines([]);
 };

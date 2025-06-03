@@ -1,11 +1,6 @@
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import DrawLineString from "../components/Edit/draw/linestring";
-import DrawRectangle from "../components/Edit/draw/rectangle";
-import DrawCircle from "../components/Edit/draw/circle";
-import SimpleSelect from "../components/Edit/draw/simple_select";
-import drawStyles from "../components/Edit/draw/styles";
-
-const mapboxgl = require('mapbox-gl');
+import mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { loadImage, initTyphoonLayer, initDrawControl } from './mapUtils'; // helper imports
 
 export function setupMap({
   map,
@@ -14,87 +9,189 @@ export function setupMap({
   setMapLoaded,
   setSelectedPoint,
   setShowTitleModal,
+  setLineCount, // callback to pass lineCount back
   initialFeatures = [],
 }) {
+  if (!map) {
+    console.warn('No map instance provided');
+    return;
+  }
+
   mapRef.current = map;
   map.addControl(new mapboxgl.NavigationControl());
 
-  const draw = new MapboxDraw({
-    displayControlsDefault: false,
-    modes: {
-      ...MapboxDraw.modes,
-      simple_select: SimpleSelect,
-      direct_select: MapboxDraw.modes.direct_select,
-      draw_line_string: DrawLineString,
-      draw_rectangle: DrawRectangle,
-      draw_circle: DrawCircle,
-    },
-    styles: drawStyles,
-  });
+  loadImage(map, 'typhoon-marker', '/hurricane.png');
+  loadImage(map, 'low-pressure-icon', '/LPA.png');
+  initTyphoonLayer(map);
 
-  map.addControl(draw);
-
-  // Load custom marker images
-  const loadImageIfNeeded = (name, path) => {
-    if (!map.hasImage(name)) {
-      map.loadImage(path, (error, image) => {
-        if (!error && !map.hasImage(name)) {
-          map.addImage(name, image);
-        }
-      });
-    }
-  };
-
-  loadImageIfNeeded('typhoon-marker', '/hurricane.png');
-  loadImageIfNeeded('low-pressure-icon', '/LPA.png'); // <-- custom icon
-
-  // Add GeoJSON source for markers
-  map.addSource('typhoon-points', {
-    type: 'geojson',
-    data: { type: 'FeatureCollection', features: [] },
-  });
-
-  // Symbol layer using `icon` from each feature
-  map.addLayer({
-    id: 'typhoon-layer',
-    type: 'symbol',
-    source: 'typhoon-points',
-    layout: {
-      'icon-image': ['get', 'icon'], // dynamic from properties.icon
-      'icon-size': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        0.2,  // double size for low_pressure
-        0.09   // default size
-      ],
-      'text-field': ['get', 'title'],
-      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-      'text-offset': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        [0, 2.0], // higher offset for larger icon
-        [0, 1.25] // default offset
-      ],
-      'text-anchor': 'top',
-      'icon-allow-overlap': true,
-      'text-allow-overlap': true,
-    },
-    minzoom: 0,
-    maxzoom: 24,
-  });
-
-  // Add any initial features
-  initialFeatures.forEach((feature) => {
-    draw.add(feature);
-  });
-
+  const draw = initDrawControl(map);
   setDrawInstance(draw);
+
+  // Normalize incoming feature array
+  const featuresArray = Array.isArray(initialFeatures)
+    ? initialFeatures
+    : (initialFeatures && Array.isArray(initialFeatures.features) ? initialFeatures.features : []);
+
+  let lineCount = 0;
+  let polygonCount = 0;
+
+  // Fix nested LineString coordinate issues
+  featuresArray.forEach((feature) => {
+    if (
+      feature.geometry?.type === 'LineString' &&
+      Array.isArray(feature.geometry.coordinates) &&
+      feature.geometry.coordinates.length === 1 &&
+      Array.isArray(feature.geometry.coordinates[0]) &&
+      Array.isArray(feature.geometry.coordinates[0][0])
+    ) {
+      feature.geometry.coordinates = feature.geometry.coordinates[0];
+    }
+  });
+
+  // Count and handle Polygons vs Lines
+  featuresArray.forEach((feature, i) => {
+    const type = feature.geometry?.type;
+    if (type === 'Polygon') {
+      polygonCount++;
+
+      // 🧼 Sanitize for draw.add (remove Mongo-specific props)
+      const cleanFeature = {
+        type: 'Feature',
+        geometry: feature.geometry,
+        properties: feature.properties || {},
+      };
+
+      console.log(`➕ Drawing polygon via draw.add`, cleanFeature);
+      draw.add(cleanFeature);
+    } else if (type === 'LineString') {
+      lineCount++;
+    }
+  });
+
+  // Pass back line count
+  if (typeof setLineCount === 'function') {
+    setLineCount(lineCount);
+  }
+
+  console.log(`📏 Lines: ${lineCount}`);
+  console.log(`🔲 Polygons: ${polygonCount}`);
+
+  if (lineCount > 0) {
+    const lineFeatures = featuresArray.filter((f) => f.geometry?.type === 'LineString');
+
+    const lineFeatureCollection = {
+      type: 'FeatureCollection',
+      features: lineFeatures,
+    };
+
+    // Remove existing layers/sources if present
+    if (map.getSource('initial-features')) {
+      map.removeLayer('initial-lines-layer');
+      map.removeLayer('initial-label-layer');
+      map.removeSource('initial-features');
+      map.removeSource('initial-label-source');
+    }
+
+    map.addSource('initial-features', {
+      type: 'geojson',
+      data: lineFeatureCollection,
+    });
+
+    map.addLayer({
+      id: 'initial-lines-layer',
+      type: 'line',
+      source: 'initial-features',
+      paint: {
+        'line-color': '#0080ff',
+        'line-opacity': 0.5,
+        'line-width': 2,
+      },
+      filter: ['==', '$type', 'LineString'],
+    });
+
+    // Generate line endpoint label points
+    const lineLabelFeatures = [];
+
+    lineFeatures.forEach((feature, index) => {
+      const coords = feature.geometry.coordinates;
+      const props = feature.properties || {};
+      const labelValue = props.labelValue || index + 1;
+      const closedMode = props.closedMode;
+
+      if (!Array.isArray(coords) || coords.length < 2) return;
+
+      if (closedMode) {
+        const [lng, lat] = coords[0];
+        lineLabelFeatures.push({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat],
+          },
+          properties: {
+            text: String(labelValue),
+          },
+        });
+      } else {
+        const [lng1, lat1] = coords[0];
+        const [lng2, lat2] = coords[coords.length - 1];
+
+        lineLabelFeatures.push(
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng1, lat1],
+            },
+            properties: {
+              text: String(labelValue),
+            },
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng2, lat2],
+            },
+            properties: {
+              text: String(labelValue),
+            },
+          }
+        );
+      }
+    });
+
+    map.addSource('initial-label-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: lineLabelFeatures,
+      },
+    });
+
+    map.addLayer({
+      id: 'initial-label-layer',
+      type: 'symbol',
+      source: 'initial-label-source',
+      layout: {
+        'text-field': ['get', 'text'],
+        'text-size': 18,
+        'text-anchor': 'bottom',
+        'text-offset': [0, 0.5],
+      },
+      paint: {
+        'text-color': '#FF0000',
+        'text-halo-color': '#FFFFFF',
+        'text-halo-width': 2,
+      },
+    });
+  }
+
   setMapLoaded(true);
 
-  // Listen for point feature draw and trigger modal
   map.on('draw.create', (e) => {
     const feature = e.features[0];
-    if (feature?.geometry.type === 'Point') {
+    if (feature?.geometry?.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
       setSelectedPoint({ lng, lat });
       setShowTitleModal(true);
