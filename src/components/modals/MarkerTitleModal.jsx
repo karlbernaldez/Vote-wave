@@ -93,6 +93,7 @@ const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
   const handleSave = () => {
     onSave(input || 'Untitled Marker');
     setInput(''); // Reset input after saving
+    console.log('Marker saved:', input);
   };
 
   const handleKeyDown = (e) => {

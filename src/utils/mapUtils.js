@@ -15,6 +15,7 @@ export function loadImage(map, name, path) {
       }
       if (!map.hasImage(name)) {
         map.addImage(name, image);
+        console.log(`Image ${name} loaded successfully from ${path}`);
       }
     });
   }

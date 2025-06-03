@@ -20,6 +20,10 @@ export function setupMap({
   mapRef.current = map;
   map.addControl(new mapboxgl.NavigationControl());
 
+  loadImage(map, 'typhoon-marker', '/hurricane.png');
+  loadImage(map, 'low-pressure-icon', '/LPA.png');
+  initTyphoonLayer(map);
+
   const draw = initDrawControl(map);
   setDrawInstance(draw);
 
