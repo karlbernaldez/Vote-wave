@@ -53,7 +53,6 @@ const Edit = ({ isDarkMode }) => {
   const [closedMode, setClosedMode] = useState(false);
   const [type, setType] = useState(null);
 
-
   const mapRef = useRef(null);
   setLayersRef.current = setLayers;
 
