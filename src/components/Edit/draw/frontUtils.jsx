@@ -84,10 +84,10 @@ export const handlePointerUp = async (
   const geojson = convertToGeoJSON(lines, mapRef);
   if (!geojson) return;
 
-  const nextCounter = drawCounter + 1;
-  const sourceId = `flag-${nextCounter}`;
-  const bgLayerId = `flag-line-bg-${nextCounter}`;
-  const dashedLayerId = `flag-line-dashed-${nextCounter}`;
+  const uniqueId = crypto.randomUUID();
+  const sourceId = `SF_${uniqueId}`;
+  const bgLayerId = `SF_bg_${uniqueId}`;
+  const dashedLayerId = `SF_dashed_${uniqueId}`;
   const beforeLayer = map.getLayer('custom-points-layer') ? 'custom-points-layer' : undefined;
 
   if (map.getSource(sourceId)) map.removeSource(sourceId);
@@ -164,7 +164,7 @@ export const handlePointerUp = async (
 
   // Save feature metadata and update UI state
   if (typeof setLayersRef?.current === 'function') {
-    const baseName = 'Flag Layer';
+    const baseName = 'Surface Front Layer';
     setLayersRef.current((prevLayers) => {
       let counter = 1;
       let uniqueName = baseName;
@@ -177,7 +177,9 @@ export const handlePointerUp = async (
         const feature = geojson.features[0];
         saveFeature({
           geometry: feature.geometry,
-          properties: feature.properties || {},
+          properties: {
+            isFront: true,
+          },
           name: uniqueName,
           sourceId,
         }).catch((err) => {
@@ -199,6 +201,5 @@ export const handlePointerUp = async (
   }
 
   colorToggle.current = !colorToggle.current;
-  setDrawCounter(nextCounter);
   setLines([]);
 };

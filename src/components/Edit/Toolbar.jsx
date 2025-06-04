@@ -5,37 +5,10 @@ import PointInputChoiceModal from '../modals/MarkerChoice';
 import ManualInputModal from '../modals/ManualInputModal';
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
 import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
+import { ToolbarContainer, ToolButton, CollapseToggle} from './styles/ToolBarStyles';
+import { handleDrawModeChange, toggleDrawing, toggleFlagDrawing, startDrawing, startFlagDrawing, stopDrawing, stopFlagDrawing, toggleCollapse } from './utils/ToolBarUtils';
 
-import {
-  ToolbarContainer,
-  ToolButton,
-  CollapseToggle
-} from './styles/ToolBarStyles';
-
-import {
-  handleDrawModeChange,
-  toggleDrawing,
-  toggleFlagDrawing,
-  startDrawing,
-  startFlagDrawing,
-  stopDrawing,
-  stopFlagDrawing,
-  toggleCollapse
-} from './utils/ToolBarUtils';
-
-const DrawToolbar = ({
-  draw,
-  mapRef,
-  onToggleCanvas,
-  onToggleFlagCanvas,
-  isCanvasActive,
-  isdarkmode,
-  setLayersRef,
-  setLayers,
-  closedMode,
-  setClosedMode,
-  setType,
-}) => {
+const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers, closedMode, setClosedMode, setType }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isFlagDrawing, setIsFlagDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -44,11 +17,7 @@ const DrawToolbar = ({
   const [showTitleModal, setShowTitleModal] = useState(false);
   const selectedToolRef = useRef(null);
 
-  const [openModals, setOpenModals] = useState({
-    featureNotAvailable: false,
-    pointInputChoice: false,
-    manualInput: false,
-  });
+  const [openModals, setOpenModals] = useState({ featureNotAvailable: false, pointInputChoice: false, manualInput: false});
 
   useEffect(() => {
     if (setLayersRef?.current !== setLayers) {
@@ -83,11 +52,7 @@ const DrawToolbar = ({
 
   const handleToolClick = (tool) => {
     selectedToolRef.current = tool.id;
-
-    // Update the selected tool type state locally
     setSelectedToolType(tool.id);
-
-    // Also update the type state in Edit component via setType prop
     if (setType) {
       setType(tool.id);
     }
@@ -105,7 +70,7 @@ const DrawToolbar = ({
 
   const handlePointInputChoice = (method) => {
     toggleModal('pointInputChoice', false);
-    const selectedType = selectedToolRef.current || 'draw_point'; // use a ref or state
+    const selectedType = selectedToolRef.current || 'draw_point';
 
     if (method === 'manual') {
       toggleModal('manualInput', true);
@@ -121,7 +86,6 @@ const DrawToolbar = ({
   const handleManualInputSubmit = (data) => {
     const selectedType = selectedToolRef.current || 'draw_point';
 
-    // Update the type in Edit (if needed)
     if (setType) setType(selectedType);
 
     saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(data.title);

@@ -87,3 +87,4 @@ export const stopFlagDrawing = (setIsFlagDrawing, onToggleFlagCanvas) => {
 export const toggleCollapse = (setIsCollapsed) => {
   setIsCollapsed(prev => !prev);
 };
+

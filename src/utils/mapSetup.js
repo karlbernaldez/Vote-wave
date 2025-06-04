@@ -1,6 +1,6 @@
 import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { loadImage, initTyphoonLayer, initDrawControl } from './mapUtils'; // helper imports
+import { loadImage, initTyphoonLayer, initDrawControl } from './mapUtils';
 
 export function setupMap({
   map,
@@ -9,7 +9,7 @@ export function setupMap({
   setMapLoaded,
   setSelectedPoint,
   setShowTitleModal,
-  setLineCount, // callback to pass lineCount back
+  setLineCount,
   initialFeatures = [],
 }) {
   if (!map) {
@@ -27,15 +27,16 @@ export function setupMap({
   const draw = initDrawControl(map);
   setDrawInstance(draw);
 
-  // Normalize incoming feature array
   const featuresArray = Array.isArray(initialFeatures)
     ? initialFeatures
-    : (initialFeatures && Array.isArray(initialFeatures.features) ? initialFeatures.features : []);
+    : (initialFeatures?.features && Array.isArray(initialFeatures.features))
+    ? initialFeatures.features
+    : [];
 
-  let lineCount = 0;
   let polygonCount = 0;
+  let totalLineCount = 0;
 
-  // Fix nested LineString coordinate issues
+  // Fix malformed LineString coordinates
   featuresArray.forEach((feature) => {
     if (
       feature.geometry?.type === 'LineString' &&
@@ -48,59 +49,53 @@ export function setupMap({
     }
   });
 
-  // Count and handle Polygons vs Lines
-  featuresArray.forEach((feature, i) => {
+  const frontLines = [];
+  const nonFrontLines = [];
+
+  // Classify and process features
+  featuresArray.forEach((feature) => {
     const type = feature.geometry?.type;
     if (type === 'Polygon') {
       polygonCount++;
-
-      // 🧼 Sanitize for draw.add (remove Mongo-specific props)
       const cleanFeature = {
         type: 'Feature',
         geometry: feature.geometry,
         properties: feature.properties || {},
       };
-
-      console.log(`➕ Drawing polygon via draw.add`, cleanFeature);
       draw.add(cleanFeature);
     } else if (type === 'LineString') {
-      lineCount++;
+      totalLineCount++;
+      if (feature.properties?.isFront) {
+        frontLines.push(feature);
+      } else {
+        nonFrontLines.push(feature);
+      }
     }
   });
 
-  // Pass back line count
   if (typeof setLineCount === 'function') {
-    setLineCount(lineCount);
+    setLineCount(totalLineCount);
   }
 
-  console.log(`📏 Lines: ${lineCount}`);
+  console.log(`📏 Total Lines: ${totalLineCount}`);
   console.log(`🔲 Polygons: ${polygonCount}`);
+  console.log(`🔺 Front Lines: ${frontLines.length}`);
+  console.log(`🔹 Non-front Lines: ${nonFrontLines.length}`);
 
-  if (lineCount > 0) {
-    const lineFeatures = featuresArray.filter((f) => f.geometry?.type === 'LineString');
-
-    const lineFeatureCollection = {
-      type: 'FeatureCollection',
-      features: lineFeatures,
-    };
-
-    // Remove existing layers/sources if present
-    if (map.getSource('initial-features')) {
-      map.removeLayer('initial-lines-layer');
-      map.removeLayer('initial-label-layer');
-      map.removeSource('initial-features');
-      map.removeSource('initial-label-source');
-    }
-
-    map.addSource('initial-features', {
+  // === Non-front lines layer with labels ===
+  if (nonFrontLines.length > 0) {
+    map.addSource('non-front-lines', {
       type: 'geojson',
-      data: lineFeatureCollection,
+      data: {
+        type: 'FeatureCollection',
+        features: nonFrontLines,
+      },
     });
 
     map.addLayer({
-      id: 'initial-lines-layer',
+      id: 'non-front-lines-layer',
       type: 'line',
-      source: 'initial-features',
+      source: 'non-front-lines',
       paint: {
         'line-color': '#0080ff',
         'line-opacity': 0.5,
@@ -109,10 +104,9 @@ export function setupMap({
       filter: ['==', '$type', 'LineString'],
     });
 
-    // Generate line endpoint label points
-    const lineLabelFeatures = [];
+    const labelFeatures = [];
 
-    lineFeatures.forEach((feature, index) => {
+    nonFrontLines.forEach((feature, index) => {
       const coords = feature.geometry.coordinates;
       const props = feature.properties || {};
       const labelValue = props.labelValue || index + 1;
@@ -122,57 +116,42 @@ export function setupMap({
 
       if (closedMode) {
         const [lng, lat] = coords[0];
-        lineLabelFeatures.push({
+        labelFeatures.push({
           type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [lng, lat],
-          },
-          properties: {
-            text: String(labelValue),
-          },
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+          properties: { text: String(labelValue) },
         });
       } else {
         const [lng1, lat1] = coords[0];
         const [lng2, lat2] = coords[coords.length - 1];
 
-        lineLabelFeatures.push(
+        labelFeatures.push(
           {
             type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [lng1, lat1],
-            },
-            properties: {
-              text: String(labelValue),
-            },
+            geometry: { type: 'Point', coordinates: [lng1, lat1] },
+            properties: { text: String(labelValue) },
           },
           {
             type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [lng2, lat2],
-            },
-            properties: {
-              text: String(labelValue),
-            },
+            geometry: { type: 'Point', coordinates: [lng2, lat2] },
+            properties: { text: String(labelValue) },
           }
         );
       }
     });
 
-    map.addSource('initial-label-source', {
+    map.addSource('non-front-labels', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
-        features: lineLabelFeatures,
+        features: labelFeatures,
       },
     });
 
     map.addLayer({
-      id: 'initial-label-layer',
+      id: 'non-front-label-layer',
       type: 'symbol',
-      source: 'initial-label-source',
+      source: 'non-front-labels',
       layout: {
         'text-field': ['get', 'text'],
         'text-size': 18,
@@ -187,8 +166,62 @@ export function setupMap({
     });
   }
 
+  // === Front lines: blue + animated red dash (no labels) ===
+  if (frontLines.length > 0) {
+    map.addSource('front-lines', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: frontLines,
+      },
+    });
+
+    const bgLayerId = 'front-line-bg';
+    const dashedLayerId = 'front-line-dash';
+
+    map.addLayer({
+      id: bgLayerId,
+      type: 'line',
+      source: 'front-lines',
+      paint: {
+        'line-color': '#0000FF',
+        'line-width': 6,
+        'line-opacity': 0.8,
+      },
+    });
+
+    map.addLayer({
+      id: dashedLayerId,
+      type: 'line',
+      source: 'front-lines',
+      paint: {
+        'line-color': '#FF0000',
+        'line-width': 6,
+        'line-dasharray': [0, 4, 3],
+      },
+    });
+
+    const dashArraySequence = [
+      [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0],
+      [0, 0.5, 3, 3.5], [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
+      [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
+    ];
+
+    let step = 0;
+    function animateDashArray(timestamp) {
+      const newStep = parseInt((timestamp / 150) % dashArraySequence.length);
+      if (newStep !== step) {
+        map.setPaintProperty(dashedLayerId, 'line-dasharray', dashArraySequence[newStep]);
+        step = newStep;
+      }
+      requestAnimationFrame(animateDashArray);
+    }
+    animateDashArray(0);
+  }
+
   setMapLoaded(true);
 
+  // Handle point creation
   map.on('draw.create', (e) => {
     const feature = e.features[0];
     if (feature?.geometry?.type === 'Point') {

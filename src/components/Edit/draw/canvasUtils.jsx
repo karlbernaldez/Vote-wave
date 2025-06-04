@@ -249,6 +249,7 @@ export const handlePointerUp = async (
           properties: {
             labelValue: labelValue,
             closedMode: closedMode,
+            isFront: false,
           },
           name: uniqueName,
           sourceId: sourceId,
@@ -271,6 +272,5 @@ export const handlePointerUp = async (
     });
   }
 
-  setDrawCounter(uniqueId);
   setLines([]);
 };
