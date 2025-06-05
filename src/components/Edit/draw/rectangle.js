@@ -123,16 +123,16 @@ const DrawRectangle = {
 
     if (this.getFeature(state.rectangle.id) === undefined) return;
     state.rectangle.properties.featureID = state.rectangle.id
-    console.log("RECTANGLE PROPERTIES: ", state.rectangle)
+    // console.log("RECTANGLE PROPERTIES: ", state.rectangle)
     const feature = this.getFeature(state.rectangle.id);
-    console.log("Rectangle Feature ID: ", feature.id)
+    // console.log("Rectangle Feature ID: ", feature.id)
 
     state.rectangle.removeCoordinate('0.4');
 
     if (state.rectangle.isValid()) {
       const geojson = state.rectangle.toGeoJSON();
       geojson.properties.featureID = feature.id
-      console.log("GEOJSON PROPERTIES: " , geojson.properties)
+      // console.log("GEOJSON PROPERTIES: " , geojson.properties)
 
       // Trigger the 'draw.create' event with the feature data
       this.map.fire('draw.create', {

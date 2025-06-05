@@ -23,7 +23,8 @@ const LayerItem = ({
     const [hasUserModified, setHasUserModified] = useState(false);
 
     useEffect(() => {
-        if (!editedName.trim() && !hasUserModified) {
+        const safeName = typeof editedName === "string" ? editedName.trim() : "";
+        if (!safeName && !hasUserModified) {
             setEditedName("Untitled Layer");
         }
     }, [editedName, hasUserModified]);

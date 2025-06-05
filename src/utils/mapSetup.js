@@ -1,6 +1,12 @@
 import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { loadImage, initTyphoonLayer, initDrawControl } from './mapUtils';
+import {
+  loadImage,
+  initTyphoonLayer,
+  initDrawControl,
+  loadMarkerPoints,
+  typhoonMarker as saveMarkerFn,
+} from './mapUtils';
 
 export function setupMap({
   map,
@@ -12,16 +18,13 @@ export function setupMap({
   setLineCount,
   initialFeatures = [],
 }) {
-  if (!map) {
-    console.warn('No map instance provided');
-    return;
-  }
+  if (!map) return console.warn('No map instance provided');
 
   mapRef.current = map;
   map.addControl(new mapboxgl.NavigationControl());
 
-  loadImage(map, 'typhoon-marker', '/hurricane.png');
-  loadImage(map, 'low-pressure-icon', '/LPA.png');
+  loadImage(map, 'typhoon', '/hurricane.png');
+  loadImage(map, 'low_pressure', '/LPA.png');
   initTyphoonLayer(map);
 
   const draw = initDrawControl(map);
@@ -29,47 +32,43 @@ export function setupMap({
 
   const featuresArray = Array.isArray(initialFeatures)
     ? initialFeatures
-    : (initialFeatures?.features && Array.isArray(initialFeatures.features))
-    ? initialFeatures.features
-    : [];
+    : initialFeatures?.features || [];
+
+  const markerPoints = [];
+  const frontLines = [];
+  const nonFrontLines = [];
 
   let polygonCount = 0;
   let totalLineCount = 0;
 
-  // Fix malformed LineString coordinates
-  featuresArray.forEach((feature) => {
-    if (
-      feature.geometry?.type === 'LineString' &&
-      Array.isArray(feature.geometry.coordinates) &&
-      feature.geometry.coordinates.length === 1 &&
-      Array.isArray(feature.geometry.coordinates[0]) &&
-      Array.isArray(feature.geometry.coordinates[0][0])
-    ) {
-      feature.geometry.coordinates = feature.geometry.coordinates[0];
-    }
-  });
-
-  const frontLines = [];
-  const nonFrontLines = [];
-
-  // Classify and process features
+  // === Classify features ===
   featuresArray.forEach((feature) => {
     const type = feature.geometry?.type;
-    if (type === 'Polygon') {
+
+    if (type === 'Point') {
+      markerPoints.push(feature);
+    } else if (type === 'Polygon') {
       polygonCount++;
-      const cleanFeature = {
+      draw.add({
         type: 'Feature',
         geometry: feature.geometry,
         properties: feature.properties || {},
-      };
-      draw.add(cleanFeature);
+      });
     } else if (type === 'LineString') {
       totalLineCount++;
-      if (feature.properties?.isFront) {
-        frontLines.push(feature);
-      } else {
-        nonFrontLines.push(feature);
+
+      // Fix malformed LineString
+      const coords = feature.geometry?.coordinates;
+      if (
+        Array.isArray(coords) &&
+        coords.length === 1 &&
+        Array.isArray(coords[0]) &&
+        Array.isArray(coords[0][0])
+      ) {
+        feature.geometry.coordinates = coords[0];
       }
+
+      (feature.properties?.isFront ? frontLines : nonFrontLines).push(feature);
     }
   });
 
@@ -77,19 +76,32 @@ export function setupMap({
     setLineCount(totalLineCount);
   }
 
-  console.log(`📏 Total Lines: ${totalLineCount}`);
-  console.log(`🔲 Polygons: ${polygonCount}`);
-  console.log(`🔺 Front Lines: ${frontLines.length}`);
-  console.log(`🔹 Non-front Lines: ${nonFrontLines.length}`);
+  // === Render Marker Points ===
+  if (markerPoints.length > 0) {
+    console.log(`📍 Rendering ${markerPoints.length} markers`);
+    markerPoints.forEach((point) => {
+      const [points] = point.geometry?.coordinates || [];
+      const [coordinates, s] = points;
+      const [lng, lat] = coordinates;
+      console.log(`📍 Point coordinates: ${lng}, ${lat}`);
+      const title = point.name || '';
+      const sourceId = point.sourceId || 'typhoon';
+      const markerType = sourceId.includes('_')
+        ? sourceId.substring(0, sourceId.lastIndexOf('_'))
+        : sourceId;
+      console.log(`🌀 Marker Type: ${markerType}`);
+      if (lng !== undefined && lat !== undefined) {
+        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
+        console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
+      }
+    });
+  }
 
-  // === Non-front lines layer with labels ===
+  // === Non-front lines with labels ===
   if (nonFrontLines.length > 0) {
     map.addSource('non-front-lines', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: nonFrontLines,
-      },
+      data: { type: 'FeatureCollection', features: nonFrontLines },
     });
 
     map.addLayer({
@@ -104,48 +116,34 @@ export function setupMap({
       filter: ['==', '$type', 'LineString'],
     });
 
-    const labelFeatures = [];
-
-    nonFrontLines.forEach((feature, index) => {
-      const coords = feature.geometry.coordinates;
+    const labelFeatures = nonFrontLines.flatMap((feature, index) => {
+      const coords = feature.geometry?.coordinates;
       const props = feature.properties || {};
-      const labelValue = props.labelValue || index + 1;
+      const labelValue = String(props.labelValue || index + 1);
       const closedMode = props.closedMode;
 
-      if (!Array.isArray(coords) || coords.length < 2) return;
+      if (!Array.isArray(coords) || coords.length < 2) return [];
 
       if (closedMode) {
         const [lng, lat] = coords[0];
-        labelFeatures.push({
+        return [{
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [lng, lat] },
-          properties: { text: String(labelValue) },
-        });
+          properties: { text: labelValue },
+        }];
       } else {
         const [lng1, lat1] = coords[0];
         const [lng2, lat2] = coords[coords.length - 1];
-
-        labelFeatures.push(
-          {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [lng1, lat1] },
-            properties: { text: String(labelValue) },
-          },
-          {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [lng2, lat2] },
-            properties: { text: String(labelValue) },
-          }
-        );
+        return [
+          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng1, lat1] }, properties: { text: labelValue } },
+          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng2, lat2] }, properties: { text: labelValue } },
+        ];
       }
     });
 
     map.addSource('non-front-labels', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: labelFeatures,
-      },
+      data: { type: 'FeatureCollection', features: labelFeatures },
     });
 
     map.addLayer({
@@ -166,21 +164,15 @@ export function setupMap({
     });
   }
 
-  // === Front lines: blue + animated red dash (no labels) ===
+  // === Front lines with animated dashed effect ===
   if (frontLines.length > 0) {
     map.addSource('front-lines', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: frontLines,
-      },
+      data: { type: 'FeatureCollection', features: frontLines },
     });
 
-    const bgLayerId = 'front-line-bg';
-    const dashedLayerId = 'front-line-dash';
-
     map.addLayer({
-      id: bgLayerId,
+      id: 'front-line-bg',
       type: 'line',
       source: 'front-lines',
       paint: {
@@ -191,7 +183,7 @@ export function setupMap({
     });
 
     map.addLayer({
-      id: dashedLayerId,
+      id: 'front-line-dash',
       type: 'line',
       source: 'front-lines',
       paint: {
@@ -202,16 +194,17 @@ export function setupMap({
     });
 
     const dashArraySequence = [
-      [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0],
-      [0, 0.5, 3, 3.5], [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
+      [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5],
+      [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5],
+      [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
       [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
     ];
 
     let step = 0;
     function animateDashArray(timestamp) {
-      const newStep = parseInt((timestamp / 150) % dashArraySequence.length);
+      const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
       if (newStep !== step) {
-        map.setPaintProperty(dashedLayerId, 'line-dasharray', dashArraySequence[newStep]);
+        map.setPaintProperty('front-line-dash', 'line-dasharray', dashArraySequence[newStep]);
         step = newStep;
       }
       requestAnimationFrame(animateDashArray);
@@ -219,16 +212,16 @@ export function setupMap({
     animateDashArray(0);
   }
 
-  setMapLoaded(true);
-
-  // Handle point creation
-  map.on('draw.create', (e) => {
+  // === Map loaded and draw.create handler ===
+   map.on('draw.create', (e) => {
     const feature = e.features[0];
-    if (feature?.geometry?.type === 'Point') {
+    if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
       setSelectedPoint({ lng, lat });
       setShowTitleModal(true);
       draw.delete(feature.id);
     }
   });
+
+  setMapLoaded(true);
 }
