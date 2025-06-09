@@ -91,7 +91,7 @@ export function setupMap({
         : sourceId;
       console.log(`🌀 Marker Type: ${markerType}`);
       if (lng !== undefined && lat !== undefined) {
-        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
+        saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
         console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
       }
     });
@@ -200,20 +200,35 @@ export function setupMap({
       [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
     ];
 
-    let step = 0;
-    function animateDashArray(timestamp) {
-      const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
-      if (newStep !== step) {
-        map.setPaintProperty('front-line-dash', 'line-dasharray', dashArraySequence[newStep]);
-        step = newStep;
+    map.once('idle', () => {
+      let step = 0;
+
+      function animateDashArray(timestamp) {
+        const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
+        if (newStep !== step && map.getLayer('line-dash')) {
+          try {
+            map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
+            step = newStep;
+          } catch (err) {
+            console.warn("Layer might be missing or updated:", err);
+          }
+        }
+        requestAnimationFrame(animateDashArray);
       }
-      requestAnimationFrame(animateDashArray);
-    }
-    animateDashArray(0);
+
+      // Add delay before starting animation (e.g., 1000ms)
+      setTimeout(() => {
+        if (map.getLayer('line-dash')) {
+          animateDashArray(0);
+        } else {
+          console.warn("Skipping animation: 'line-dash' layer not ready.");
+        }
+      }, 1000);
+    });
   }
 
   // === Map loaded and draw.create handler ===
-   map.on('draw.create', (e) => {
+  map.on('draw.create', (e) => {
     const feature = e.features[0];
     if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
