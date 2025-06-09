@@ -21,12 +21,7 @@ export function setupMap({
   if (!map) return console.warn('No map instance provided');
 
   mapRef.current = map;
-
-  // Add navigation control only once
-  if (!map.navigationControlAdded) {
-    map.addControl(new mapboxgl.NavigationControl());
-    map.navigationControlAdded = true;
-  }
+  map.addControl(new mapboxgl.NavigationControl());
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
@@ -83,17 +78,21 @@ export function setupMap({
 
   // === Render Marker Points ===
   if (markerPoints.length > 0) {
+    console.log(`📍 Rendering ${markerPoints.length} markers`);
     markerPoints.forEach((point) => {
-      const coords = point.geometry?.coordinates || [];
-      if (coords.length === 2 && typeof coords[0] === 'number') {
-        const [lng, lat] = coords;
-        const title = point.name || '';
-        const sourceId = point.sourceId || 'typhoon';
-        const markerType = sourceId.includes('_')
-          ? sourceId.substring(0, sourceId.lastIndexOf('_'))
-          : sourceId;
-
-        saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
+      const [points] = point.geometry?.coordinates || [];
+      const [coordinates, s] = points;
+      const [lng, lat] = coordinates;
+      console.log(`📍 Point coordinates: ${lng}, ${lat}`);
+      const title = point.name || '';
+      const sourceId = point.sourceId || 'typhoon';
+      const markerType = sourceId.includes('_')
+        ? sourceId.substring(0, sourceId.lastIndexOf('_'))
+        : sourceId;
+      console.log(`🌀 Marker Type: ${markerType}`);
+      if (lng !== undefined && lat !== undefined) {
+        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
+        console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
       }
     });
   }
@@ -184,7 +183,7 @@ export function setupMap({
     });
 
     map.addLayer({
-      id: 'line-dash',
+      id: 'front-line-dash',
       type: 'line',
       source: 'front-lines',
       paint: {
@@ -201,36 +200,20 @@ export function setupMap({
       [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
     ];
 
-    // Animate dash array after map is idle and a short delay
-    map.once('idle', () => {
-      let step = 0;
-
-      function animateDashArray(timestamp) {
-        const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
-        if (newStep !== step && map.getLayer('line-dash')) {
-          try {
-            map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
-            step = newStep;
-          } catch (err) {
-            console.warn("Layer might be missing or updated:", err);
-          }
-        }
-        requestAnimationFrame(animateDashArray);
+    let step = 0;
+    function animateDashArray(timestamp) {
+      const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
+      if (newStep !== step) {
+        map.setPaintProperty('front-line-dash', 'line-dasharray', dashArraySequence[newStep]);
+        step = newStep;
       }
-
-      // Add delay before starting animation (e.g., 1000ms)
-      setTimeout(() => {
-        if (map.getLayer('line-dash')) {
-          animateDashArray(0);
-        } else {
-          console.warn("Skipping animation: 'line-dash' layer not ready.");
-        }
-      }, 1000);
-    });
+      requestAnimationFrame(animateDashArray);
+    }
+    animateDashArray(0);
   }
 
-  // === draw.create event handler ===
-  map.on('draw.create', (e) => {
+  // === Map loaded and draw.create handler ===
+   map.on('draw.create', (e) => {
     const feature = e.features[0];
     if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
