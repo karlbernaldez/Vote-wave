@@ -15,7 +15,7 @@ export function loadImage(map, name, path) {
       }
       if (!map.hasImage(name)) {
         map.addImage(name, image);
-        console.log(`Image ${name} loaded successfully from ${path}`);
+        // console.log(`Image ${name} loaded successfully from ${path}`);
       }
     });
   }
@@ -58,7 +58,7 @@ export function initTyphoonLayer(map) {
       minzoom: 0,
       maxzoom: 24,
     });
-    console.log('✅ Typhoon layer initialized.');
+    // console.log('✅ Typhoon layer initialized.');
   }
 }
 
@@ -102,7 +102,7 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   }
 
   const { lng, lat } = selectedPoint;
-  console.log('📍 Selected Point:', { lng, lat });
+  // console.log('📍 Selected Point:', { lng, lat });
 
   const iconMap = {
     typhoon: 'typhoon',
@@ -117,9 +117,9 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   const markerType = type || 'typhoon';
   const iconName = iconMap[markerType] || 'typhoon';
 
-  console.log('🌀 Marker Type:', markerType);
-  console.log('🖼️ Icon Used:', iconName);
-  console.log('🏷️ Title:', title || defaultTitles[markerType]);
+  // console.log('🌀 Marker Type:', markerType);
+  // console.log('🖼️ Icon Used:', iconName);
+  // console.log('🏷️ Title:', title || defaultTitles[markerType]);
 
   const customPoint = {
     type: 'Feature',
@@ -142,7 +142,7 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     features: [],
   };
 
-  console.log('📦 Existing features before adding:', currentData.features);
+  // console.log('📦 Existing features before adding:', currentData.features);
 
   const updatedData = {
     ...currentData,
@@ -151,7 +151,7 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
 
   source.setData(updatedData);
 
-  console.log('✅ Marker added. Updated GeoJSON:', updatedData);
+  // console.log('✅ Marker added. Updated GeoJSON:', updatedData);
 
   setShowTitleModal(false);
 };

@@ -76,7 +76,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      console.log(`Map input selected for ${selectedType}`);
+      // console.log(`Map input selected for ${selectedType}`);
       if (selectedType === 'typhoon') {
         handleDrawModeChange('draw_point', draw, setLayersRef);
       } else if (selectedType === 'low_pressure') {
