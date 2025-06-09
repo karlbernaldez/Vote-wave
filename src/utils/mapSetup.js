@@ -78,21 +78,21 @@ export function setupMap({
 
   // === Render Marker Points ===
   if (markerPoints.length > 0) {
-    console.log(`📍 Rendering ${markerPoints.length} markers`);
+    // console.log(`📍 Rendering ${markerPoints.length} markers`);
     markerPoints.forEach((point) => {
       const [points] = point.geometry?.coordinates || [];
       const [coordinates, s] = points;
       const [lng, lat] = coordinates;
-      console.log(`📍 Point coordinates: ${lng}, ${lat}`);
+      // console.log(`📍 Point coordinates: ${lng}, ${lat}`);
       const title = point.name || '';
       const sourceId = point.sourceId || 'typhoon';
       const markerType = sourceId.includes('_')
         ? sourceId.substring(0, sourceId.lastIndexOf('_'))
         : sourceId;
-      console.log(`🌀 Marker Type: ${markerType}`);
+      // console.log(`🌀 Marker Type: ${markerType}`);
       if (lng !== undefined && lat !== undefined) {
         saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
-        console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
+        // console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
       }
     });
   }
@@ -183,7 +183,7 @@ export function setupMap({
     });
 
     map.addLayer({
-      id: 'front-line-dash',
+      id: 'line-dash',
       type: 'line',
       source: 'front-lines',
       paint: {
@@ -210,7 +210,7 @@ export function setupMap({
             map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
             step = newStep;
           } catch (err) {
-            console.warn("Layer might be missing or updated:", err);
+            // console.warn("Layer might be missing or updated:", err);
           }
         }
         requestAnimationFrame(animateDashArray);
