@@ -20,8 +20,13 @@ export function setupMap({
 }) {
   if (!map) return console.warn('No map instance provided');
 
+  // ✅ Add navigation control only once
+  if (!map._navigationControlAdded) {
+    map.addControl(new mapboxgl.NavigationControl());
+    map._navigationControlAdded = true;
+  }
+
   mapRef.current = map;
-  map.addControl(new mapboxgl.NavigationControl());
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
@@ -78,21 +83,18 @@ export function setupMap({
 
   // === Render Marker Points ===
   if (markerPoints.length > 0) {
-    // console.log(`📍 Rendering ${markerPoints.length} markers`);
     markerPoints.forEach((point) => {
       const [points] = point.geometry?.coordinates || [];
       const [coordinates, s] = points;
       const [lng, lat] = coordinates;
-      // console.log(`📍 Point coordinates: ${lng}, ${lat}`);
       const title = point.name || '';
       const sourceId = point.sourceId || 'typhoon';
       const markerType = sourceId.includes('_')
         ? sourceId.substring(0, sourceId.lastIndexOf('_'))
         : sourceId;
-      // console.log(`🌀 Marker Type: ${markerType}`);
+
       if (lng !== undefined && lat !== undefined) {
-        saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
-        // console.log(`📍 Added marker at ${lng}, ${lat} with title "${title}"`);
+        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
       }
     });
   }
@@ -210,13 +212,12 @@ export function setupMap({
             map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
             step = newStep;
           } catch (err) {
-            // console.warn("Layer might be missing or updated:", err);
+            // Layer might not exist if removed early
           }
         }
         requestAnimationFrame(animateDashArray);
       }
 
-      // Add delay before starting animation (e.g., 1000ms)
       setTimeout(() => {
         if (map.getLayer('line-dash')) {
           animateDashArray(0);
