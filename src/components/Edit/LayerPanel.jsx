@@ -78,7 +78,7 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                         <ul style={listStyle(currentTheme)}>
                             {layers.map((layer, index) => (
                                 <LayerItem
-                                    key={layer.id}
+                                    key={layer.id || `layer-${index}`}
                                     layer={layer}
                                     toggleLayerVisibility={() => toggleLayerVisibility(mapRef.current, layer, setLayers)}
                                     toggleLayerLock={() => toggleLayerLock(layer, setLayers)}

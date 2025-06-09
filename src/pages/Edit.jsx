@@ -10,6 +10,7 @@
 //  ╚═══════════════════════════════════════════════════════════════════════╝
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import LegendBox from "../components/Edit/Legend";
 import MapComponent from "../components/Edit/MapComponent";
 import LayerPanel from "../components/Edit/LayerPanel";
 import DrawToolBar from "../components/Edit/Toolbar";
@@ -89,7 +90,7 @@ const Edit = ({ isDarkMode }) => {
           },
         });
       } catch (error) {
-        console.error('Failed to load saved features:', error);
+        // console.error('Failed to load saved features:', error);
         setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal });
       }
     }
@@ -194,6 +195,8 @@ const Edit = ({ isDarkMode }) => {
         onClose={() => setShowTitleModal(false)}
         onSave={typhoonMarker}
       />
+
+      <LegendBox />
 
     </Container>
   );

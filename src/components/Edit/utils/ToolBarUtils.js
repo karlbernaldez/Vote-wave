@@ -1,13 +1,15 @@
+import { m } from "framer-motion";
 import { removeFeature } from "./layerUtils";
 
 export const handleDrawModeChange = (mode, draw, setLayersRef) => {
   if (draw?.changeMode) {
-    console.log(`Switching to mode: ${mode}`);
+    // console.log(`Switching to mode: ${mode}`);
+    if (mode === 'typhoon') { mode = 'draw_point'; } // Normalize to draw_point for typhoon
     draw.changeMode(mode, {
       setLayersRef, // ✅ now it's correctly passed
     });
   } else {
-    console.warn('Draw instance is not available or changeMode is not a function');
+    // console.warn('Draw instance is not available or changeMode is not a function');
   }
 };
 

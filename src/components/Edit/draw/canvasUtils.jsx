@@ -189,7 +189,7 @@ export const handlePointerUp = async (
 
       // Extract label coordinates for saving and logging
       labelCoordsToSave = features.map((f) => f.geometry.coordinates);
-      console.log('Label coordinates:', labelCoordsToSave);
+      // console.log('Label coordinates:', labelCoordsToSave);
 
       map.addSource(labelSourceId, {
         type: 'geojson',

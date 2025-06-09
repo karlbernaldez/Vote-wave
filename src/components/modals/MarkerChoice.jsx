@@ -95,9 +95,9 @@ const PointInputChoiceModal = ({ isOpen, onClose, onSelect }) => {
             <ActionButton onClick={() => onSelect('manual')}>
               Enter Latitude & Longitude
             </ActionButton>
-            <ActionButton onClick={() => onSelect('map')}>
+            {/* <ActionButton onClick={() => onSelect('map')}>
               Click on the Map
-            </ActionButton>
+            </ActionButton> */}
             <ActionButton onClick={onClose}>
               Cancel
             </ActionButton>
