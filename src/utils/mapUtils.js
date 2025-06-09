@@ -15,7 +15,7 @@ export function loadImage(map, name, path) {
       }
       if (!map.hasImage(name)) {
         map.addImage(name, image);
-        console.log(`Image ${name} loaded successfully from ${path}`);
+        // console.log(`Image ${name} loaded successfully from ${path}`);
       }
     });
   }
@@ -58,6 +58,7 @@ export function initTyphoonLayer(map) {
       minzoom: 0,
       maxzoom: 24,
     });
+    // console.log('✅ Typhoon layer initialized.');
   }
 }
 
@@ -95,42 +96,62 @@ export function initDrawControl(map) {
  * @returns {function} - function accepting the title string
  */
 export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) => (title) => {
-  if (!selectedPoint) return;
+  if (!selectedPoint) {
+    console.warn('⚠️ No selected point provided.');
+    return;
+  }
 
   const { lng, lat } = selectedPoint;
+  // console.log('📍 Selected Point:', { lng, lat });
 
   const iconMap = {
-    draw_point: 'typhoon-marker',
-    low_pressure: 'low-pressure-icon',
+    typhoon: 'typhoon',
+    low_pressure: 'low_pressure',
   };
 
   const defaultTitles = {
-    draw_point: 'Typhoon',
+    typhoon: 'Typhoon',
     low_pressure: 'LPA',
   };
+
+  const markerType = type || 'typhoon';
+  const iconName = iconMap[markerType] || 'typhoon';
+
+  // console.log('🌀 Marker Type:', markerType);
+  // console.log('🖼️ Icon Used:', iconName);
+  // console.log('🏷️ Title:', title || defaultTitles[markerType]);
 
   const customPoint = {
     type: 'Feature',
     geometry: { type: 'Point', coordinates: [lng, lat] },
     properties: {
-      title: title || defaultTitles[type],
-      markerType: type,
-      icon: iconMap[type] || 'typhoon-marker',
+      title: title || defaultTitles[markerType],
+      markerType,
+      icon: iconName,
     },
   };
 
   const source = mapRef.current?.getSource('typhoon-points');
-  if (!source) return;
+  if (!source) {
+    console.error('❌ Source "typhoon-points" not found on the map.');
+    return;
+  }
 
   const currentData = source._data || {
     type: 'FeatureCollection',
     features: [],
   };
 
-  source.setData({
+  // console.log('📦 Existing features before adding:', currentData.features);
+
+  const updatedData = {
     ...currentData,
     features: [...currentData.features, customPoint],
-  });
+  };
+
+  source.setData(updatedData);
+
+  // console.log('✅ Marker added. Updated GeoJSON:', updatedData);
 
   setShowTitleModal(false);
 };

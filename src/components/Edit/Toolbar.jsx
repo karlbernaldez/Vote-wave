@@ -5,7 +5,8 @@ import PointInputChoiceModal from '../modals/MarkerChoice';
 import ManualInputModal from '../modals/ManualInputModal';
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
 import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
-import { ToolbarContainer, ToolButton, CollapseToggle} from './styles/ToolBarStyles';
+import { ToolbarContainer, ToolButton, CollapseToggle } from './styles/ToolBarStyles';
+import { saveFeature } from '../../api/featureServices';
 import { handleDrawModeChange, toggleDrawing, toggleFlagDrawing, startDrawing, startFlagDrawing, stopDrawing, stopFlagDrawing, toggleCollapse } from './utils/ToolBarUtils';
 
 const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers, closedMode, setClosedMode, setType }) => {
@@ -17,7 +18,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
   const [showTitleModal, setShowTitleModal] = useState(false);
   const selectedToolRef = useRef(null);
 
-  const [openModals, setOpenModals] = useState({ featureNotAvailable: false, pointInputChoice: false, manualInput: false});
+  const [openModals, setOpenModals] = useState({ featureNotAvailable: false, pointInputChoice: false, manualInput: false });
 
   useEffect(() => {
     if (setLayersRef?.current !== setLayers) {
@@ -38,7 +39,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
       modal: 'pointInputChoice',
     },
     {
-      id: 'draw_point',
+      id: 'typhoon',
       icon: <img src={storm} alt="Draw Storm" style={{ width: 20, height: 20 }} />,
       label: 'Draw Storm (M)',
       hotkey: 'm',
@@ -70,12 +71,13 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
 
   const handlePointInputChoice = (method) => {
     toggleModal('pointInputChoice', false);
-    const selectedType = selectedToolRef.current || 'draw_point';
+    const selectedType = selectedToolRef.current || 'typhoon';
 
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      if (selectedType === 'draw_point') {
+      // console.log(`Map input selected for ${selectedType}`);
+      if (selectedType === 'typhoon') {
         handleDrawModeChange('draw_point', draw, setLayersRef);
       } else if (selectedType === 'low_pressure') {
         handleDrawModeChange('draw_point', draw, setLayersRef);
@@ -83,18 +85,85 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     }
   };
 
-  const handleManualInputSubmit = (data) => {
-    const selectedType = selectedToolRef.current || 'draw_point';
+  const handleManualInputSubmit = async (data) => {
+    const selectedType = selectedToolRef.current || 'typhoon';
 
     if (setType) setType(selectedType);
 
-    saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(data.title);
+    const coords = [parseFloat(data.lng), parseFloat(data.lat)];
+    const title = data.title;
+
+    saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(title);
+
+    const feature = {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: coords,
+      },
+      properties: {
+        title,
+        type: selectedType,
+      },
+    };
+
+    if (typeof setLayersRef?.current === 'function') {
+      const baseName = title || 'Untitled Layer'; // base name for unique naming
+      const sourceId = `${selectedType}_${baseName}`; // create sourceId similarly
+      const layerId = `${selectedType}_${baseName}`; // generate an ID if needed
+      const labelCoordsToSave = [coords]; // use your coords array here
+      const closedMode = false; // your default or passed value
+
+      setLayersRef.current((prevLayers) => {
+        let counter = 1;
+        let uniqueName = baseName;
+        const existingNames = prevLayers.map((l) => l.name);
+
+        // Generate unique name if conflict exists
+        while (existingNames.includes(uniqueName)) {
+          uniqueName = `${baseName} ${counter++}`;
+        }
+
+        if (feature && feature.geometry) {
+          // Save asynchronously, but do not block state update
+          saveFeature({
+            geometry: feature.geometry,
+            properties: {
+              labelValue: uniqueName,
+              closedMode: closedMode,
+              isFront: false,
+            },
+            name: uniqueName,
+            sourceId: sourceId,
+            labels: labelCoordsToSave,
+          }).catch((err) => {
+            console.error('Error saving feature:', err);
+          });
+        }
+
+        // Return updated layers array with new layer metadata
+        return [
+          ...prevLayers,
+          {
+            id: layerId,
+            sourceID: sourceId,
+            name: uniqueName,
+            visible: true,
+            locked: false,
+          },
+        ];
+      });
+    }
+
+
+    // 5. UI clean-up
     setManualInputData(data);
     toggleModal('manualInput', false);
   };
 
+
   const handleDrawing = useCallback((event) => {
-    
+
   }, [tools, draw, isDrawing, isFlagDrawing, onToggleCanvas, onToggleFlagCanvas, setLayersRef, setLayers]);
 
   useEffect(() => {
