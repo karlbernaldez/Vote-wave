@@ -260,7 +260,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
           <Navbar>
             <StyledNavLink to="/" exact="true" activeclassname="active">Home</StyledNavLink>
             <StyledNavLink to="/weather" $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-            <StyledNavLink to="/edit" $isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+            <StyledNavLink to="/edit" $isactive={isLinkActive('/edit')}>Editor</StyledNavLink>
             <StyledNavLink to="/about" $isactive={isLinkActive('/about')}>About</StyledNavLink>
             <StyledNavLink to="/contact" $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
           </Navbar>
@@ -280,7 +280,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
       <MobileMenu open={menuOpen}>
         <StyledNavLink to="/" onClick={toggleMenu} $isactive={isLinkActive('/')}>Home</StyledNavLink>
         <StyledNavLink to="/weather" onClick={toggleMenu} $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-        <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive('/edit')}>Marine</StyledNavLink>
+        <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive('/edit')}>Editor</StyledNavLink>
         <StyledNavLink to="/about" onClick={toggleMenu} $isactive={isLinkActive('/about')}>About</StyledNavLink>
         <StyledNavLink to="/contact" onClick={toggleMenu} $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
       </MobileMenu>
