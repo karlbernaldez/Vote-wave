@@ -1,10 +1,8 @@
 import mapboxgl from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import {
   loadImage,
   initTyphoonLayer,
   initDrawControl,
-  loadMarkerPoints,
   typhoonMarker as saveMarkerFn,
 } from './mapUtils';
 
@@ -17,10 +15,10 @@ export function setupMap({
   setShowTitleModal,
   setLineCount,
   initialFeatures = [],
+  logger,
 }) {
   if (!map) return console.warn('No map instance provided');
 
-  // ✅ Add navigation control only once
   if (!map._navigationControlAdded) {
     map.addControl(new mapboxgl.NavigationControl());
     map._navigationControlAdded = true;
@@ -43,7 +41,6 @@ export function setupMap({
   const frontLines = [];
   const nonFrontLines = [];
 
-  let polygonCount = 0;
   let totalLineCount = 0;
 
   // === Classify features ===
@@ -53,7 +50,6 @@ export function setupMap({
     if (type === 'Point') {
       markerPoints.push(feature);
     } else if (type === 'Polygon') {
-      polygonCount++;
       draw.add({
         type: 'Feature',
         geometry: feature.geometry,
@@ -94,7 +90,7 @@ export function setupMap({
         : sourceId;
 
       if (lng !== undefined && lat !== undefined) {
-        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
+        saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
       }
     });
   }
@@ -128,17 +124,27 @@ export function setupMap({
 
       if (closedMode) {
         const [lng, lat] = coords[0];
-        return [{
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [lng, lat] },
-          properties: { text: labelValue },
-        }];
+        return [
+          {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng, lat] },
+            properties: { text: labelValue },
+          },
+        ];
       } else {
         const [lng1, lat1] = coords[0];
         const [lng2, lat2] = coords[coords.length - 1];
         return [
-          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng1, lat1] }, properties: { text: labelValue } },
-          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng2, lat2] }, properties: { text: labelValue } },
+          {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng1, lat1] },
+            properties: { text: labelValue },
+          },
+          {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng2, lat2] },
+            properties: { text: labelValue },
+          },
         ];
       }
     });
@@ -167,6 +173,8 @@ export function setupMap({
   }
 
   // === Front lines with animated dashed effect ===
+  let animationFrameId = null;
+
   if (frontLines.length > 0) {
     map.addSource('front-lines', {
       type: 'geojson',
@@ -196,35 +204,68 @@ export function setupMap({
     });
 
     const dashArraySequence = [
-      [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5],
-      [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5],
-      [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
-      [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
+      [0, 4, 3],
+      [0.5, 4, 2.5],
+      [1, 4, 2],
+      [1.5, 4, 1.5],
+      [2, 4, 1],
+      [2.5, 4, 0.5],
+      [3, 4, 0],
+      [0, 0.5, 3, 3.5],
+      [0, 1, 3, 3],
+      [0, 1.5, 3, 2.5],
+      [0, 2, 3, 2],
+      [0, 2.5, 3, 1.5],
+      [0, 3, 3, 1],
+      [0, 3.5, 3, 0.5],
     ];
 
     map.once('idle', () => {
       let step = 0;
 
       function animateDashArray(timestamp) {
+        let layerExists = false;
+        try {
+          layerExists = map?.getLayer && map.getLayer('line-dash');
+        } catch (err) {
+          // console.warn('getLayer failed:', err);
+          return;
+        }
+
+        if (!layerExists) return;
+
         const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
-        if (newStep !== step && map.getLayer('line-dash')) {
+        if (newStep !== step) {
           try {
             map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
             step = newStep;
           } catch (err) {
-            // Layer might not exist if removed early
+            console.warn('Error updating line-dasharray:', err);
+            return;
           }
         }
-        requestAnimationFrame(animateDashArray);
+
+        animationFrameId = requestAnimationFrame(animateDashArray);
       }
 
-      setTimeout(() => {
-        if (map.getLayer('line-dash')) {
-          animateDashArray(0);
-        } else {
-          console.warn("Skipping animation: 'line-dash' layer not ready.");
+      function tryStartAnimation(retries = 10) {
+        let ready = false;
+        try {
+          ready = map?.getLayer && map.getLayer('line-dash');
+        } catch {
+          ready = false;
         }
-      }, 1000);
+
+        if (ready) {
+          animationFrameId = requestAnimationFrame(animateDashArray);
+        } else if (retries > 0) {
+          setTimeout(() => tryStartAnimation(retries - 1), 300);
+        } else {
+          logger?.warn("Skipping animation: 'line-dash' layer not ready after retries.");
+        }
+      }
+
+      setTimeout(() => tryStartAnimation(), 300);
     });
   }
 
@@ -240,4 +281,9 @@ export function setupMap({
   });
 
   setMapLoaded(true);
+
+  // === Return cleanup function ===
+  return function cleanup() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  };
 }

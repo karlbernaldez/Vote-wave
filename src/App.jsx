@@ -168,7 +168,7 @@ const Layout = () => {
               element={isMobile ? (
                 <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
               ) : (
-                <Edit isDarkMode={isDarkMode} />
+                <Edit isDarkMode={isDarkMode} logger={logger} />
               )}
             />
             <Route path="/weather" element={<Weather />} />

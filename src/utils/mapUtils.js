@@ -5,7 +5,7 @@ import DrawCircle from '../components/Edit/draw/circle';
 import SimpleSelect from '../components/Edit/draw/simple_select';
 import drawStyles from '../components/Edit/draw/styles';
 
-/** Load image to map if not loaded yet */
+
 export function loadImage(map, name, path) {
   if (!map.hasImage(name)) {
     map.loadImage(path, (error, image) => {
@@ -21,7 +21,6 @@ export function loadImage(map, name, path) {
   }
 }
 
-/** Initialize typhoon marker source and layer */
 export function initTyphoonLayer(map) {
   if (!map.getSource('typhoon-points')) {
     map.addSource('typhoon-points', {
@@ -35,6 +34,7 @@ export function initTyphoonLayer(map) {
       id: 'typhoon-layer',
       type: 'symbol',
       source: 'typhoon-points',
+      slot: 'top',
       layout: {
         'icon-image': ['get', 'icon'],
         'icon-size': [
@@ -54,6 +54,9 @@ export function initTyphoonLayer(map) {
         'text-anchor': 'top',
         'icon-allow-overlap': true,
         'text-allow-overlap': true,
+      },
+      paint: {
+        'text-color': 'red',
       },
       minzoom: 0,
       maxzoom: 24,
