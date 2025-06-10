@@ -99,7 +99,7 @@ export const handlePointerUp = async (
   const geojson = convertToGeoJSON(lines, mapRef);
   const uniqueId = crypto.randomUUID();
   const prefix = closedMode ? 'WHC' : 'WHO'; // WHC = Closed, WHO = Open
-  const sourceId = `${prefix}_-${uniqueId}`;
+  const sourceId = `${prefix}_${uniqueId}`;
   const layerId = `${prefix}_${uniqueId}`;
   const beforeLayer = map.getLayer('custom-points-layer') ? 'custom-points-layer' : undefined;
 
@@ -132,8 +132,8 @@ export const handlePointerUp = async (
   if (lines.length > 0) {
     const lastLine = lines[lines.length - 1];
     if (lastLine.points.length >= 4) {
-      const labelSourceId = `label-${uniqueId}`;
-      const labelLayerId = `label-layer-${uniqueId}`;
+      const labelSourceId = `${sourceId}-0`;
+      const labelLayerId = `${sourceId}-0`;
 
       if (map.getLayer(labelLayerId)) map.removeLayer(labelLayerId);
       if (map.getSource(labelSourceId)) map.removeSource(labelSourceId);

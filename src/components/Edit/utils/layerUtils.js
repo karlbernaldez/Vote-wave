@@ -1,5 +1,6 @@
 // components/utils/layerUtils.js
 import { deleteFeature } from '../../../api/featureServices';
+import { fill } from '../draw/styles';
 
 export function addWindLayer(map) {
     map.addSource('wind_data_source', {
@@ -148,7 +149,7 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
             },
         ]);
 
-        
+
 
         console.log("GeoJSON source + layers added:", sourceId);
     };
@@ -158,19 +159,44 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
 
 export function toggleLayerVisibility(map, layer, setLayers) {
     if (!map || !layer) return;
-    const { fillId, lineId, visible } = layer;
-    const visibility = visible ? 'none' : 'visible';
 
-    if (map.getLayer(fillId)) {
-        map.setLayoutProperty(fillId, 'visibility', visibility);
-    }
-    if (map.getLayer(lineId)) {
-        map.setLayoutProperty(lineId, 'visibility', visibility);
+    const { name, id, fillId, lineId, visible } = layer;
+    const newVisibility = visible ? 'none' : 'visible';
+
+
+    const cleanedId = id.endsWith('_dash') ? id.slice(0, -5) : id;
+    const bg = `${cleanedId}_bg`;
+    const dash = `${cleanedId}_dash`;
+
+    if (map.getLayer(bg)) map.setLayoutProperty(bg, 'visibility', newVisibility);
+    if (map.getLayer(dash)) map.setLayoutProperty(dash, 'visibility', newVisibility);
+
+    // Toggle Draw-mode layers (e.g., lines and points)
+    if (id && map.getLayer(id)) {
+        const label0 = `${id}-0`;
+        const label1 = `${id}-1`;
+        const bg = `${id}_bg`;
+        const dash = `${id}_dash`;
+
+        map.setLayoutProperty(id, 'visibility', newVisibility);
+        if (map.getLayer(label0)) map.setLayoutProperty(label0, 'visibility', newVisibility);
+        if (map.getLayer(label1)) map.setLayoutProperty(label1, 'visibility', newVisibility);
     }
 
-    setLayers((prev) =>
-        prev.map((l) =>
-            l.id === layer.id ? { ...l, visible: !visible } : l
+    // Toggle Polygon fill layer
+    if (fillId && map.getLayer(fillId)) {
+        map.setLayoutProperty(fillId, 'visibility', newVisibility);
+    }
+
+    // Toggle Polygon line layer
+    if (lineId && map.getLayer(lineId)) {
+        map.setLayoutProperty(lineId, 'visibility', newVisibility);
+    }
+
+    // Update visibility in state
+    setLayers(prev =>
+        prev.map(l =>
+            l.id === id ? { ...l, visible: !visible } : l
         )
     );
 }
@@ -183,32 +209,64 @@ export function toggleLayerLock(layer, setLayers) {
     );
 }
 
-export async function removeLayer(map, layer, setLayers) {
-  if (!map || !layer) return;
-  const { fillId, lineId, id } = layer;
+export function removeLayer(map, layer, setLayers) {
+    if (!map || !layer) return;
 
-  if (fillId && map.getLayer(fillId)) map.removeLayer(fillId);
-  if (lineId && map.getLayer(lineId)) map.removeLayer(lineId);
-  if (id && map.getSource(id)) map.removeSource(id);
-  
-  setLayers((prev) => prev.filter((l) => l.id !== id));
+    const { name, id, fillId, lineId } = layer;
+    const cleanedId = id.endsWith('_dash') ? id.slice(0, -5) : id;
+    const bg = `${cleanedId}_bg`;
+    const dash = `${cleanedId}_dash`;
+
+    // Remove Draw-mode line and its label layers
+    if (id) {
+        const label0 = `${id}-0`;
+        const label1 = `${id}-1`;
+
+        if (map.getLayer(id)) map.removeLayer(id);
+        if (map.getLayer(label0)) map.removeLayer(label0);
+        if (map.getLayer(label1)) map.removeLayer(label1);
+        if (map.getSource(layer.sourceId || name)) map.removeSource(layer.sourceId || name);
+    }
+
+    if (map.getLayer(id)) map.removeLayer(id);
+    if (map.getLayer(bg)) map.removeLayer(bg);
+    if (map.getLayer(dash)) map.removeLayer(dash);
+
+    // Remove Polygon-specific layers
+    if (fillId && map.getLayer(fillId)) map.removeLayer(fillId);
+    if (lineId && map.getLayer(lineId)) map.removeLayer(lineId);
+
+    // Remove source by id if exists
+    if (id && map.getSource(id)) map.removeSource(id);
+
+    // Update state
+    setLayers((prev) => prev.filter((l) => l.id !== id));
 }
 
 export async function removeFeature(draw, layerID, featureID, layer) {
-    
-  // Delete from Mapbox Draw
-  if (draw && typeof draw.delete === 'function') {
-    draw.trash();
-    draw.delete(featureID)
-    console.log(`REMOVED Layer ${layerID} with Feature ID ${featureID}`)
-  }
 
-  // Delete from backend
-  try {
-    await deleteFeature(layerID);
-  } catch (error) {
-    console.error(`Failed to delete feature ${layerID} from backend.`, error);
-  }
+    // Delete from Mapbox Draw
+    if (draw && typeof draw.delete === 'function') {
+        draw.trash();
+        draw.delete(featureID)
+    }
+
+    // Delete from backend
+    try {
+        if (featureID) {
+            const cleanedFeatureID = typeof featureID === 'string' && featureID.endsWith('_dash')
+                ? featureID.slice(0, -5)
+                : featureID;
+            console.log(`Deleting feature with ID: ${cleanedFeatureID}`);
+            console.log(`Layer ID: ${layerID}`);
+            await deleteFeature(cleanedFeatureID);
+        } else {
+            await deleteFeature(layerID);
+        }
+
+    } catch (error) {
+        console.error(`Failed to delete feature ${layerID} from backend.`, error);
+    }
 }
 
 export function updateLayerName(layerId, newName, setLayers) {

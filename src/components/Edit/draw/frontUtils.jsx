@@ -86,8 +86,8 @@ export const handlePointerUp = async (
 
   const uniqueId = crypto.randomUUID();
   const sourceId = `SF_${uniqueId}`;
-  const bgLayerId = `SF_bg_${uniqueId}`;
-  const dashedLayerId = `SF_dashed_${uniqueId}`;
+  const bgLayerId = `SF_${uniqueId}_bg`;
+  const dashedLayerId = `SF_${uniqueId}_dash`;
   const beforeLayer = map.getLayer('custom-points-layer') ? 'custom-points-layer' : undefined;
 
   if (map.getSource(sourceId)) map.removeSource(sourceId);
@@ -153,13 +153,21 @@ export const handlePointerUp = async (
 
   let step = 0;
   function animateDashArray(timestamp) {
+    if (!map.getLayer(dashedLayerId)) {
+      console.warn(`Layer '${dashedLayerId}' does not exist. Reloading page.`);
+      window.location.reload();  // Safe alternative to 'location.reload()'
+      return;
+    }
+
     const newStep = parseInt((timestamp / 150) % dashArraySequence.length);
     if (newStep !== step) {
       map.setPaintProperty(dashedLayerId, 'line-dasharray', dashArraySequence[newStep]);
       step = newStep;
     }
+
     requestAnimationFrame(animateDashArray);
   }
+
   animateDashArray(0);
 
   // Save feature metadata and update UI state

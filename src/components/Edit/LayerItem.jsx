@@ -67,7 +67,6 @@ const LayerItem = ({
             }
         } else {
             removeLayer(layerId);
-            console.log(layerId)
             removeFeature(draw, layer.id, layer.sourceID, mapRef)
 
         }
