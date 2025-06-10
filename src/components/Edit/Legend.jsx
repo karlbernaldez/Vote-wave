@@ -1,17 +1,18 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import styled from 'styled-components';
+import { theme, darkTheme } from "../../styles/theme";
 
 // Styled Components
 const Box = styled.div`
   position: fixed;
   bottom: .5rem;
   left: .5rem;
-  width: 20rem;           // wider
-  max-height: 15rem;      // shorter
+  width: 20rem;
+  max-height: 15rem;
   padding: 0.75rem 1rem;
-  background-color: white;
+  background-color: ${({ theme }) => theme.colors.lightBackground};
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;  // rounded corners
+  border-radius: 0.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index: 50;
   overflow-y: auto;
@@ -20,7 +21,7 @@ const Box = styled.div`
 const Title = styled.h3`
   font-weight: 600;
   font-size: 0.9rem;
-  color: #1e40af;
+  color:${({ theme }) => theme.colors.textPrimary};
   margin-bottom: 0.5rem;
   border-bottom: 1px solid #d1d5db;
   padding-bottom: 0.25rem;
@@ -37,6 +38,7 @@ const ListItem = styled.li`
   align-items: center;
   gap: 0.4rem;
   font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.textPrimary};  // <-- dynamic text color here
 `;
 
 const SymbolWrapper = styled.span`
@@ -64,10 +66,10 @@ const Footer = styled.div`
   font-size: 0.65rem;
   display: flex;
   justify-content: space-between;
-  color: #4b5563;
+  color:${({ theme }) => theme.colors.textPrimary};
 
   strong {
-    color: #1d4ed8;
+    color:#01a0da;
   }
 `;
 

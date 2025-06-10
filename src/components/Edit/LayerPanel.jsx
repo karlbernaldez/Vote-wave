@@ -1,25 +1,9 @@
 import React, { useState, useRef } from "react";
 import LayerItem from "./LayerItem";
 import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import {
-  addWindLayer,
-  addGeoJsonLayer,
-  toggleLayerVisibility,
-  toggleLayerLock,
-  removeLayer,
-  updateLayerName,
-  handleDragStart,
-  handleDragOver,
-  handleDrop,
-} from "./utils/layerUtils";
+import { addWindLayer, addGeoJsonLayer, toggleLayerVisibility, toggleLayerLock, removeLayer, updateLayerName, handleDragStart, handleDragOver, handleDrop } from "./utils/layerUtils";
 import { theme, darkTheme } from "../../styles/theme";
-import {
-  panelStyle,
-  headerStyle,
-  buttonStyle,
-  listStyle,
-  footerStyle,
-} from "./styles/LayerPanelStyles";
+import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./styles/LayerPanelStyles";
 import Modal from "../modals/MapNotReady";
 
 const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
@@ -56,13 +40,14 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
 
   const setActiveLayer = (id) => {
     const layer = layers.find((layer) => layer.id === id);
+    const addedLayers = mapRef.current.getStyle().layers;
+    console.log(addedLayers)
     if (!layer) {
       console.warn(`Layer with ID ${id} not found.`);
       return;
     }
 
     setActiveLayerId(id);
-    console.log(`Layer ${id} is now active.`);
 
     if (
       draw &&

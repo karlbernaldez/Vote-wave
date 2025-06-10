@@ -5,7 +5,7 @@ import DrawCircle from '../components/Edit/draw/circle';
 import SimpleSelect from '../components/Edit/draw/simple_select';
 import drawStyles from '../components/Edit/draw/styles';
 
-/** Load image to map if not loaded yet */
+
 export function loadImage(map, name, path) {
   if (!map.hasImage(name)) {
     map.loadImage(path, (error, image) => {
@@ -21,7 +21,6 @@ export function loadImage(map, name, path) {
   }
 }
 
-/** Initialize typhoon marker source and layer */
 export function initTyphoonLayer(map) {
   if (!map.getSource('typhoon-points')) {
     map.addSource('typhoon-points', {
@@ -35,6 +34,7 @@ export function initTyphoonLayer(map) {
       id: 'typhoon-layer',
       type: 'symbol',
       source: 'typhoon-points',
+      slot: 'top',
       layout: {
         'icon-image': ['get', 'icon'],
         'icon-size': [
@@ -54,6 +54,9 @@ export function initTyphoonLayer(map) {
         'text-anchor': 'top',
         'icon-allow-overlap': true,
         'text-allow-overlap': true,
+      },
+      paint: {
+        'text-color': 'red',
       },
       minzoom: 0,
       maxzoom: 24,
@@ -102,7 +105,6 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   }
 
   const { lng, lat } = selectedPoint;
-  // console.log('📍 Selected Point:', { lng, lat });
 
   const iconMap = {
     typhoon: 'typhoon',
@@ -116,14 +118,15 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
 
   const markerType = type || 'typhoon';
   const iconName = iconMap[markerType] || 'typhoon';
+  console.log(title)
+  const featureId = title; // Unique ID per marker
 
-  // console.log('🌀 Marker Type:', markerType);
-  // console.log('🖼️ Icon Used:', iconName);
-  // console.log('🏷️ Title:', title || defaultTitles[markerType]);
-
-  const customPoint = {
+  const feature = {
     type: 'Feature',
-    geometry: { type: 'Point', coordinates: [lng, lat] },
+    geometry: {
+      type: 'Point',
+      coordinates: [lng, lat],
+    },
     properties: {
       title: title || defaultTitles[markerType],
       markerType,
@@ -131,27 +134,52 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     },
   };
 
-  const source = mapRef.current?.getSource('typhoon-points');
-  if (!source) {
-    console.error('❌ Source "typhoon-points" not found on the map.');
+  const map = mapRef.current;
+  if (!map) {
+    console.error('❌ Map reference is null.');
     return;
   }
 
-  const currentData = source._data || {
-    type: 'FeatureCollection',
-    features: [],
-  };
+  const sourceId = `${title}`;
+  const layerId = `${title}`;
 
-  // console.log('📦 Existing features before adding:', currentData.features);
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: 'geojson',
+      data: feature,
+    });
+  }
 
-  const updatedData = {
-    ...currentData,
-    features: [...currentData.features, customPoint],
-  };
-
-  source.setData(updatedData);
-
-  // console.log('✅ Marker added. Updated GeoJSON:', updatedData);
+  if (!map.getLayer(layerId)) {
+    map.addLayer({
+      id: layerId,
+      type: 'symbol',
+      source: sourceId,
+      layout: {
+        'icon-image': ['get', 'icon'],
+        'icon-size': [
+          'case',
+          ['==', ['get', 'markerType'], 'low_pressure'],
+          0.2,
+          0.09,
+        ],
+        'text-field': ['get', 'title'],
+        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+        'text-offset': [
+          'case',
+          ['==', ['get', 'markerType'], 'low_pressure'],
+          [0, 2.0],
+          [0, 1.25],
+        ],
+        'text-anchor': 'top',
+        'icon-allow-overlap': true,
+        'text-allow-overlap': true,
+      },
+      paint: {
+        'text-color': 'red',
+      },
+    });
+  }
 
   setShowTitleModal(false);
 };

@@ -7,9 +7,7 @@ This web application provides an interactive weather forecasting platform using 
 - **🗺 Interactive Map** (Mapbox integration)
 - **📊 Weather Model Overlay** (Future implementation)
 - **✏️ User Annotations** (Draw on the map with customizable tools)
-- **🔄 Sidebar Navigation** (Access various tools & settings)
 - **✏️ Drawing Controls** (Start, Stop, and Clear drawings)
-- **🎨 Responsive UI** (Optimized for different screen sizes)
 
 ## 📂 Project Structure
 ```
@@ -135,3 +133,5 @@ This project is licensed under the **[MIT license](https://github.com/karlbernal
 
 ## 🙌 Contributing
 Feel free to submit issues or pull requests to improve the app!
+
+## Modules / Component

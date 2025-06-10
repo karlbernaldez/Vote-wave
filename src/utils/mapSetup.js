@@ -1,26 +1,9 @@
 import mapboxgl from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import {
-  loadImage,
-  initTyphoonLayer,
-  initDrawControl,
-  loadMarkerPoints,
-  typhoonMarker as saveMarkerFn,
-} from './mapUtils';
+import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({
-  map,
-  mapRef,
-  setDrawInstance,
-  setMapLoaded,
-  setSelectedPoint,
-  setShowTitleModal,
-  setLineCount,
-  initialFeatures = [],
-}) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger }) {
   if (!map) return console.warn('No map instance provided');
 
-  // ✅ Add navigation control only once
   if (!map._navigationControlAdded) {
     map.addControl(new mapboxgl.NavigationControl());
     map._navigationControlAdded = true;
@@ -43,7 +26,6 @@ export function setupMap({
   const frontLines = [];
   const nonFrontLines = [];
 
-  let polygonCount = 0;
   let totalLineCount = 0;
 
   // === Classify features ===
@@ -53,7 +35,6 @@ export function setupMap({
     if (type === 'Point') {
       markerPoints.push(feature);
     } else if (type === 'Polygon') {
-      polygonCount++;
       draw.add({
         type: 'Feature',
         geometry: feature.geometry,
@@ -94,137 +75,180 @@ export function setupMap({
         : sourceId;
 
       if (lng !== undefined && lat !== undefined) {
-        saveMarkerFn({ lat, lng }, mapRef, () => {}, markerType)(title);
+        saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
       }
     });
   }
 
   // === Non-front lines with labels ===
   if (nonFrontLines.length > 0) {
-    map.addSource('non-front-lines', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: nonFrontLines },
-    });
+    nonFrontLines.forEach((feature) => {
+      const geojsonFeature = {
+        type: "Feature",
+        geometry: feature.geometry,
+        properties: feature.properties,
+        id: feature._id,
+      };
 
-    map.addLayer({
-      id: 'non-front-lines-layer',
-      type: 'line',
-      source: 'non-front-lines',
-      paint: {
-        'line-color': '#0080ff',
-        'line-opacity': 0.5,
-        'line-width': 2,
-      },
-      filter: ['==', '$type', 'LineString'],
-    });
+      const name = feature.sourceId;
+      const sourceId = feature.sourceId || 'non-front-lines';
 
-    const labelFeatures = nonFrontLines.flatMap((feature, index) => {
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: geojsonFeature,
+      });
+
+      map.addLayer({
+        id: name,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#0080ff',
+          'line-opacity': 0.5,
+          'line-width': 2,
+        },
+        filter: ['==', '$type', 'LineString'],
+      });
+
+      // Generate label features for this line
       const coords = feature.geometry?.coordinates;
       const props = feature.properties || {};
-      const labelValue = String(props.labelValue || index + 1);
+      const labelValue = String(props.labelValue || feature.name || 'Label');
       const closedMode = props.closedMode;
+      const featureId = feature._id;
 
-      if (!Array.isArray(coords) || coords.length < 2) return [];
+      if (Array.isArray(coords) && coords.length >= 2) {
+        let points = [];
 
-      if (closedMode) {
-        const [lng, lat] = coords[0];
-        return [{
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [lng, lat] },
-          properties: { text: labelValue },
-        }];
-      } else {
-        const [lng1, lat1] = coords[0];
-        const [lng2, lat2] = coords[coords.length - 1];
-        return [
-          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng1, lat1] }, properties: { text: labelValue } },
-          { type: 'Feature', geometry: { type: 'Point', coordinates: [lng2, lat2] }, properties: { text: labelValue } },
-        ];
+        if (closedMode) {
+          const [lng, lat] = coords[0];
+          points.push([lng, lat]);
+        } else {
+          const [lng1, lat1] = coords[0];
+          const [lng2, lat2] = coords[coords.length - 1];
+          points.push([lng1, lat1], [lng2, lat2]);
+        }
+
+        points.forEach((coord, i) => {
+          const labelSourceId = `${name}-${i}`;
+          const labelLayerId = `${name}-${i}`;
+
+          map.addSource(labelSourceId, {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  id: `${featureId}-${i}`,
+                  geometry: { type: 'Point', coordinates: coord },
+                  properties: { text: labelValue },
+                },
+              ],
+            },
+          });
+
+          map.addLayer({
+            id: labelLayerId,
+            type: 'symbol',
+            source: labelSourceId,
+            layout: {
+              'text-field': ['get', 'text'],
+              'text-size': 18,
+              'text-anchor': 'bottom',
+              'text-offset': [0, 0.5],
+            },
+            paint: {
+              'text-color': '#FF0000',
+              'text-halo-color': '#FFFFFF',
+              'text-halo-width': 2,
+            },
+          });
+        });
       }
-    });
-
-    map.addSource('non-front-labels', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: labelFeatures },
-    });
-
-    map.addLayer({
-      id: 'non-front-label-layer',
-      type: 'symbol',
-      source: 'non-front-labels',
-      layout: {
-        'text-field': ['get', 'text'],
-        'text-size': 18,
-        'text-anchor': 'bottom',
-        'text-offset': [0, 0.5],
-      },
-      paint: {
-        'text-color': '#FF0000',
-        'text-halo-color': '#FFFFFF',
-        'text-halo-width': 2,
-      },
     });
   }
 
+
   // === Front lines with animated dashed effect ===
+  let animationFrameIds = [];
+
   if (frontLines.length > 0) {
-    map.addSource('front-lines', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: frontLines },
-    });
+    frontLines.forEach((feature, index) => {
+      console.log('Adding front line feature:', feature);
+      const sourceId = feature.sourceId;
+      const bgLayerId = `${sourceId}_bg`;
+      const dashLayerId = `${sourceId}_dash`;
 
-    map.addLayer({
-      id: 'front-line-bg',
-      type: 'line',
-      source: 'front-lines',
-      paint: {
-        'line-color': '#0000FF',
-        'line-width': 6,
-        'line-opacity': 0.8,
-      },
-    });
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [feature],
+        },
+      });
 
-    map.addLayer({
-      id: 'line-dash',
-      type: 'line',
-      source: 'front-lines',
-      paint: {
-        'line-color': '#FF0000',
-        'line-width': 6,
-        'line-dasharray': [0, 4, 3],
-      },
-    });
+      map.addLayer({
+        id: bgLayerId,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#0000FF',
+          'line-width': 6,
+          'line-opacity': 0.8,
+        },
+      });
 
-    const dashArraySequence = [
-      [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5],
-      [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5],
-      [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
-      [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
-    ];
+      map.addLayer({
+        id: dashLayerId,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#FF0000',
+          'line-width': 6,
+          'line-dasharray': [0, 4, 3],
+        },
+      });
 
-    map.once('idle', () => {
-      let step = 0;
+      const dashArraySequence = [
+        [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1],
+        [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5], [0, 1, 3, 3],
+        [0, 1.5, 3, 2.5], [0, 2, 3, 2], [0, 2.5, 3, 1.5],
+        [0, 3, 3, 1], [0, 3.5, 3, 0.5],
+      ];
 
-      function animateDashArray(timestamp) {
-        const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
-        if (newStep !== step && map.getLayer('line-dash')) {
-          try {
-            map.setPaintProperty('line-dash', 'line-dasharray', dashArraySequence[newStep]);
-            step = newStep;
-          } catch (err) {
-            // Layer might not exist if removed early
+      map.once('idle', () => {
+        let step = 0;
+
+        function animateDashArray(timestamp) {
+          if (!map.getLayer(dashLayerId)) return;
+
+          const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
+          if (newStep !== step) {
+            try {
+              map.setPaintProperty(dashLayerId, 'line-dasharray', dashArraySequence[newStep]);
+              step = newStep;
+            } catch (err) {
+              console.warn(`Error updating dasharray for ${dashLayerId}:`, err);
+              return;
+            }
+          }
+
+          animationFrameIds[index] = requestAnimationFrame(animateDashArray);
+        }
+
+        function tryStartAnimation(retries = 10) {
+          if (map.getLayer(dashLayerId)) {
+            animationFrameIds[index] = requestAnimationFrame(animateDashArray);
+          } else if (retries > 0) {
+            setTimeout(() => tryStartAnimation(retries - 1), 300);
+          } else {
+            console.warn(`Skipping animation: '${dashLayerId}' not ready after retries.`);
           }
         }
-        requestAnimationFrame(animateDashArray);
-      }
 
-      setTimeout(() => {
-        if (map.getLayer('line-dash')) {
-          animateDashArray(0);
-        } else {
-          console.warn("Skipping animation: 'line-dash' layer not ready.");
-        }
-      }, 1000);
+        setTimeout(() => tryStartAnimation(), 300);
+      });
     });
   }
 
@@ -240,4 +264,9 @@ export function setupMap({
   });
 
   setMapLoaded(true);
+
+  // === Return cleanup function ===
+  return function cleanup() {
+    if (animationFrameIds) cancelAnimationFrame(animationFrameIds);
+  };
 }
