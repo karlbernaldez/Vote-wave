@@ -163,11 +163,11 @@ export function toggleLayerVisibility(map, layer, setLayers) {
     const { name, id, fillId, lineId, visible } = layer;
     const newVisibility = visible ? 'none' : 'visible';
 
-
     const cleanedId = id.endsWith('_dash') ? id.slice(0, -5) : id;
     const bg = `${cleanedId}_bg`;
     const dash = `${cleanedId}_dash`;
 
+    if (map.getLayer(name)) map.setLayoutProperty(name, 'visibility', newVisibility);
     if (map.getLayer(bg)) map.setLayoutProperty(bg, 'visibility', newVisibility);
     if (map.getLayer(dash)) map.setLayoutProperty(dash, 'visibility', newVisibility);
 
@@ -216,7 +216,7 @@ export function removeLayer(map, layer, setLayers) {
     const cleanedId = id.endsWith('_dash') ? id.slice(0, -5) : id;
     const bg = `${cleanedId}_bg`;
     const dash = `${cleanedId}_dash`;
-
+    
     // Remove Draw-mode line and its label layers
     if (id) {
         const label0 = `${id}-0`;
@@ -225,9 +225,10 @@ export function removeLayer(map, layer, setLayers) {
         if (map.getLayer(id)) map.removeLayer(id);
         if (map.getLayer(label0)) map.removeLayer(label0);
         if (map.getLayer(label1)) map.removeLayer(label1);
-        if (map.getSource(layer.sourceId || name)) map.removeSource(layer.sourceId || name);
+        // if (map.getSource(layer.sourceId || name)) map.removeSource(layer.sourceId || name);
     }
 
+    if (map.getLayer(name)) map.removeLayer(name);
     if (map.getLayer(id)) map.removeLayer(id);
     if (map.getLayer(bg)) map.removeLayer(bg);
     if (map.getLayer(dash)) map.removeLayer(dash);
