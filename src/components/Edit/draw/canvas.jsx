@@ -54,19 +54,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, clos
 
   return (
     <div>
-      {/* GeoJSON download button */}
-      <button
-        onClick={() => downloadGeoJSON(lines, mapRef)}
-        style={{
-          position: 'absolute',
-          zIndex: 100,
-          top: '10px',
-          right: '3rem',
-        }}
-      >
-        Download GeoJSON
-      </button>
-
+      
       {/* Slider for label value - fixed at bottom center */}
       <div
         style={{

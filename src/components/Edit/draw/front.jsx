@@ -36,18 +36,6 @@ const FlagCanvas = ({
 
   return (
     <div>
-      <button
-        onClick={() => downloadGeoJSON(lines, mapRef)}
-        style={{
-          position: 'absolute',
-          zIndex: 100,
-          top: '10px',
-          right: '3rem',
-        }}
-      >
-        Download GeoJSON
-      </button>
-
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
