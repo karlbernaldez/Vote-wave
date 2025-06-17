@@ -121,6 +121,7 @@ const Login = () => {
     e.preventDefault(); // prevent form default reload
     try {
       const res = await loginUser({ email: email, password });
+      console.log(res)
       const token = res.token;
       console.log("Login API response:", token);
 
@@ -129,7 +130,7 @@ const Login = () => {
       const decoded = jwtDecode(token);
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
-      console.log('Stored token:', localStorage.getItem('authToken'));
+      console.log('Logged in user:', localStorage.getItem('user'));
 
       console.log('Welcome', decoded.email);
       navigate('/edit');
