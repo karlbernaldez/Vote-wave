@@ -224,16 +224,6 @@ const UserControls = styled.div`
   margin-left: auto;
 `;
 
-const LogoutButton = styled.button`
-  padding: 6px 12px;
-  background: crimson;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-`;
-
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
   const [debounceTimeout, setDebounceTimeout] = useState(null);
 
@@ -264,11 +254,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const isLinkActive = (path) => location.pathname === path;
 
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    window.location.href = "/";
-  };
+  
 
   const isAuthenticated = localStorage.getItem("authToken");
 
@@ -309,7 +295,6 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
               <span>
                 Welcome back, {JSON.parse(localStorage.getItem("user"))?.last_name || "User"}
               </span>
-              <LogoutButton onClick={logout}>Logout</LogoutButton>
             </UserControls>
           )}
         

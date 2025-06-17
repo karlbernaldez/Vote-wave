@@ -14,11 +14,17 @@ export const saveFeature = async (feature, token) => {
 };
 
 export const fetchFeatures = async (token) => {
-  const response = await fetch(API_BASE_URL, {
+  const projectId = localStorage.getItem('projectId');
+  if (!projectId) throw new Error('Missing projectId.');
+
+  const queryParams = new URLSearchParams({ projectId });
+
+  const response = await fetch(`${API_BASE_URL}/my-projects?${queryParams.toString()}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
   });
+
   if (!response.ok) throw new Error('Failed to fetch features');
   return response.json();
 };

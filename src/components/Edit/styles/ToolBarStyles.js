@@ -56,6 +56,7 @@ export const CollapseToggle = styled.button`
   color: ${({ theme }) => theme.colors.buttonColor};
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  opacity: 80%;
 
   &:hover {
     transform: rotate(90deg);

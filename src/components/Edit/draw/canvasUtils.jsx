@@ -126,9 +126,6 @@ export const handlePointerUp = async (
     beforeLayer
   );
 
-  // --- ADD LABELS ---
-  let labelCoordsToSave = [];
-
   if (lines.length > 0) {
     const lastLine = lines[lines.length - 1];
     if (lastLine.points.length >= 4) {
@@ -187,10 +184,6 @@ export const handlePointerUp = async (
         );
       }
 
-      // Extract label coordinates for saving and logging
-      labelCoordsToSave = features.map((f) => f.geometry.coordinates);
-      // console.log('Label coordinates:', labelCoordsToSave);
-
       map.addSource(labelSourceId, {
         type: 'geojson',
         data: {
@@ -236,6 +229,8 @@ export const handlePointerUp = async (
       let counter = 1;
       let uniqueName = baseName;
       const existingNames = prevLayers.map((l) => l.name);
+      const owner = JSON.parse(localStorage.getItem("user"));
+      const projectId = localStorage.getItem("projectId");
 
       while (existingNames.includes(uniqueName)) {
         uniqueName = `${baseName} ${counter++}`;
@@ -251,10 +246,11 @@ export const handlePointerUp = async (
             labelValue: labelValue,
             closedMode: closedMode,
             isFront: false,
+            owner: owner?.id,
+            project: projectId,
           },
           name: uniqueName,
           sourceId: sourceId,
-          labels: labelCoordsToSave, // Save label coordinates here
         }, token).catch((err) => {
           console.error('Error saving feature:', err);
         });
