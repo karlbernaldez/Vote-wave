@@ -13,7 +13,9 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
-  initTyphoonLayer(map);
+  map.on('load', () => {
+    initTyphoonLayer(map);
+  });
 
   const draw = initDrawControl(map);
   setDrawInstance(draw);
@@ -27,6 +29,8 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   const nonFrontLines = [];
 
   let totalLineCount = 0;
+
+  // console.log('Initial features:', featuresArray);
 
   // === Classify features ===
   featuresArray.forEach((feature) => {
@@ -175,7 +179,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   if (frontLines.length > 0) {
     frontLines.forEach((feature, index) => {
-      console.log('Adding front line feature:', feature);
+      // console.log('Adding front line feature:', feature);
       const sourceId = feature.sourceId;
       const bgLayerId = `${sourceId}_bg`;
       const dashLayerId = `${sourceId}_dash`;
@@ -221,7 +225,8 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         let step = 0;
 
         function animateDashArray(timestamp) {
-          if (!map.getLayer(dashLayerId)) return;
+          const layer = map.getLayer(dashLayerId);
+          if (!layer) return; // Exit safely if layer is not ready
 
           const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
           if (newStep !== step) {
@@ -267,6 +272,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   // === Return cleanup function ===
   return function cleanup() {
-    if (animationFrameIds) cancelAnimationFrame(animationFrameIds);
+    animationFrameIds.forEach(id => cancelAnimationFrame(id));
   };
 }

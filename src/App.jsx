@@ -11,7 +11,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import ProtectedRoute from './middleware/ProtectedRoute';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Edit from './pages/Edit';
 import Weather from './pages/Marine';
 import AboutUs from './pages/AboutUs';
@@ -20,6 +23,7 @@ import Footer from "./components/Footer";
 import styled from 'styled-components';
 import useIsMobile from './hooks/useIsMobile';
 import MobileAccessModal from './components/modals/MobileAccessModal';
+import AccessDeniedModal from './components/modals/AccessDeniedModal';
 import { ThemeProvider } from 'styled-components';
 import { darkTheme, theme } from './styles/theme';
 import createLogger from '@adovelopers/logado';
@@ -106,11 +110,17 @@ const LoadingSpinner = styled.div`
 const Layout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
+
+  // ✅ Fix: define these early
+  const isLoginPage = location.pathname === '/login';
+  const isRegisterPage = location.pathname === '/register';
+  const isLoginOrRegister = isLoginPage || isRegisterPage;
   const isEditPage = location.pathname === '/edit';
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [redirect, setRedirect] = useState(false);
+  const [accessDeniedVisible, setAccessDeniedVisible] = useState(false);
   const [isloading, setIsLoading] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     if (isMobile && isEditPage) {
@@ -120,38 +130,42 @@ const Layout = () => {
 
   useEffect(() => {
     setIsLoading(true);
-
-    const timeout = isEditPage ? 1000 : 500;
-
+    const timeout = isEditPage || isLoginPage || isRegisterPage ? 1000 : 500;
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, timeout);
-
     return () => clearTimeout(timer);
-  }, [location, isEditPage]);
+  }, [location]);
 
   const handleModalClose = () => {
     setModalVisible(false);
-    setRedirect(true);
+    handleRedirect('/');
   };
 
-  const handleRedirect = () => {
-    window.location.reload();
+  const handleAccessDeniedClose = () => {
+    setAccessDeniedVisible(false);
+    handleRedirect('/login');
   };
 
-  if (redirect) {
-    handleRedirect();
-    return <Navigate to="/" replace />;
-  }
+  const handleRedirect = (path = '/') => {
+    window.location.href = path;
+  };
+
+  const showHeader = !isLoginOrRegister;
+  const showFooter = !isEditPage && !isLoginOrRegister;
+  const showFreeSpace = !isEditPage && !isLoginOrRegister;
+  const addTopPadding = !isLoginOrRegister;
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
-      <AppContainer $noscroll={isEditPage} $isloading={isloading}>
-        <StickyHeader $isloading={isloading}>
-          <HeaderNavbar $isloading={isloading} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-        </StickyHeader>
+      <AppContainer $noscroll={isEditPage} $isloading={isloading} $isDarkMode={isDarkMode}>
+        {showHeader && (
+          <StickyHeader $isloading={isloading}>
+            <HeaderNavbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          </StickyHeader>
+        )}
 
-        <MainContent $isloading={isloading}>
+        <MainContent $isloading={isloading} style={{ paddingTop: addTopPadding ? undefined : 0 }}>
           {isloading && (
             <LoadingScreen>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -163,22 +177,32 @@ const Layout = () => {
 
           <Routes>
             <Route path="/" element={<Home isDarkMode={isDarkMode} />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route
               path="/edit"
-              element={isMobile ? (
-                <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
-              ) : (
-                <Edit isDarkMode={isDarkMode} logger={logger} />
-              )}
+              element={
+                isMobile ? (
+                  <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
+                ) : (
+                  <ProtectedRoute
+                    element={() => <Edit isDarkMode={isDarkMode} logger={logger} />}
+                    onDeny={() => (
+                      <AccessDeniedModal isOpen={true} onClose={handleAccessDeniedClose} />
+                    )}
+                    requireAuth={true}
+                  />
+                )
+              }
             />
             <Route path="/weather" element={<Weather />} />
             <Route path="/about-us" element={<AboutUs />} />
           </Routes>
 
-          {!isEditPage && <FreeSpace />}
+          {showFreeSpace && <FreeSpace />}
         </MainContent>
 
-        {!isEditPage && (
+        {showFooter && (
           <FooterWrapper $isloading={isloading}>
             <Footer />
           </FooterWrapper>

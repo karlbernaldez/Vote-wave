@@ -125,6 +125,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
         }
 
         if (feature && feature.geometry) {
+          const token = localStorage.getItem('authToken');
           // Save asynchronously, but do not block state update
           saveFeature({
             geometry: feature.geometry,
@@ -136,7 +137,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
             name: uniqueName,
             sourceId: sourceId,
             labels: labelCoordsToSave,
-          }).catch((err) => {
+          }, token).catch((err) => {
             console.error('Error saving feature:', err);
           });
         }

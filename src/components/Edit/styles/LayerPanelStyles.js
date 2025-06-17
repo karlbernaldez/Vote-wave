@@ -4,6 +4,7 @@ export const panelStyle = (theme, isCollapsed) => ({
     bottom: theme.spacing.large,
     right: theme.spacing.xsmall,
     backgroundColor: theme.colors.lightBackground,
+    border: '1px solid #d1d5db',
     color: theme.colors.textPrimary,
     padding: theme.spacing.medium,
     borderRadius: theme.borderRadius.xlarge,

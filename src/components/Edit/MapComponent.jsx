@@ -29,10 +29,15 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
         container: mapContainerRef.current,
         projection: 'mercator',
         style: isDarkMode
-          ? 'mapbox://styles/mapbox/dark-v11'
-          : 'mapbox://styles/mapbox/light-v11',
-        center: [122, 12],
-        zoom: 5,
+          ? 'mapbox://styles/karlbernaldizzy/cmbqaaqhr005501rlcohv8iov'
+          : 'mapbox://styles/karlbernaldizzy/cmbqag5o7008p01sp609t4vwv',
+        center: [120.0, 15.5],
+        minZoom: 3.5,
+        zoom: 4,
+        // maxBounds: [
+        //   [103.0, 2.0],
+        //   [150.0, 36.8]
+        // ]
       });
 
       map.fitBounds(
@@ -44,7 +49,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
           padding: { top: 200, bottom: 100, left: 100, right: 200 },
         }
       );
-
+      
       map.on('load', () => {
         mapRef.current = map;
         if (onMapLoad) {
@@ -66,8 +71,8 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
     if (mapRef.current) {
       mapRef.current.setStyle(
         isDarkMode
-          ? 'mapbox://styles/mapbox/dark-v11'
-          : 'mapbox://styles/mapbox/light-v11'
+          ? 'mapbox://styles/karlbernaldizzy/cmbqaaqhr005501rlcohv8iov'
+          : 'mapbox://styles/karlbernaldizzy/cmbqag5o7008p01sp609t4vwv'
       );
     }
   }, [isDarkMode]); // Re-run whenever isDarkMode changes
