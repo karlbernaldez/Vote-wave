@@ -9,7 +9,8 @@ export const ToolbarContainer = styled.div`
   flex-direction: row;
   align-items: center;
   background: ${({ theme }) => theme.colors.lightBackground};
-  border-radius: 24px;
+  border: 1px solid #d1d5db;
+  border-radius: 30px;
   padding: 0.3rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* small shadow added */
   z-index: 999;

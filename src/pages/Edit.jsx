@@ -17,6 +17,7 @@ import DrawToolBar from "../components/Edit/Toolbar";
 import Canvas from "../components/Edit/draw/canvas";
 import FlagCanvas from "../components/Edit/draw/front";
 import LegendBox from "../components/Edit/Legend";
+import ExportMapButton from "../components/Edit/export";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
 import { setupMap } from "../utils/mapSetup";
@@ -53,6 +54,7 @@ const Edit = ({ isDarkMode, logger }) => {
   const [showToolbar, setShowToolbar] = useState(false);
   const [closedMode, setClosedMode] = useState(false);
   const [type, setType] = useState(null);
+  const [savedFeatures, setSavedFeatures] = useState([]);
 
   const mapRef = useRef(null);
   const cleanupRef = useRef(null);
@@ -74,7 +76,9 @@ const Edit = ({ isDarkMode, logger }) => {
 
     const setupFeaturesAndLayers = async () => {
       try {
-        const savedFeatures = await fetchFeatures();
+        const token = localStorage.getItem('authToken');
+        const savedFeatures = await fetchFeatures(token);
+        setSavedFeatures(savedFeatures);
 
         const initialLayers = savedFeatures.map(f => ({
           id: f.sourceId,
@@ -216,6 +220,14 @@ const Edit = ({ isDarkMode, logger }) => {
       />
 
       <LegendBox isDarkMode={isDarkMode} />
+      
+      {/* <ExportMapButton
+        mapRef={mapRef}
+        features={{
+          type: "FeatureCollection",
+          features: savedFeatures,
+        }} 
+        /> */}
     </Container>
   );
 };

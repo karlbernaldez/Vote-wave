@@ -5,15 +5,15 @@
 //  ║  📝 Description   :  Weather forecasting platform                     ║
 //  ║  👨‍💻 Author        : Karl Santiago Bernaldez                           ║
 //  ║  📅 Created       : 2025-03-24                                        ║
-//  ║  🕓 Last Updated  : 2025-05-29                                        ║
-//  ║  🧭 Version       : v1.0.0                                            ║
+//  ║  🕓 Last Updated  : 2025-06-17                                        ║
+//  ║  🧭 Version       : v1.0.1                                            ║
 //  ╚═══════════════════════════════════════════════════════════════════════╝
 
 import React, { useState } from "react";
 import styled from "styled-components";
 import { NavLink, useLocation } from "react-router-dom";
 import { PagasaLogo } from "./Logo";
-import { FaSun, FaMoon } from 'react-icons/fa';
+import { FaSun, FaMoon } from "react-icons/fa";
 
 const StyledHeaderNavbar = styled.div`
   display: flex;
@@ -44,7 +44,7 @@ const Logo = styled.a`
   gap: 10px;
   margin-left: 6rem;
   text-decoration: none;
-  
+
   @media (max-width: 939px) {
     margin-left: 1rem;
   }
@@ -66,7 +66,7 @@ const NavAndToggleWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: auto;
-  gap: 15rem;
+  gap: 3rem;
   margin-right: 2rem;
 
   @media (max-width: 939px) {
@@ -104,6 +104,7 @@ const ThemeToggleButton = styled.button`
   font-size: ${({ theme }) => theme.fontSizes.xlarge};
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-left: 2rem;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.boxShadowHover};
@@ -126,10 +127,12 @@ const ThemeToggleButton = styled.button`
 const IconContainer = styled.div`
   display: flex;
   transition: transform 0.3s ease;
-  transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(10px)' : 'translateX(-10px)')};
+  transform: ${({ isDarkMode }) =>
+    isDarkMode ? "translateX(10px)" : "translateX(-10px)"};
 
   @media (max-width: 939px) {
-    transform: ${({ isDarkMode }) => (isDarkMode ? 'translateX(6px)' : 'translateX(-6px)')};
+    transform: ${({ isDarkMode }) =>
+    isDarkMode ? "translateX(6px)" : "translateX(-6px)"};
   }
 `;
 
@@ -191,7 +194,9 @@ const MobileMenu = styled.div`
     z-index: 99;
     transition: transform 0.3s ease, opacity 0.3s ease;
 
-    ${({ open }) => open && `
+    ${({ open }) =>
+    open &&
+    `
       transform: translateY(0);
       opacity: 1;
     `}
@@ -210,21 +215,37 @@ const MobileMenu = styled.div`
   }
 `;
 
+const UserControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-weight: 400;
+  margin-left: auto;
+`;
+
+const LogoutButton = styled.button`
+  padding: 6px 12px;
+  background: crimson;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+`;
+
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
   const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   const handleToggle = () => {
-    // Clear any existing timeout to reset debounce timer
     if (debounceTimeout) {
       clearTimeout(debounceTimeout);
     }
 
-    // Set a new timeout to toggle the theme after 300ms
     const timeoutId = setTimeout(() => {
       setIsDarkMode(!isDarkMode);
-    }, 300); // Delay of 300ms to debounce the toggle
+    }, 300);
 
-    // Save timeout ID so we can clear it if necessary
     setDebounceTimeout(timeoutId);
   };
 
@@ -237,12 +258,19 @@ const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
   );
 };
 
-
 const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const isLinkActive = (path) => location.pathname === path;
+
+  const logout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
+
+  const isAuthenticated = localStorage.getItem("authToken");
 
   return (
     <StyledHeaderNavbar isLoading={isLoading}>
@@ -258,14 +286,34 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
 
         <NavAndToggleWrapper>
           <Navbar>
-            <StyledNavLink to="/" exact="true" activeclassname="active">Home</StyledNavLink>
-            <StyledNavLink to="/weather" $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-            <StyledNavLink to="/edit" $isactive={isLinkActive('/edit')}>Editor</StyledNavLink>
-            <StyledNavLink to="/about" $isactive={isLinkActive('/about')}>About</StyledNavLink>
-            <StyledNavLink to="/contact" $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
+            <StyledNavLink to="/" exact="true" activeclassname="active">
+              Home
+            </StyledNavLink>
+            <StyledNavLink to="/weather" $isactive={isLinkActive("/weather")}>
+              Weather
+            </StyledNavLink>
+            <StyledNavLink to="/edit" $isactive={isLinkActive("/edit")}>
+              Editor
+            </StyledNavLink>
+            <StyledNavLink to="/about" $isactive={isLinkActive("/about")}>
+              About
+            </StyledNavLink>
+            <StyledNavLink to="/contact" $isactive={isLinkActive("/contact")}>
+              Contact Us
+            </StyledNavLink>
           </Navbar>
-          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </NavAndToggleWrapper>
+
+        {isAuthenticated && (
+            <UserControls>
+              <span>
+                Welcome back, {JSON.parse(localStorage.getItem("user"))?.last_name || "User"}
+              </span>
+              <LogoutButton onClick={logout}>Logout</LogoutButton>
+            </UserControls>
+          )}
+        
+        <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
         <MobileWrapper>
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
@@ -278,11 +326,21 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
-        <StyledNavLink to="/" onClick={toggleMenu} $isactive={isLinkActive('/')}>Home</StyledNavLink>
-        <StyledNavLink to="/weather" onClick={toggleMenu} $isactive={isLinkActive('/weather')}>Weather</StyledNavLink>
-        <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive('/edit')}>Editor</StyledNavLink>
-        <StyledNavLink to="/about" onClick={toggleMenu} $isactive={isLinkActive('/about')}>About</StyledNavLink>
-        <StyledNavLink to="/contact" onClick={toggleMenu} $isactive={isLinkActive('/contact')}>Contact Us</StyledNavLink>
+        <StyledNavLink to="/" onClick={toggleMenu} $isactive={isLinkActive("/")}>
+          Home
+        </StyledNavLink>
+        <StyledNavLink to="/weather" onClick={toggleMenu} $isactive={isLinkActive("/weather")}>
+          Weather
+        </StyledNavLink>
+        <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive("/edit")}>
+          Editor
+        </StyledNavLink>
+        <StyledNavLink to="/about" onClick={toggleMenu} $isactive={isLinkActive("/about")}>
+          About
+        </StyledNavLink>
+        <StyledNavLink to="/contact" onClick={toggleMenu} $isactive={isLinkActive("/contact")}>
+          Contact Us
+        </StyledNavLink>
       </MobileMenu>
     </StyledHeaderNavbar>
   );

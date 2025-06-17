@@ -41,7 +41,6 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
   const setActiveLayer = (id) => {
     const layer = layers.find((layer) => layer.id === id);
     const addedLayers = mapRef.current.getStyle().layers;
-    console.log(addedLayers)
     if (!layer) {
       console.warn(`Layer with ID ${id} not found.`);
       return;

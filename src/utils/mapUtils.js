@@ -118,7 +118,7 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
 
   const markerType = type || 'typhoon';
   const iconName = iconMap[markerType] || 'typhoon';
-  console.log(title)
+  // console.log(title)
   // const featureId = title; // Unique ID per marker
 
   const feature = {

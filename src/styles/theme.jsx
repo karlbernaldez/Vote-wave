@@ -151,7 +151,7 @@ export const darkTheme = {
     toggleBorder: '#fff',
     toggle: '#609fca',
 
-    bgHeader: 'rgba(0, 0, 0, 0.3)',
+    bgHeader: '#2d3e4f',
     backdropFilter: 'blur(8px)',
     '-webkit-backdrop-filter': 'blur(8px)',
 

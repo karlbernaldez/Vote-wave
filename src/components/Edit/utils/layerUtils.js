@@ -216,7 +216,7 @@ export function removeLayer(map, layer, setLayers) {
     const cleanedId = id.endsWith('_dash') ? id.slice(0, -5) : id;
     const bg = `${cleanedId}_bg`;
     const dash = `${cleanedId}_dash`;
-    
+
     // Remove Draw-mode line and its label layers
     if (id) {
         const label0 = `${id}-0`;
@@ -254,15 +254,17 @@ export async function removeFeature(draw, layerID, featureID, layer) {
 
     // Delete from backend
     try {
+        const token = localStorage.getItem('authToken');
+
         if (featureID) {
             const cleanedFeatureID = typeof featureID === 'string' && featureID.endsWith('_dash')
                 ? featureID.slice(0, -5)
                 : featureID;
             console.log(`Deleting feature with ID: ${cleanedFeatureID}`);
             console.log(`Layer ID: ${layerID}`);
-            await deleteFeature(cleanedFeatureID);
+            await deleteFeature(cleanedFeatureID, token);
         } else {
-            await deleteFeature(layerID);
+            await deleteFeature(layerID, token);
         }
 
     } catch (error) {

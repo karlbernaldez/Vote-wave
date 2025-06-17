@@ -1,27 +1,34 @@
 const API_BASE_URL = 'http://localhost:5000/api/features'; // Adjust if using a different port
 
-export const saveFeature = async (feature) => {
+export const saveFeature = async (feature, token) => {
   const response = await fetch(API_BASE_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
     body: JSON.stringify(feature),
   });
   if (!response.ok) throw new Error('Failed to save feature');
   return response.json();
 };
 
-export const fetchFeatures = async () => {
-  const response = await fetch(API_BASE_URL);
+export const fetchFeatures = async (token) => {
+  const response = await fetch(API_BASE_URL, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   if (!response.ok) throw new Error('Failed to fetch features');
-  const data = await response.json(); // Await the JSON data
-  // console.log(data); // Now you log the actual parsed data
-
-  return data;
+  return response.json();
 };
 
-export const deleteFeature = async (sourceId) => {
+export const deleteFeature = async (sourceId, token) => {
   const response = await fetch(`${API_BASE_URL}/${sourceId}`, {
     method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
   });
   if (!response.ok) {
     const errorData = await response.json();
