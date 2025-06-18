@@ -17,6 +17,8 @@ import DrawToolBar from "../components/Edit/Toolbar";
 import Canvas from "../components/Edit/draw/canvas";
 import FlagCanvas from "../components/Edit/draw/front";
 import LegendBox from "../components/Edit/Legend";
+import ProjectMenu from "../components/Edit/ProjectMenu";
+import ProjectInfo from "../components/Edit/ProjectInfo";
 import ExportMapButton from "../components/Edit/export";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
@@ -77,16 +79,24 @@ const Edit = ({ isDarkMode, logger }) => {
     const setupFeaturesAndLayers = async () => {
       try {
         const token = localStorage.getItem('authToken');
+        const projectId = localStorage.getItem('projectId');
         const savedFeatures = await fetchFeatures(token);
-        setSavedFeatures(savedFeatures);
 
-        const initialLayers = savedFeatures.map(f => ({
+        // ⚠️ Extra safety check: filter features by projectId from localStorage
+        const filteredFeatures = savedFeatures.filter(
+          f => f?.properties?.project === projectId
+        );
+
+        setSavedFeatures(filteredFeatures);
+
+        const initialLayers = filteredFeatures.map(f => ({
           id: f.sourceId,
           name: f.name || "Untitled Feature",
           visible: true,
           locked: false,
         }));
 
+        console.log(initialLayers)
         setLayers(initialLayers);
 
         cleanupRef.current = setupMap({
@@ -99,11 +109,14 @@ const Edit = ({ isDarkMode, logger }) => {
           setLineCount,
           initialFeatures: {
             type: "FeatureCollection",
-            features: savedFeatures,
+            features: filteredFeatures,
           },
           logger,
         });
       } catch (error) {
+        console.error('[MAP LOAD ERROR]', error);
+
+        // fallback setup if fetching features fails
         cleanupRef.current = setupMap({
           map,
           mapRef,
@@ -127,7 +140,7 @@ const Edit = ({ isDarkMode, logger }) => {
   useEffect(() => {
     return () => {
       if (cleanupRef.current) {
-        cleanupRef.current(); // 🧹 Cancel animation + listeners
+        // cleanupRef.current(); // 🧹 Cancel animation + listeners
       }
     };
   }, []);
@@ -141,8 +154,8 @@ const Edit = ({ isDarkMode, logger }) => {
 
       if (showTitleModal && isInModalInput) return;
 
-      if (e.key.toLowerCase() === "c") toggleCanvas();
-      if (e.key.toLowerCase() === "q") toggleFlagCanvas();
+      // if (e.key.toLowerCase() === "c") toggleCanvas();
+      // if (e.key.toLowerCase() === "q") toggleFlagCanvas();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -220,7 +233,10 @@ const Edit = ({ isDarkMode, logger }) => {
       />
 
       <LegendBox isDarkMode={isDarkMode} />
-      
+
+      <ProjectMenu />
+      <ProjectInfo />
+
       {/* <ExportMapButton
         mapRef={mapRef}
         features={{

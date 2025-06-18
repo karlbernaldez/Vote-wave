@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { TbTools } from 'react-icons/tb';
 import storm from "../../assets/draw_icons/hurricane.png";
 import lpa from "../../assets/draw_icons/LPA.png";
 import PointInputChoiceModal from '../modals/MarkerChoice';
@@ -111,13 +112,14 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
       const baseName = title || 'Untitled Layer'; // base name for unique naming
       const sourceId = `${selectedType}_${baseName}`; // create sourceId similarly
       const layerId = `${selectedType}_${baseName}`; // generate an ID if needed
-      const labelCoordsToSave = [coords]; // use your coords array here
       const closedMode = false; // your default or passed value
 
       setLayersRef.current((prevLayers) => {
         let counter = 1;
         let uniqueName = baseName;
         const existingNames = prevLayers.map((l) => l.name);
+        const owner = JSON.parse(localStorage.getItem("user"));
+        const projectId = localStorage.getItem("projectId");
 
         // Generate unique name if conflict exists
         while (existingNames.includes(uniqueName)) {
@@ -133,10 +135,11 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
               labelValue: uniqueName,
               closedMode: closedMode,
               isFront: false,
+              owner: owner?.id,
+              project: projectId,
             },
             name: uniqueName,
             sourceId: sourceId,
-            labels: labelCoordsToSave,
           }, token).catch((err) => {
             console.error('Error saving feature:', err);
           });
@@ -201,7 +204,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
           isdarkmode={isdarkmode}
           onClick={toggleCollapseToolbar}
         >
-          {isCollapsed ? '☰' : '✖'}
+          {isCollapsed ? <TbTools size={20} /> : '✖'}
         </CollapseToggle>
 
         {!isCollapsed && (

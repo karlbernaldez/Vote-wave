@@ -177,6 +177,9 @@ export const handlePointerUp = async (
       let counter = 1;
       let uniqueName = baseName;
       const existingNames = prevLayers.map((l) => l.name);
+      const owner = JSON.parse(localStorage.getItem("user"));
+      const projectId = localStorage.getItem("projectId");
+      
       while (existingNames.includes(uniqueName)) {
         uniqueName = `${baseName} ${counter++}`;
       }
@@ -188,6 +191,8 @@ export const handlePointerUp = async (
           geometry: feature.geometry,
           properties: {
             isFront: true,
+            owner: owner?.id,
+            project: projectId,
           },
           name: uniqueName,
           sourceId,
