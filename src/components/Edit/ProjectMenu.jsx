@@ -85,7 +85,20 @@ const SubMenuItem = styled(MenuItem)`
   padding: 0.6rem 1rem;
 `;
 
-const ProjectMenu = ({ onNew, onSave, onView, onExport }) => {
+const LoadingModal = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+  font-size: 1.5rem;
+  user-select: none;
+`;
+
+const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [mainOpen, setMainOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -94,6 +107,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport }) => {
   const [showProjectList, setShowProjectList] = useState(false);
   const [description, setDescription] = useState('');
   const [chartType, setChartType] = useState('12');
+  const [isExporting, setIsExporting] = useState(false);
+
   const menuRef = useRef(null);
 
   const logout = () => {
@@ -156,6 +171,69 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport }) => {
     }
   };
 
+  const exportMapImageAndGeoJSON = () => {
+    const map = mapRef?.current;
+    if (!map) {
+      console.error("❌ Map reference is not available.");
+      return;
+    }
+
+    if (!features?.features?.length) {
+      alert("⚠️ No features to export.");
+      return;
+    }
+
+    const bounds = [
+      [110, 0],
+      [141, 27],
+    ];
+
+    setIsExporting(true); // Show loading modal
+
+    map.fitBounds(bounds, {
+      padding: 10,
+      duration: 0,
+    });
+
+    const onIdle = () => {
+      map.off("idle", onIdle); // remove listener
+
+      try {
+        const canvas = map.getCanvas();
+        const dataURL = canvas.toDataURL("image/png");
+
+        const imgLink = document.createElement("a");
+        imgLink.href = dataURL;
+        imgLink.download = `map-screenshot-${Date.now()}.png`;
+        document.body.appendChild(imgLink);
+        imgLink.dispatchEvent(new MouseEvent("click"));
+        document.body.removeChild(imgLink);
+
+        const geojsonData = JSON.stringify(features, null, 2);
+        const blob = new Blob([geojsonData], { type: "application/geo+json" });
+        const url = URL.createObjectURL(blob);
+
+        const geojsonLink = document.createElement("a");
+        geojsonLink.href = url;
+        geojsonLink.download = `features-${Date.now()}.geojson`;
+        document.body.appendChild(geojsonLink);
+        geojsonLink.dispatchEvent(new MouseEvent("click"));
+        document.body.removeChild(geojsonLink);
+
+        URL.revokeObjectURL(url);
+
+        console.log("✅ Export complete.");
+      } catch (err) {
+        console.error("❌ Export failed:", err);
+      } finally {
+        setIsExporting(false); // Hide loading modal
+      }
+    };
+
+    map.on("idle", onIdle);
+  };
+
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -203,7 +281,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport }) => {
               }}>
                 Open Project
               </SubMenuItem>
-              <SubMenuItem onClick={onExport}>Export Project</SubMenuItem>
+              <SubMenuItem onClick={exportMapImageAndGeoJSON}>Export Project</SubMenuItem>
             </SubDropdown>
           )}
           <MenuItem onClick={onView}>View</MenuItem>
@@ -244,6 +322,12 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport }) => {
             setShowProjectList(false);
           }}
         />
+      )}
+
+      {isExporting && (
+        <LoadingModal>
+          Exporting map, please wait...
+        </LoadingModal>
       )}
     </Wrapper>
   );
