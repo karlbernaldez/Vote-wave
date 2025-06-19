@@ -1,4 +1,6 @@
 
+import { v4 as uuidv4 } from 'uuid';
+
 export const convertToGeoJSON = (lines, mapRef) => {
   if (!mapRef.current) {
     console.error('Map reference is not available!');
@@ -97,7 +99,7 @@ export const handlePointerUp = async (
 
   // --- CONVERT TO GEOJSON ---
   const geojson = convertToGeoJSON(lines, mapRef);
-  const uniqueId = crypto.randomUUID();
+  const uniqueId = uuidv4();
   const prefix = closedMode ? 'WHC' : 'WHO'; // WHC = Closed, WHO = Open
   const sourceId = `${prefix}_${uniqueId}`;
   const layerId = `${prefix}_${uniqueId}`;

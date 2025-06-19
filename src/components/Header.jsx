@@ -222,6 +222,7 @@ const UserControls = styled.div`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 400;
   margin-left: auto;
+  margin-right: 1rem;
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {

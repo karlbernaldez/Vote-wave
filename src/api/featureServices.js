@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://34.121.214.108:5000/api/features'; // Adjust if using a different port
+const API_BASE_URL = 'http://34.30.147.189:5000/api/features'; // Adjust if using a different port
 
 export const saveFeature = async (feature, token) => {
   const response = await fetch(API_BASE_URL, {

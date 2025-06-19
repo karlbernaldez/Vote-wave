@@ -1,4 +1,4 @@
-const AUTH_API_BASE_URL = 'http://34.121.214.108:5000/api/auth'; // Adjust if deployed
+const AUTH_API_BASE_URL = 'http://34.30.147.189:5000/api/auth'; // Adjust if deployed
 
 export const registerUser = async (userData) => {
   const response = await fetch(`${AUTH_API_BASE_URL}/register`, {

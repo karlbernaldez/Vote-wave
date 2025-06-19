@@ -234,7 +234,7 @@ const Edit = ({ isDarkMode, logger }) => {
 
       <LegendBox isDarkMode={isDarkMode} />
 
-      <ProjectMenu />
+      <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures}} />
       <ProjectInfo />
 
       {/* <ExportMapButton
