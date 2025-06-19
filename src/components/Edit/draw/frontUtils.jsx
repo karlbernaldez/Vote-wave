@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const convertToGeoJSON = (lines, mapRef) => {
   if (!mapRef.current) {
     console.error('Map reference is not available!');
@@ -84,7 +86,7 @@ export const handlePointerUp = async (
   const geojson = convertToGeoJSON(lines, mapRef);
   if (!geojson) return;
 
-  const uniqueId = crypto.randomUUID();
+  const uniqueId = uuidv4();
   const sourceId = `SF_${uniqueId}`;
   const bgLayerId = `SF_${uniqueId}_bg`;
   const dashedLayerId = `SF_${uniqueId}_dash`;

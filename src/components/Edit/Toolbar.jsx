@@ -8,6 +8,7 @@ import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
 import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
 import { ToolbarContainer, ToolButton, CollapseToggle } from './styles/ToolBarStyles';
 import { saveFeature } from '../../api/featureServices';
+import { v4 as uuidv4 } from 'uuid';
 import { handleDrawModeChange, toggleDrawing, toggleFlagDrawing, startDrawing, startFlagDrawing, stopDrawing, stopFlagDrawing, toggleCollapse } from './utils/ToolBarUtils';
 
 const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers, closedMode, setClosedMode, setType }) => {
@@ -109,9 +110,10 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     };
 
     if (typeof setLayersRef?.current === 'function') {
+      const uuid = uuidv4();
       const baseName = title || 'Untitled Layer'; // base name for unique naming
-      const sourceId = `${selectedType}_${baseName}`; // create sourceId similarly
-      const layerId = `${selectedType}_${baseName}`; // generate an ID if needed
+      const sourceId = `${selectedType}_${baseName}_${uuid}`; // create sourceId similarly
+      const layerId = `${selectedType}_${baseName}_${uuid}`; // generate an ID if needed
       const closedMode = false; // your default or passed value
 
       setLayersRef.current((prevLayers) => {
