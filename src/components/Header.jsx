@@ -254,7 +254,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const isLinkActive = (path) => location.pathname === path;
 
-  
+
 
   const isAuthenticated = localStorage.getItem("authToken");
 
@@ -288,17 +288,18 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
               Contact Us
             </StyledNavLink>
           </Navbar>
+          <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </NavAndToggleWrapper>
 
         {isAuthenticated && (
-            <UserControls>
-              <span>
-                Welcome back, {JSON.parse(localStorage.getItem("user"))?.last_name || "User"}
-              </span>
-            </UserControls>
-          )}
+          <UserControls>
+            <span>
+              Welcome back, {JSON.parse(localStorage.getItem("user"))?.last_name || "User"}
+            </span>
+          </UserControls>
+        )}
+
         
-        <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
         <MobileWrapper>
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
@@ -308,6 +309,7 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
             <span />
           </Hamburger>
         </MobileWrapper>
+
       </CenterWrapper>
 
       <MobileMenu open={menuOpen}>
