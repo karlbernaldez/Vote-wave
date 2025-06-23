@@ -21,6 +21,7 @@ import ProjectMenu from "../components/Edit/ProjectMenu";
 import ProjectInfo from "../components/Edit/ProjectInfo";
 import ExportMapButton from "../components/Edit/export";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
+import MapLoading from "../components/modals/MapLoading";
 import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
 import { setupMap } from "../utils/mapSetup";
 import { fetchFeatures } from "../api/featureServices";
@@ -44,7 +45,6 @@ const MapWrapper = styled.div`
 const Edit = ({ isDarkMode, logger }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
-  const setLayersRef = useRef();
   const [drawInstance, setDrawInstance] = useState(null);
   const [isCanvasActive, setIsCanvasActive] = useState(false);
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
@@ -57,9 +57,11 @@ const Edit = ({ isDarkMode, logger }) => {
   const [closedMode, setClosedMode] = useState(false);
   const [type, setType] = useState(null);
   const [savedFeatures, setSavedFeatures] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const mapRef = useRef(null);
   const cleanupRef = useRef(null);
+  const setLayersRef = useRef();
 
   // ─── Refs ─────────────────────────────────────────────
   useEffect(() => {
@@ -96,7 +98,6 @@ const Edit = ({ isDarkMode, logger }) => {
           locked: false,
         }));
 
-        console.log(initialLayers)
         setLayers(initialLayers);
 
         cleanupRef.current = setupMap({
@@ -112,6 +113,7 @@ const Edit = ({ isDarkMode, logger }) => {
             features: filteredFeatures,
           },
           logger,
+          setLoading: setIsLoading,
         });
       } catch (error) {
         console.error('[MAP LOAD ERROR]', error);
@@ -234,7 +236,7 @@ const Edit = ({ isDarkMode, logger }) => {
 
       <LegendBox isDarkMode={isDarkMode} />
 
-      <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures}} />
+      <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures }} />
       <ProjectInfo />
 
       {/* <ExportMapButton
@@ -244,6 +246,8 @@ const Edit = ({ isDarkMode, logger }) => {
           features: savedFeatures,
         }} 
         /> */}
+
+      {isLoading && <MapLoading />}
     </Container>
   );
 };
