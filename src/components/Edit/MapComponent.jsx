@@ -34,6 +34,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
         center: [120.0, 15.5],
         minZoom: 3.5,
         zoom: 4,
+        preserveDrawingBuffer: true,
         // maxBounds: [
         //   [103.0, 2.0],
         //   [150.0, 36.8]
