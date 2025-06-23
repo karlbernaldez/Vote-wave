@@ -36,6 +36,29 @@ export const fetchUserProjects = async (token) => {
   return response.json();
 };
 
+export const fetchLatestUserProject = async (token) => {
+  const response = await fetch(`${PROJECT_API_BASE_URL}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to fetch projects');
+  }
+
+  const projects = await response.json();
+  
+  // Assuming projects are returned in an array and sorted by most recent first
+  const latestProject = projects[0];
+
+  if (!latestProject) throw new Error('No projects found for this user');
+
+  return latestProject;
+};
+
 // 📌 Get a single project by ID
 export const fetchProjectById = async (id, token) => {
   const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {

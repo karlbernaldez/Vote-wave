@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import styled from 'styled-components';
 import { jwtDecode } from 'jwt-decode';
+import { fetchLatestUserProject } from '../api/projectAPI';
 
 const LoginWrapper = styled.div`
   height: 100vh;
@@ -123,16 +124,16 @@ const Login = () => {
       const res = await loginUser({ email: email, password });
       console.log(res)
       const token = res.token;
-      console.log("Login API response:", token);
+      const userProject = await fetchLatestUserProject(token);
+      const projectId = userProject._id;
 
       if (!token) throw new Error('Token not received');
 
       const decoded = jwtDecode(token);
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
-      console.log('Logged in user:', localStorage.getItem('user'));
-
-      console.log('Welcome', decoded.email);
+      localStorage.setItem('projectId', projectId )
+      
       navigate('/edit');
     } catch (err) {
       setError(err.message);
