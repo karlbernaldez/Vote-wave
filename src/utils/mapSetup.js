@@ -1,8 +1,11 @@
 import mapboxgl from 'mapbox-gl';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger }) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading }) {
   if (!map) return console.warn('No map instance provided');
+  if (typeof setLoading === 'function') {
+    setLoading(true)
+  };
 
   if (!map._navigationControlAdded) {
     map.addControl(new mapboxgl.NavigationControl());
@@ -13,6 +16,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
+
   map.on('load', () => {
     initTyphoonLayer(map);
   });
@@ -221,41 +225,56 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         [0, 3, 3, 1], [0, 3.5, 3, 0.5],
       ];
 
-      map.once('idle', () => {
-        let step = 0;
+      // map.once('idle', () => {
+      //   let step = 0;
 
-        function animateDashArray(timestamp) {
-          const layer = map.getLayer(dashLayerId);
-          if (!layer) return; // Exit safely if layer is not ready
+      //   function animateDashArray(timestamp) {
+      //     const layer = safeGetLayer(dashLayerId);
+      //     if (!layer) {
+      //       // Log a warning if the layer is not available
+      //       console.warn(`Layer '${dashLayerId}' is not available. Skipping animation.`);
+      //       return; // Return early if the layer is not found
+      //     }
 
-          const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
-          if (newStep !== step) {
-            try {
-              map.setPaintProperty(dashLayerId, 'line-dasharray', dashArraySequence[newStep]);
-              step = newStep;
-            } catch (err) {
-              console.warn(`Error updating dasharray for ${dashLayerId}:`, err);
-              return;
-            }
-          }
+      //     const newStep = Math.floor((timestamp / 150) % dashArraySequence.length);
+      //     if (newStep !== step) {
+      //       try {
+      //         map.setPaintProperty(dashLayerId, 'line-dasharray', dashArraySequence[newStep]);
+      //         step = newStep;
+      //       } catch (err) {
+      //         console.warn(`Error updating dasharray for ${dashLayerId}:`, err);
+      //         return;
+      //       }
+      //     }
 
-          animationFrameIds[index] = requestAnimationFrame(animateDashArray);
-        }
+      //     // Continue the animation
+      //     animationFrameIds[index] = requestAnimationFrame(animateDashArray);
+      //   }
 
-        function tryStartAnimation(retries = 10) {
-          if (map.getLayer(dashLayerId)) {
-            animationFrameIds[index] = requestAnimationFrame(animateDashArray);
-          } else if (retries > 0) {
-            setTimeout(() => tryStartAnimation(retries - 1), 300);
-          } else {
-            console.warn(`Skipping animation: '${dashLayerId}' not ready after retries.`);
-          }
-        }
+      //   function tryStartAnimation(retries = 10) {
+      //     const layer = safeGetLayer(dashLayerId);
+      //     if (layer) {
+      //       // If the layer exists, start the animation
+      //       animationFrameIds[index] = requestAnimationFrame(animateDashArray);
+      //     } else if (retries > 0) {
+      //       // Retry after a delay if the layer is not ready
+      //       setTimeout(() => tryStartAnimation(retries - 1), 300);
+      //     } else {
+      //       console.warn(`Skipping animation: '${dashLayerId}' not ready after retries.`);
+      //     }
+      //   }
 
-        setTimeout(() => tryStartAnimation(), 300);
-      });
+
+      //   setTimeout(() => tryStartAnimation(), 300);
+      // });
     });
   }
+
+  // ✅ When fully idle (all sources & layers processed)
+  map.once('idle', () => {
+    if (typeof setLoading === 'function') setLoading(false); // ✅ Hide modal
+    setMapLoaded(true);
+  });
 
   // === Map loaded and draw.create handler ===
   map.on('draw.create', (e) => {
