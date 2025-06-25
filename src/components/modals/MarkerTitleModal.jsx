@@ -83,16 +83,11 @@ const animationVariants = {
   exit: { opacity: 0, y: -20 }
 };
 
-const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
-  const [input, setInput] = useState('');
-
-  useEffect(() => {
-    if (isOpen) setInput('');
-  }, [isOpen]);
+const MarkerTitleModal = ({ isOpen, onClose, onSave, inputValue, onInputChange }) => {
 
   const handleSave = () => {
-    onSave(input || 'Untitled Marker');
-    setInput(''); // Reset input after saving
+    const title = inputValue || 'Untitled Marker';
+    onSave(title);
   };
 
   const handleKeyDown = (e) => {
@@ -120,10 +115,10 @@ const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
 
             <Input
               type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={inputValue}
+              onChange={(e) => onInputChange(e.target.value)}
               placeholder="e.g. Kristine"
-              onKeyDown={handleKeyDown} // Add the onKeyDown event handler
+              onKeyDown={handleKeyDown}
             />
 
             <ActionButton onClick={handleSave}>

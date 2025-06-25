@@ -1,7 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading }) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef}) {
   if (!map) return console.warn('No map instance provided');
   if (typeof setLoading === 'function') {
     setLoading(true)
@@ -17,6 +17,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
   loadImage(map, 'high_pressure', '/HPA.png');
+  loadImage(map, 'less_1', '/L1.png');
 
   map.on('load', () => {
     initTyphoonLayer(map);
@@ -78,7 +79,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       const [coordinates, s] = points;
       const [lng, lat] = coordinates;
       const title = point.name || '';
-      console.log(point.sourceId)
       const sourceId = point.sourceId || 'typhoon';
       const markerType = point.properties.type
 
@@ -283,10 +283,18 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   // === Map loaded and draw.create handler ===
   map.on('draw.create', (e) => {
     const feature = e.features[0];
+
     if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
       setSelectedPoint({ lng, lat });
-      setShowTitleModal(true);
+
+      const selectedType = selectedToolRef?.current || '';
+      console.log('Triggered by draw.create → selectedType:', selectedType);
+
+      if (selectedType.toLowerCase() !== 'less_1') {
+        setShowTitleModal(true);
+      }
+
       draw.delete(feature.id);
     }
   });

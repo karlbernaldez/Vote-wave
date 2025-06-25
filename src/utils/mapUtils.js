@@ -110,7 +110,8 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   const iconMap = {
     typhoon: 'typhoon',           // Icon for Typhoon
     low_pressure: 'low_pressure', // Icon for Low Pressure Area (LPA)
-    high_pressure: 'high_pressure'
+    high_pressure: 'high_pressure',
+    less_1: 'less_1'
   };
 
   const defaultTitles = {
@@ -118,10 +119,8 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     low_pressure: 'LPA',
   };
 
-  const markerType = type || 'typhoon';
-  console.log('Marker Type: ', markerType)
-  const iconName = iconMap[markerType] || 'typhoon';  // Default to typhoon if not specified
-  console.log('ICON NAME : ', iconName)
+  const markerType = type;
+  const iconName = iconMap[markerType];  // Default to typhoon if not specified
   const feature = {
     type: 'Feature',
     geometry: {
@@ -144,56 +143,78 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   const sourceId = `${title}`;
   const layerId = `${title}`;
 
-  // Remove the old source and layer if they exist, to avoid overlapping markers
-  if (map.getSource(sourceId)) {
+  // // Remove old source and layer if they exist
+  // if (map.getSource(sourceId)) {
+  //   map.removeSource(sourceId);
+  // }
+  // if (map.getLayer(layerId)) {
+  //   map.removeLayer(layerId);
+  // }
+
+  // Add source for marker
+  try {
+    map.addSource(sourceId, {
+      type: 'geojson',
+      data: feature,
+    });
+  } catch (error) {
     map.removeSource(sourceId);
-  }
-  if (map.getLayer(layerId)) {
     map.removeLayer(layerId);
+    console.error(`❌ Failed to add source "${sourceId}":`, error);
   }
 
-  // Add source and layer for the marker
-  map.addSource(sourceId, {
-    type: 'geojson',
-    data: feature,
-  });
 
+  // Build layout object conditionally: omit text-related props if type === 'less_1'
+  const layout = {
+    'icon-image': ['get', 'icon'],
+    'icon-size': [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'],
+      0.1,
+      ['==', ['get', 'markerType'], 'less_1'],
+      0.28,   // 0.07 * 4 = 0.28 for less_1 (4x bigger)
+      0.07,   // default size for others (e.g., typhoon)
+    ],
+    'icon-allow-overlap': true,
+  };
+
+  if (markerType !== 'less_1') {
+    layout['text-field'] = ['get', 'title'];
+    layout['text-font'] = ['Open Sans Semibold', 'Arial Unicode MS Bold'];
+    layout['text-offset'] = [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'],
+      [0, 1.0],
+      [0, 1.25],
+    ];
+    layout['text-anchor'] = 'top';
+    layout['text-allow-overlap'] = true;
+  }
+
+  // Build paint object conditionally: omit text color if type === 'less_1'
+  const paint = {};
+
+  if (markerType !== 'less_1') {
+    paint['text-color'] = [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'],
+      'red',
+      ['==', ['get', 'markerType'], 'high_pressure'],
+      'blue',
+      'purple',
+    ];
+  }
+
+  // Add layer for marker
   map.addLayer({
     id: layerId,
     type: 'symbol',
     source: sourceId,
     slot: 'top',
-    layout: {
-      'icon-image': ['get', 'icon'], // Get the icon dynamically
-      'icon-size': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        0.1, // Smaller icon size for LPA
-        0.07, // Default icon size for Typhoon
-      ],
-      'text-field': ['get', 'title'], // Title label
-      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-      'text-offset': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        [0, 1.0], // Adjust text offset for LPA
-        [0, 1.25], // Adjust text offset for Typhoon
-      ],
-      'text-anchor': 'top',
-      'icon-allow-overlap': true,
-      'text-allow-overlap': true,
-    },
-    paint: {
-      'text-color': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        'red',
-        ['==', ['get', 'markerType'], 'high_pressure'],
-        'blue',
-        'purple' // default text color for other types
-      ],
-    },
+    layout,
+    paint,
   });
 
   setShowTitleModal(false);
 };
+

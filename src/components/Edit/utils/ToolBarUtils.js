@@ -1,17 +1,101 @@
 import { m } from "framer-motion";
 import { removeFeature } from "./layerUtils";
+import { v4 as uuidv4 } from 'uuid';
+import { saveFeature } from '../../../api/featureServices';
 
 export const handleDrawModeChange = (mode, draw, setLayersRef) => {
   if (draw?.changeMode) {
-    // console.log(`Switching to mode: ${mode}`);
     if (mode === 'typhoon') { mode = 'draw_point'; } // Normalize to draw_point for typhoon
     draw.changeMode(mode, {
-      setLayersRef, // ✅ now it's correctly passed
+      setLayersRef,
     });
   } else {
     // console.warn('Draw instance is not available or changeMode is not a function');
   }
 };
+
+export function savePointFeature({ coords, title, selectedType, setLayersRef }) {
+  if (typeof setLayersRef?.current !== 'function') return;
+
+  const feature = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: coords,
+    },
+    properties: {
+      title,
+      type: selectedType,
+    },
+  };
+
+  const uuid = uuidv4();
+  const baseName = title || 'Untitled Layer'; // base name for unique naming
+  const sourceId = `${selectedType}_${baseName}_${uuid}`;
+  const layerId = `${selectedType}_${baseName}_${uuid}`;
+  const closedMode = false;
+
+  setLayersRef.current((prevLayers) => {
+    let counter = 1;
+    let uniqueName = baseName;
+    const existingNames = prevLayers.map((l) => l.name);
+    const owner = JSON.parse(localStorage.getItem("user"));
+    const projectId = localStorage.getItem("projectId");
+
+    while (existingNames.includes(uniqueName)) {
+      uniqueName = `${baseName} ${counter++}`;
+    }
+
+    if (feature && feature.geometry) {
+      const token = localStorage.getItem('authToken');
+
+      // 🔍 Log for debugging
+      console.log("🛰️ Saving feature with payload:", {
+        geometry: feature.geometry,
+        properties: {
+          labelValue: uniqueName,
+          closedMode: closedMode,
+          isFront: false,
+          owner: owner?.id,
+          project: projectId,
+          title: title,
+          type: selectedType,
+        },
+        name: uniqueName,
+        sourceId: sourceId,
+      });
+
+      saveFeature({
+        geometry: feature.geometry,
+        properties: {
+          labelValue: uniqueName,
+          closedMode: closedMode,
+          isFront: false,
+          owner: owner?.id,
+          project: projectId,
+          title: title,
+          type: selectedType,
+        },
+        name: uniqueName,
+        sourceId: sourceId,
+      }, token).catch((err) => {
+        console.error('❌ Error saving feature:', err);
+      });
+    }
+
+    return [
+      ...prevLayers,
+      {
+        id: layerId,
+        sourceID: sourceId,
+        name: uniqueName,
+        visible: true,
+        locked: false,
+      },
+    ];
+  });
+}
+
 
 // export const handleKeyPress = (
 //   event, tools, draw, isDrawing, toggleDrawing, 
@@ -55,7 +139,7 @@ export const handleDrawModeChange = (mode, draw, setLayersRef) => {
 //   // Handle stop drawing with 'x'
 //   if (key === 'x' && isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
 
-  
+
 // };
 
 export const toggleDrawing = (isDrawing, setIsDrawing, onToggleCanvas) => {

@@ -19,10 +19,10 @@ import FlagCanvas from "../components/Edit/draw/front";
 import LegendBox from "../components/Edit/Legend";
 import ProjectMenu from "../components/Edit/ProjectMenu";
 import ProjectInfo from "../components/Edit/ProjectInfo";
-import ExportMapButton from "../components/Edit/export";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import MapLoading from "../components/modals/MapLoading";
 import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
+import { savePointFeature } from "../components/Edit/utils/ToolBarUtils";
 import { setupMap } from "../utils/mapSetup";
 import { fetchFeatures } from "../api/featureServices";
 
@@ -53,15 +53,18 @@ const Edit = ({ isDarkMode, logger }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
+  const [MarkerTitle, setMarkerTitle] = useState('');
   const [showToolbar, setShowToolbar] = useState(false);
   const [closedMode, setClosedMode] = useState(false);
   const [type, setType] = useState(null);
   const [savedFeatures, setSavedFeatures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const selectedToolRef = useRef(null);
   const mapRef = useRef(null);
   const cleanupRef = useRef(null);
   const setLayersRef = useRef();
+  const markerTitleRef = useRef('');
 
   // ─── Refs ─────────────────────────────────────────────
   useEffect(() => {
@@ -72,7 +75,22 @@ const Edit = ({ isDarkMode, logger }) => {
   const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
   const toggleFlagCanvas = useCallback(() => setIsFlagCanvasActive(prev => !prev), []);
 
-  const typhoonMarker = saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type);
+  const handleSaveTitle = (title) => {
+    markerTitleRef.current = title; // instant update
+    setMarkerTitle(title);          // update state for UI re-renders
+
+    saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type)(title);
+
+    const coords = [selectedPoint.lng, selectedPoint.lat]; // ✅ Fix here
+    const selectedType = type;
+
+    savePointFeature({ coords, title, selectedType, setLayersRef });
+  };
+
+  const handleTitleChange = (value) => {
+    markerTitleRef.current = value;
+    setMarkerTitle(value);
+  };
 
   // ─── Map Load Setup ──────────────────────────────────
   const handleMapLoad = useCallback(async (map) => {
@@ -114,6 +132,7 @@ const Edit = ({ isDarkMode, logger }) => {
           },
           logger,
           setLoading: setIsLoading,
+          selectedToolRef
         });
       } catch (error) {
         console.error('[MAP LOAD ERROR]', error);
@@ -192,6 +211,8 @@ const Edit = ({ isDarkMode, logger }) => {
           closedMode={closedMode}
           setClosedMode={setClosedMode}
           setType={setType}
+          selectedToolRef={selectedToolRef}
+          title={MarkerTitle}
         />
       )}
 
@@ -231,21 +252,15 @@ const Edit = ({ isDarkMode, logger }) => {
       <MarkerTitleModal
         isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}
-        onSave={typhoonMarker}
+        onSave={handleSaveTitle}
+        inputValue={MarkerTitle} // 👈 controlled input value
+        onInputChange={handleTitleChange} // 👈 real-time update
       />
 
       <LegendBox isDarkMode={isDarkMode} />
 
       <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures }} />
       <ProjectInfo />
-
-      {/* <ExportMapButton
-        mapRef={mapRef}
-        features={{
-          type: "FeatureCollection",
-          features: savedFeatures,
-        }} 
-        /> */}
 
       {isLoading && <MapLoading />}
     </Container>
