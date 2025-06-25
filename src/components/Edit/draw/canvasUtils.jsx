@@ -108,6 +108,9 @@ export const handlePointerUp = async (
   if (map.getSource(sourceId)) map.removeSource(sourceId);
   if (map.getLayer(layerId)) map.removeLayer(layerId);
 
+  // Determine if the line should be dashed
+  const isDashed = !closedMode; // Dash if not closedMode
+
   map.addSource(sourceId, {
     type: 'geojson',
     data: geojson,
@@ -123,6 +126,7 @@ export const handlePointerUp = async (
         'line-color': '#0080ff',
         'line-opacity': 0.5,
         'line-width': 2,
+        'line-dasharray': isDashed ? [2, 2] : [], // Dashed if not closedMode
       },
     },
     beforeLayer
@@ -273,3 +277,4 @@ export const handlePointerUp = async (
 
   setLines([]);
 };
+

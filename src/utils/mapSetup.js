@@ -16,6 +16,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
+  loadImage(map, 'high_pressure', '/HPA.png');
 
   map.on('load', () => {
     initTyphoonLayer(map);
@@ -77,10 +78,9 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       const [coordinates, s] = points;
       const [lng, lat] = coordinates;
       const title = point.name || '';
+      console.log(point.sourceId)
       const sourceId = point.sourceId || 'typhoon';
-      const markerType = sourceId.includes('_')
-        ? sourceId.substring(0, sourceId.lastIndexOf('_'))
-        : sourceId;
+      const markerType = point.properties.type
 
       if (lng !== undefined && lat !== undefined) {
         saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
@@ -106,6 +106,9 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         data: geojsonFeature,
       });
 
+      // Determine if the line should be dashed
+      const isDashed = feature.properties?.closedMode === false;
+
       map.addLayer({
         id: name,
         type: 'line',
@@ -114,6 +117,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
           'line-color': '#0080ff',
           'line-opacity': 0.5,
           'line-width': 2,
+          'line-dasharray': isDashed ? [2, 2] : [], // Dashed line if not closedMode
         },
         filter: ['==', '$type', 'LineString'],
       });

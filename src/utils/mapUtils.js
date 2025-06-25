@@ -98,6 +98,7 @@ export function initDrawControl(map) {
  * @param {string} type - feature type, e.g. 'draw_point' or 'low_pressure'
  * @returns {function} - function accepting the title string
  */
+
 export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) => (title) => {
   if (!selectedPoint) {
     console.warn('⚠️ No selected point provided.');
@@ -107,8 +108,9 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   const { lng, lat } = selectedPoint;
 
   const iconMap = {
-    typhoon: 'typhoon',
-    low_pressure: 'low_pressure',
+    typhoon: 'typhoon',           // Icon for Typhoon
+    low_pressure: 'low_pressure', // Icon for Low Pressure Area (LPA)
+    high_pressure: 'high_pressure'
   };
 
   const defaultTitles = {
@@ -117,10 +119,9 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   };
 
   const markerType = type || 'typhoon';
-  const iconName = iconMap[markerType] || 'typhoon';
-  // console.log(title)
-  // const featureId = title; // Unique ID per marker
-
+  console.log('Marker Type: ', markerType)
+  const iconName = iconMap[markerType] || 'typhoon';  // Default to typhoon if not specified
+  console.log('ICON NAME : ', iconName)
   const feature = {
     type: 'Feature',
     geometry: {
@@ -128,9 +129,9 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
       coordinates: [lng, lat],
     },
     properties: {
-      title: title || defaultTitles[markerType],
+      title: title || defaultTitles[markerType],  // Use LPA title if no title provided
       markerType,
-      icon: iconName,
+      icon: iconName, // Ensure the correct icon is associated with the marker
     },
   };
 
@@ -143,43 +144,56 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   const sourceId = `${title}`;
   const layerId = `${title}`;
 
-  if (!map.getSource(sourceId)) {
-    map.addSource(sourceId, {
-      type: 'geojson',
-      data: feature,
-    });
+  // Remove the old source and layer if they exist, to avoid overlapping markers
+  if (map.getSource(sourceId)) {
+    map.removeSource(sourceId);
+  }
+  if (map.getLayer(layerId)) {
+    map.removeLayer(layerId);
   }
 
-  if (!map.getLayer(layerId)) {
-    map.addLayer({
-      id: layerId,
-      type: 'symbol',
-      source: sourceId,
-      layout: {
-        'icon-image': ['get', 'icon'],
-        'icon-size': [
-          'case',
-          ['==', ['get', 'markerType'], 'low_pressure'],
-          0.2,
-          0.09,
-        ],
-        'text-field': ['get', 'title'],
-        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-        'text-offset': [
-          'case',
-          ['==', ['get', 'markerType'], 'low_pressure'],
-          [0, 2.0],
-          [0, 1.25],
-        ],
-        'text-anchor': 'top',
-        'icon-allow-overlap': true,
-        'text-allow-overlap': true,
-      },
-      paint: {
-        'text-color': 'red',
-      },
-    });
-  }
+  // Add source and layer for the marker
+  map.addSource(sourceId, {
+    type: 'geojson',
+    data: feature,
+  });
+
+  map.addLayer({
+    id: layerId,
+    type: 'symbol',
+    source: sourceId,
+    slot: 'top',
+    layout: {
+      'icon-image': ['get', 'icon'], // Get the icon dynamically
+      'icon-size': [
+        'case',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        0.1, // Smaller icon size for LPA
+        0.07, // Default icon size for Typhoon
+      ],
+      'text-field': ['get', 'title'], // Title label
+      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+      'text-offset': [
+        'case',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        [0, 1.0], // Adjust text offset for LPA
+        [0, 1.25], // Adjust text offset for Typhoon
+      ],
+      'text-anchor': 'top',
+      'icon-allow-overlap': true,
+      'text-allow-overlap': true,
+    },
+    paint: {
+      'text-color': [
+        'case',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        'red',
+        ['==', ['get', 'markerType'], 'high_pressure'],
+        'blue',
+        'purple' // default text color for other types
+      ],
+    },
+  });
 
   setShowTitleModal(false);
 };

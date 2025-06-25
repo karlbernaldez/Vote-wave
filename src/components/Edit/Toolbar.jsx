@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { TbTools } from 'react-icons/tb';
 import storm from "../../assets/draw_icons/hurricane.png";
 import lpa from "../../assets/draw_icons/LPA.png";
+import hpa from "../../assets/draw_icons/HPA.png";
+import l1 from "../../assets/draw_icons/L1.png";
 import PointInputChoiceModal from '../modals/MarkerChoice';
 import ManualInputModal from '../modals/ManualInputModal';
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
@@ -34,10 +36,24 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
 
   const tools = useMemo(() => [
     {
+      id: 'less_1',
+      icon: <img src={l1} alt="Less than 1 Meter" style={{ width: 20, height: 20 }} />,
+      label: 'Less than 1 Meter (1)',
+      hotkey: '1',
+      modal: 'pointInputChoice',
+    },
+    {
       id: 'low_pressure',
       icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 20, height: 20 }} />,
       label: 'Low Pressure Area (A)',
       hotkey: 'a',
+      modal: 'pointInputChoice',
+    },
+    {
+      id: 'high_pressure',
+      icon: <img src={hpa} alt="High Pressure Area" style={{ width: 20, height: 20 }} />,
+      label: 'High Pressure Area (H)',
+      hotkey: 'h',
       modal: 'pointInputChoice',
     },
     {
@@ -78,7 +94,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      // console.log(`Map input selected for ${selectedType}`);
+      console.log(`Map input selected for ${selectedType}`);
       if (selectedType === 'typhoon') {
         handleDrawModeChange('draw_point', draw, setLayersRef);
       } else if (selectedType === 'low_pressure') {
@@ -91,6 +107,7 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     const selectedType = selectedToolRef.current || 'typhoon';
 
     if (setType) setType(selectedType);
+    console.log('SELECTED: ', selectedType)
 
     const coords = [parseFloat(data.lng), parseFloat(data.lat)];
     const title = data.title;
@@ -139,6 +156,8 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
               isFront: false,
               owner: owner?.id,
               project: projectId,
+              title: title,
+              type: selectedType,
             },
             name: uniqueName,
             sourceId: sourceId,

@@ -14,17 +14,18 @@ export function addWindLayer(map) {
         type: 'raster-particle',
         source: 'wind_data_source',
         'source-layer': '10m_wind',
+        slot: 'bottom',
         paint: {
             'raster-particle-speed-factor': 0.4,
             'raster-particle-fade-opacity-factor': 0.9,
             'raster-particle-reset-rate-factor': 0.4,
-            'raster-particle-count': 4000,
+            'raster-particle-count': 30000,
             'raster-particle-max-speed': 40,
             'raster-particle-color': [
                 'interpolate',
                 ['linear'],
                 ['raster-particle-speed'],
-                1.5,
+                .8,
                 'rgba(134,163,171,256)',
                 2.5,
                 'rgba(126,152,188,256)',
@@ -85,6 +86,7 @@ export function addWindLayer(map) {
             ]
         }
     });
+
 }
 
 export function addGeoJsonLayer(map, file, layers, setLayers) {
