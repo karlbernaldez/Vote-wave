@@ -10,12 +10,11 @@ export function loadImage(map, name, path) {
   if (!map.hasImage(name)) {
     map.loadImage(path, (error, image) => {
       if (error) {
-        console.error(`Error loading image ${name} from ${path}:`, error);
+        // console.error(`Error loading image ${name} from ${path}:`, error);
         return;
       }
       if (!map.hasImage(name)) {
         map.addImage(name, image);
-        // console.log(`Image ${name} loaded successfully from ${path}`);
       }
     });
   }
@@ -61,7 +60,6 @@ export function initTyphoonLayer(map) {
       minzoom: 0,
       maxzoom: 24,
     });
-    // console.log('✅ Typhoon layer initialized.');
   }
 }
 
@@ -100,17 +98,15 @@ export function initDrawControl(map) {
  */
 
 export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) => (title) => {
-  if (!selectedPoint) {
-    console.warn('⚠️ No selected point provided.');
-    return;
-  }
+  if (!selectedPoint) return;
 
   const { lng, lat } = selectedPoint;
 
   const iconMap = {
-    typhoon: 'typhoon',           // Icon for Typhoon
-    low_pressure: 'low_pressure', // Icon for Low Pressure Area (LPA)
-    high_pressure: 'high_pressure'
+    typhoon: 'typhoon',
+    low_pressure: 'low_pressure',
+    high_pressure: 'high_pressure',
+    less_1: 'less_1'
   };
 
   const defaultTitles = {
@@ -118,10 +114,8 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     low_pressure: 'LPA',
   };
 
-  const markerType = type || 'typhoon';
-  console.log('Marker Type: ', markerType)
-  const iconName = iconMap[markerType] || 'typhoon';  // Default to typhoon if not specified
-  console.log('ICON NAME : ', iconName)
+  const markerType = type;
+  const iconName = iconMap[markerType];
   const feature = {
     type: 'Feature',
     geometry: {
@@ -129,71 +123,85 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
       coordinates: [lng, lat],
     },
     properties: {
-      title: title || defaultTitles[markerType],  // Use LPA title if no title provided
+      title: title || defaultTitles[markerType],
       markerType,
-      icon: iconName, // Ensure the correct icon is associated with the marker
+      icon: iconName,
     },
   };
 
   const map = mapRef.current;
-  if (!map) {
-    console.error('❌ Map reference is null.');
-    return;
-  }
+  if (!map) return;
 
   const sourceId = `${title}`;
   const layerId = `${title}`;
 
-  // Remove the old source and layer if they exist, to avoid overlapping markers
-  if (map.getSource(sourceId)) {
-    map.removeSource(sourceId);
-  }
-  if (map.getLayer(layerId)) {
-    map.removeLayer(layerId);
+  // ✅ Add source only if not exists
+  if (!map.getSource(sourceId)) {
+    try {
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: feature,
+      });
+    } catch (error) {
+      console.error(`❌ Failed to add source "${sourceId}":`, error);
+    }
   }
 
-  // Add source and layer for the marker
-  map.addSource(sourceId, {
-    type: 'geojson',
-    data: feature,
-  });
+  // 🔧 Layout
+  const layout = {
+    'icon-image': ['get', 'icon'],
+    'icon-size': [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'], 0.1,
+      ['==', ['get', 'markerType'], 'less_1'], 0.28,
+      0.07
+    ],
+    'icon-allow-overlap': true,
+  };
 
-  map.addLayer({
-    id: layerId,
-    type: 'symbol',
-    source: sourceId,
-    slot: 'top',
-    layout: {
-      'icon-image': ['get', 'icon'], // Get the icon dynamically
-      'icon-size': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        0.1, // Smaller icon size for LPA
-        0.07, // Default icon size for Typhoon
-      ],
-      'text-field': ['get', 'title'], // Title label
-      'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-      'text-offset': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        [0, 1.0], // Adjust text offset for LPA
-        [0, 1.25], // Adjust text offset for Typhoon
-      ],
-      'text-anchor': 'top',
-      'icon-allow-overlap': true,
-      'text-allow-overlap': true,
-    },
-    paint: {
-      'text-color': [
-        'case',
-        ['==', ['get', 'markerType'], 'low_pressure'],
-        'red',
-        ['==', ['get', 'markerType'], 'high_pressure'],
-        'blue',
-        'purple' // default text color for other types
-      ],
-    },
-  });
+  if (markerType !== 'less_1') {
+    layout['text-field'] = ['get', 'title'];
+    layout['text-font'] = ['Open Sans Semibold', 'Arial Unicode MS Bold'];
+    layout['text-offset'] = [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'],
+      [0, 1.0],
+      [0, 1.25],
+    ];
+    layout['text-anchor'] = 'top';
+    layout['text-allow-overlap'] = true;
+  }
+
+  // 🎨 Paint
+  const paint = {};
+  if (markerType !== 'less_1') {
+    paint['text-color'] = [
+      'case',
+      ['==', ['get', 'markerType'], 'low_pressure'], 'red',
+      ['==', ['get', 'markerType'], 'high_pressure'], 'blue',
+      'purple'
+    ];
+    paint['text-halo-color'] = '#FFFFFF';
+    paint['text-halo-width'] = 1;
+  }
+
+  // ✅ Add layer only if not exists
+  if (!map.getLayer(layerId)) {
+    try {
+      map.addLayer({
+        id: layerId,
+        type: 'symbol',
+        source: sourceId,
+        slot: 'top',
+        layout,
+        paint,
+      });
+    } catch (error) {
+      console.error(`❌ Failed to add layer "${layerId}":`, error);
+    }
+  }
 
   setShowTitleModal(false);
 };
+
+

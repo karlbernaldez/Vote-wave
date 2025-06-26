@@ -1,7 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading }) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef}) {
   if (!map) return console.warn('No map instance provided');
   if (typeof setLoading === 'function') {
     setLoading(true)
@@ -17,6 +17,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
   loadImage(map, 'high_pressure', '/HPA.png');
+  loadImage(map, 'less_1', '/L1.png');
 
   map.on('load', () => {
     initTyphoonLayer(map);
@@ -34,8 +35,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   const nonFrontLines = [];
 
   let totalLineCount = 0;
-
-  // console.log('Initial features:', featuresArray);
 
   // === Classify features ===
   featuresArray.forEach((feature) => {
@@ -78,7 +77,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       const [coordinates, s] = points;
       const [lng, lat] = coordinates;
       const title = point.name || '';
-      console.log(point.sourceId)
       const sourceId = point.sourceId || 'typhoon';
       const markerType = point.properties.type
 
@@ -113,6 +111,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: name,
         type: 'line',
         source: sourceId,
+        slot: 'middle',
         paint: {
           'line-color': '#0080ff',
           'line-opacity': 0.5,
@@ -164,6 +163,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
             id: labelLayerId,
             type: 'symbol',
             source: labelSourceId,
+            slot: 'top',
             layout: {
               'text-field': ['get', 'text'],
               'text-size': 18,
@@ -187,7 +187,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
 
   if (frontLines.length > 0) {
     frontLines.forEach((feature, index) => {
-      // console.log('Adding front line feature:', feature);
       const sourceId = feature.sourceId;
       const bgLayerId = `${sourceId}_bg`;
       const dashLayerId = `${sourceId}_dash`;
@@ -204,6 +203,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: bgLayerId,
         type: 'line',
         source: sourceId,
+        slot: 'top',
         paint: {
           'line-color': '#0000FF',
           'line-width': 6,
@@ -215,6 +215,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: dashLayerId,
         type: 'line',
         source: sourceId,
+        slot: 'top',
         paint: {
           'line-color': '#FF0000',
           'line-width': 6,
@@ -283,10 +284,17 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   // === Map loaded and draw.create handler ===
   map.on('draw.create', (e) => {
     const feature = e.features[0];
+
     if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
       setSelectedPoint({ lng, lat });
-      setShowTitleModal(true);
+
+      const selectedType = selectedToolRef?.current || '';
+
+      if (selectedType.toLowerCase() !== 'less_1') {
+        setShowTitleModal(true);
+      }
+
       draw.delete(feature.id);
     }
   });

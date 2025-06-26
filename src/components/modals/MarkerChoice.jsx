@@ -9,7 +9,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: ${({ theme }) => theme.colors.loadingBackground || "rgba(0, 0, 0, 0.3)"};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,18 +17,19 @@ const Overlay = styled.div`
 `;
 
 const ModalContainer = styled(motion.div)`
-  background: white;
+  background: ${({ theme }) => theme.colors.lightBackground};
   padding: 30px 20px;
   border-radius: 16px;
   max-width: 320px;
   width: 100%;
   text-align: center;
   position: relative;
-  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
 const IconWrapper = styled.div`
-  background: #f1f5f9;
+  background: ${({ theme }) => theme.colors.itemBackground || "#f1f5f9"};
   border-radius: 50%;
   width: 48px;
   height: 48px;
@@ -39,18 +40,20 @@ const IconWrapper = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  margin-bottom: ${({ theme }) => theme.spacing.small};
+  color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const ActionButton = styled.button`
-  background-color: #2563eb;
-  color: white;
+  background-color: ${({ theme }) => theme.mainColors.blue};
+  color: ${({ theme }) => theme.mainColors.white};
   border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-weight: 500;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: ${({ theme }) => `${theme.spacing.small} ${theme.spacing.medium}`};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  font-family: ${({ theme }) => theme.fonts.medium};
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -60,7 +63,7 @@ const ActionButton = styled.button`
   margin-bottom: 10px;
 
   &:hover {
-    background-color: #1d4ed8;
+    background-color: ${({ theme }) => theme.mainColors.lightBlue};
   }
 
   &:last-child {
@@ -90,7 +93,7 @@ const PointInputChoiceModal = ({ isOpen, onClose, onSelect }) => {
               <MdPlace size={22} color="#2563eb" />
             </IconWrapper>
 
-            <Title>Select Point Input Method</Title>
+            <Title>Select Marker Input Method</Title>
 
             <ActionButton onClick={() => onSelect('manual')}>
               Enter Latitude & Longitude

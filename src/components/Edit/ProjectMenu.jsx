@@ -9,92 +9,89 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   position: fixed;
   top: 1.15rem;
   left: 1.5rem;
-  z-index: 1000;
-  font-family: 'Inter', sans-serif;
+  z-index: ${({ theme }) => theme.zIndex.stickyHeader};
+  font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
-const MenuButton = styled.button`
-  background: #ffffff;
-  border: 1px solid #ccc;
-  font-size: 1em;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+export const MenuButton = styled.button`
+  background: ${({ theme }) => theme.colors.lightBackground};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
+  padding: 0.45rem 0.9rem;
+  font-size: 0.95rem;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
   cursor: pointer;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: background-color 0.2s ease;
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #f7f7f7;
+    background: ${({ theme }) => theme.colors.background};
+    transform: scale(1.03);
   }
 `;
 
-const Dropdown = styled.div`
+export const Dropdown = styled.div`
   margin-top: 0.5rem;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ddd'};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  min-width: 180px;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
-const MenuItem = styled.button`
-  background: none;
+export const MenuItem = styled.button`
+  background: transparent;
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.95rem;
   text-align: left;
   cursor: pointer;
-  color: ${({ $danger }) => ($danger ? '#e53935' : '#333')};
-  border-radius: 6px;
+  color: ${({ $danger, theme }) =>
+    $danger ? theme.mainColors.blue : theme.colors.textPrimary};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${({ $danger }) => ($danger ? '#fdecea' : '#e6f7ff')};
+    background: ${({ theme }) => theme.colors.background};
   }
 `;
 
-const SubDropdown = styled.div`
+export const SubDropdown = styled.div`
   position: absolute;
   top: 3.5rem;
   left: 100%;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  margin-left: 0.5rem;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
   display: flex;
   flex-direction: column;
   min-width: 160px;
-  margin-left: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
-const SubMenuItem = styled(MenuItem)`
-  padding: 0.6rem 1rem;
+export const SubMenuItem = styled(MenuItem)`
+  padding: 0.65rem 1rem;
 `;
 
-const LoadingModal = styled.div`
+export const LoadingModal = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.95);
+  background: ${({ theme }) => theme.colors.loadingBackground};
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  color: white;
-  font-size: 1.5rem;
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen};
+  color: ${({ theme }) => theme.colors.loadingText};
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   user-select: none;
 `;
 
@@ -174,7 +171,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const exportMapImageAndGeoJSON = () => {
     const map = mapRef?.current;
     if (!map) {
-      console.error("❌ Map reference is not available.");
+      alert("⚠️ Map is not ready yet.");
       return;
     }
 
@@ -184,11 +181,11 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
     }
 
     const bounds = [
-      [ 122.35415305948624, 21.485977507010958],
-      [ 122.35415305948624, 5.068614222358221],
-      [ 142.99892460585733, 5.068614222358221],
-      [ 142.99892460585733, 21.485977507010958],
-      [ 122.35415305948624, 21.485977507010958]
+      [122.35415305948624, 21.485977507010958],
+      [122.35415305948624, 5.068614222358221],
+      [142.99892460585733, 5.068614222358221],
+      [142.99892460585733, 21.485977507010958],
+      [122.35415305948624, 21.485977507010958]
     ];
 
     setIsExporting(true); // Show loading modal
@@ -225,9 +222,23 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
 
         URL.revokeObjectURL(url);
 
-        console.log("✅ Export complete.");
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `Export successful!`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
       } catch (err) {
-        console.error("❌ Export failed:", err);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: `Export failed: ${err.message}`,
+          showConfirmButton: false,
+          timer: 3000,
+        });
       } finally {
         setIsExporting(false); // Hide loading modal
       }

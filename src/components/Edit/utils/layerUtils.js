@@ -112,9 +112,8 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
 
         map.addLayer({
             id: fillLayerId,
-            type: "fill",
+            type: "line",
             source: sourceId,
-            slot: 'top',
             paint: {
                 "fill-color": "#0080ff",
                 "fill-opacity": 0.5,
@@ -125,6 +124,7 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
             id: lineLayerId,
             type: "line",
             source: sourceId,
+            slot: 'middle',
             paint: {
                 "line-color": "#000",
                 "line-width": 2,

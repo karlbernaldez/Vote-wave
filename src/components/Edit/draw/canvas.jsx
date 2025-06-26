@@ -1,16 +1,9 @@
+import Slider from '@mui/material/Slider';
+import { styled } from '@mui/material/styles';
 import { Stage, Layer, Line } from 'react-konva';
 import { useRef, useState, useEffect } from 'react';
 import { saveFeature } from '../../../api/featureServices';
-import Slider from '@mui/material/Slider';
-import { styled } from '@mui/material/styles';
-
-import {
-  convertToGeoJSON,
-  downloadGeoJSON,
-  handlePointerDown,
-  handlePointerMove,
-  handlePointerUp,
-} from './canvasUtils';
+import { convertToGeoJSON, downloadGeoJSON, handlePointerDown, handlePointerMove, handlePointerUp } from './canvasUtils';
 
 // Custom ValueLabel that appears below the thumb, centered, without background color
 const ValueLabelComponent = styled(({ children, value, open }) => (

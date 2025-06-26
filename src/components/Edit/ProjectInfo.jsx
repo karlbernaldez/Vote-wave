@@ -5,20 +5,20 @@ const InfoContainer = styled.div`
   position: fixed;
   top: 5.5rem;
   left: 1.5rem;
-  background: #f7f7f7;
-  border: 1px solid #ccc;
-  padding: 0.8rem 1.2rem;
-  border-radius: 10px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: #333;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
+  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.medium}`};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${({ theme }) => theme.fontSizes.small};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
   z-index: 200;
 `;
 
 const Label = styled.span`
-  font-weight: 600;
-  margin-right: 0.4rem;
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  margin-right: ${({ theme }) => theme.spacing.xsmall};
 `;
 
 const ProjectInfo = () => {
