@@ -10,12 +10,11 @@ export function loadImage(map, name, path) {
   if (!map.hasImage(name)) {
     map.loadImage(path, (error, image) => {
       if (error) {
-        console.error(`Error loading image ${name} from ${path}:`, error);
+        // console.error(`Error loading image ${name} from ${path}:`, error);
         return;
       }
       if (!map.hasImage(name)) {
         map.addImage(name, image);
-        // console.log(`Image ${name} loaded successfully from ${path}`);
       }
     });
   }
@@ -61,7 +60,6 @@ export function initTyphoonLayer(map) {
       minzoom: 0,
       maxzoom: 24,
     });
-    // console.log('✅ Typhoon layer initialized.');
   }
 }
 
@@ -100,16 +98,13 @@ export function initDrawControl(map) {
  */
 
 export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) => (title) => {
-  if (!selectedPoint) {
-    console.warn('⚠️ No selected point provided.');
-    return;
-  }
+  if (!selectedPoint) return;
 
   const { lng, lat } = selectedPoint;
 
   const iconMap = {
-    typhoon: 'typhoon',           // Icon for Typhoon
-    low_pressure: 'low_pressure', // Icon for Low Pressure Area (LPA)
+    typhoon: 'typhoon',
+    low_pressure: 'low_pressure',
     high_pressure: 'high_pressure',
     less_1: 'less_1'
   };
@@ -120,7 +115,7 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
   };
 
   const markerType = type;
-  const iconName = iconMap[markerType];  // Default to typhoon if not specified
+  const iconName = iconMap[markerType];
   const feature = {
     type: 'Feature',
     geometry: {
@@ -128,52 +123,38 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
       coordinates: [lng, lat],
     },
     properties: {
-      title: title || defaultTitles[markerType],  // Use LPA title if no title provided
+      title: title || defaultTitles[markerType],
       markerType,
-      icon: iconName, // Ensure the correct icon is associated with the marker
+      icon: iconName,
     },
   };
 
   const map = mapRef.current;
-  if (!map) {
-    console.error('❌ Map reference is null.');
-    return;
-  }
+  if (!map) return;
 
   const sourceId = `${title}`;
   const layerId = `${title}`;
 
-  // // Remove old source and layer if they exist
-  // if (map.getSource(sourceId)) {
-  //   map.removeSource(sourceId);
-  // }
-  // if (map.getLayer(layerId)) {
-  //   map.removeLayer(layerId);
-  // }
-
-  // Add source for marker
-  try {
-    map.addSource(sourceId, {
-      type: 'geojson',
-      data: feature,
-    });
-  } catch (error) {
-    map.removeSource(sourceId);
-    map.removeLayer(layerId);
-    console.error(`❌ Failed to add source "${sourceId}":`, error);
+  // ✅ Add source only if not exists
+  if (!map.getSource(sourceId)) {
+    try {
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: feature,
+      });
+    } catch (error) {
+      console.error(`❌ Failed to add source "${sourceId}":`, error);
+    }
   }
 
-
-  // Build layout object conditionally: omit text-related props if type === 'less_1'
+  // 🔧 Layout
   const layout = {
     'icon-image': ['get', 'icon'],
     'icon-size': [
       'case',
-      ['==', ['get', 'markerType'], 'low_pressure'],
-      0.1,
-      ['==', ['get', 'markerType'], 'less_1'],
-      0.28,   // 0.07 * 4 = 0.28 for less_1 (4x bigger)
-      0.07,   // default size for others (e.g., typhoon)
+      ['==', ['get', 'markerType'], 'low_pressure'], 0.1,
+      ['==', ['get', 'markerType'], 'less_1'], 0.28,
+      0.07
     ],
     'icon-allow-overlap': true,
   };
@@ -191,30 +172,36 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     layout['text-allow-overlap'] = true;
   }
 
-  // Build paint object conditionally: omit text color if type === 'less_1'
+  // 🎨 Paint
   const paint = {};
-
   if (markerType !== 'less_1') {
     paint['text-color'] = [
       'case',
-      ['==', ['get', 'markerType'], 'low_pressure'],
-      'red',
-      ['==', ['get', 'markerType'], 'high_pressure'],
-      'blue',
-      'purple',
+      ['==', ['get', 'markerType'], 'low_pressure'], 'red',
+      ['==', ['get', 'markerType'], 'high_pressure'], 'blue',
+      'purple'
     ];
+    paint['text-halo-color'] = '#FFFFFF';
+    paint['text-halo-width'] = 1;
   }
 
-  // Add layer for marker
-  map.addLayer({
-    id: layerId,
-    type: 'symbol',
-    source: sourceId,
-    slot: 'top',
-    layout,
-    paint,
-  });
+  // ✅ Add layer only if not exists
+  if (!map.getLayer(layerId)) {
+    try {
+      map.addLayer({
+        id: layerId,
+        type: 'symbol',
+        source: sourceId,
+        slot: 'top',
+        layout,
+        paint,
+      });
+    } catch (error) {
+      console.error(`❌ Failed to add layer "${layerId}":`, error);
+    }
+  }
 
   setShowTitleModal(false);
 };
+
 

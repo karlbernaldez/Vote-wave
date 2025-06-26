@@ -2,6 +2,7 @@ import { m } from "framer-motion";
 import { removeFeature } from "./layerUtils";
 import { v4 as uuidv4 } from 'uuid';
 import { saveFeature } from '../../../api/featureServices';
+import Swal from 'sweetalert2';
 
 export const handleDrawModeChange = (mode, draw, setLayersRef) => {
   if (draw?.changeMode) {
@@ -9,8 +10,6 @@ export const handleDrawModeChange = (mode, draw, setLayersRef) => {
     draw.changeMode(mode, {
       setLayersRef,
     });
-  } else {
-    // console.warn('Draw instance is not available or changeMode is not a function');
   }
 };
 
@@ -29,66 +28,71 @@ export function savePointFeature({ coords, title, selectedType, setLayersRef }) 
     },
   };
 
-  const uuid = uuidv4();
-  const baseName = title || 'Untitled Layer'; // base name for unique naming
-  const sourceId = `${selectedType}_${baseName}_${uuid}`;
-  const layerId = `${selectedType}_${baseName}_${uuid}`;
+  const baseName = title || 'Untitled Layer';
+  const sourceId = `${selectedType}_${baseName}`;
+  const layerId = `${selectedType}_${baseName}`;
   const closedMode = false;
 
   setLayersRef.current((prevLayers) => {
-    let counter = 1;
-    let uniqueName = baseName;
     const existingNames = prevLayers.map((l) => l.name);
     const owner = JSON.parse(localStorage.getItem("user"));
     const projectId = localStorage.getItem("projectId");
 
-    while (existingNames.includes(uniqueName)) {
-      uniqueName = `${baseName} ${counter++}`;
+    // ❌ Block and alert if duplicate layer name exists
+    if (existingNames.includes(baseName)) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: `The marker named "${baseName}" already exists.`,
+        showConfirmButton: false,
+        timer: 3000,
+      });
+      return prevLayers;
     }
 
-    if (feature && feature.geometry) {
-      const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');
 
-      // 🔍 Log for debugging
-      console.log("🛰️ Saving feature with payload:", {
-        geometry: feature.geometry,
-        properties: {
-          labelValue: uniqueName,
-          closedMode: closedMode,
-          isFront: false,
-          owner: owner?.id,
-          project: projectId,
-          title: title,
-          type: selectedType,
-        },
-        name: uniqueName,
-        sourceId: sourceId,
+    saveFeature({
+      geometry: feature.geometry,
+      properties: {
+        labelValue: baseName,
+        closedMode,
+        isFront: false,
+        owner: owner?.id,
+        project: projectId,
+        title,
+        type: selectedType,
+      },
+      name: baseName,
+      sourceId,
+    }, token)
+      .then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Feature saved!',
+          text: `"${baseName}" has been added successfully.`,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500,
+        });
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to save feature',
+          text: err?.message || 'An unknown error occurred.',
+          confirmButtonColor: '#d33',
+        });
       });
-
-      saveFeature({
-        geometry: feature.geometry,
-        properties: {
-          labelValue: uniqueName,
-          closedMode: closedMode,
-          isFront: false,
-          owner: owner?.id,
-          project: projectId,
-          title: title,
-          type: selectedType,
-        },
-        name: uniqueName,
-        sourceId: sourceId,
-      }, token).catch((err) => {
-        console.error('❌ Error saving feature:', err);
-      });
-    }
 
     return [
       ...prevLayers,
       {
         id: layerId,
         sourceID: sourceId,
-        name: uniqueName,
+        name: baseName,
         visible: true,
         locked: false,
       },

@@ -5,91 +5,102 @@ const Overlay = styled.div`
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) => theme.colors.loadingBackground || "rgba(0, 0, 0, 0.4)"};
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen};
 `;
 
 const ModalContainer = styled.div`
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  background: ${({ theme }) => theme.colors.lightBackground};
+  padding: ${({ theme }) => theme.spacing.large};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
   width: 100%;
   max-width: 400px;
-  font-family: 'Inter', sans-serif;
+  font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
 const Title = styled.h2`
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.4rem;
-  color: #222;
+  margin-bottom: ${({ theme }) => theme.spacing.medium};
+  font-size: ${({ theme }) => theme.fontSizes.large};
+  color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
-  color: #555;
+  font-size: ${({ theme }) => theme.fontSizes.small};
+  margin-bottom: ${({ theme }) => theme.spacing.xsmall};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 const FormControl = styled.div`
   width: 100%;
-  margin-bottom: 1.2rem;
+  margin-bottom: ${({ theme }) => theme.spacing.medium};
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.small}`};
+  border: 1px solid ${({ theme }) => theme.colors.border || "#ccc"};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-family: ${({ theme }) => theme.fonts.regular};
   box-sizing: border-box;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.textPrimary};
 
   &:focus {
     outline: none;
-    border-color: #0077cc;
-    box-shadow: 0 0 0 2px rgba(0, 119, 204, 0.2);
+    border-color: ${({ theme }) => theme.colors.highlight};
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.highlight}33;
   }
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.small}`};
+  border: 1px solid ${({ theme }) => theme.colors.border || "#ccc"};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-family: ${({ theme }) => theme.fonts.regular};
   box-sizing: border-box;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.textPrimary};
 
   &:focus {
     outline: none;
-    border-color: #0077cc;
-    box-shadow: 0 0 0 2px rgba(0, 119, 204, 0.2);
+    border-color: ${({ theme }) => theme.colors.highlight};
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.highlight}33;
   }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 0.8rem;
+  gap: ${({ theme }) => theme.spacing.small};
 `;
 
 const Button = styled.button`
-  padding: 0.6rem 1rem;
-  font-size: 0.95rem;
+  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.medium}`};
+  font-size: ${({ theme }) => theme.fontSizes.small};
   border: none;
-  border-radius: 6px;
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   cursor: pointer;
-  background-color: ${({ $primary }) => ($primary ? '#0077cc' : '#eee')};
-  color: ${({ $primary }) => ($primary ? '#fff' : '#333')};
+  font-family: ${({ theme }) => theme.fonts.medium};
+  background-color: ${({ theme, $primary }) =>
+    $primary ? theme.mainColors.blue : theme.colors.lightBackground};
+  color: ${({ theme, $primary }) =>
+    $primary ? theme.mainColors.white : theme.colors.textPrimary};
 
   &:hover {
-    background-color: ${({ $primary }) => ($primary ? '#005fa3' : '#ddd')};
+    background-color: ${({ theme, $primary }) =>
+      $primary ? theme.mainColors.lightBlue : "#ddd"};
   }
 `;
+
 
 const ProjectModal = ({
   visible,

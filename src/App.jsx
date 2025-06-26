@@ -120,7 +120,14 @@ const Layout = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [accessDeniedVisible, setAccessDeniedVisible] = useState(false);
   const [isloading, setIsLoading] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const stored = localStorage.getItem('isDarkMode');
+    return stored ? JSON.parse(stored) : false; // default to light mode
+  });
+
+  useEffect(() => {
+    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   useEffect(() => {
     if (isMobile && isEditPage) {

@@ -28,7 +28,6 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
   }, [setLayersRef, setLayers]);
 
   useEffect(() => {
-    console.log("Live Title Update:", title);
   }, [title]);
 
   const toggleModal = (modalKey, isOpen) => {
@@ -64,10 +63,10 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
       hotkey: 'm',
       modal: 'pointInputChoice',
     },
-    { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
-    { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
-    { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
-    { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' },
+    // { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
+    // { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
+    // { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
+    // { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' },
   ], []);
 
   const handleToolClick = (tool) => {

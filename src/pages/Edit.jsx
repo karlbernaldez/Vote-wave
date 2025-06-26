@@ -28,7 +28,7 @@ import { fetchFeatures } from "../api/featureServices";
 
 const Container = styled.div`
   position: relative;
-  height: 92.8vh;
+  height: 92.6vh;
   width: 100%;
   display: flex;
   overflow: hidden;
@@ -76,12 +76,11 @@ const Edit = ({ isDarkMode, logger }) => {
   const toggleFlagCanvas = useCallback(() => setIsFlagCanvasActive(prev => !prev), []);
 
   const handleSaveTitle = (title) => {
-    markerTitleRef.current = title; // instant update
-    setMarkerTitle(title);          // update state for UI re-renders
-
+    markerTitleRef.current = title;
+    setMarkerTitle(title);         
     saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type)(title);
 
-    const coords = [selectedPoint.lng, selectedPoint.lat]; // ✅ Fix here
+    const coords = [selectedPoint.lng, selectedPoint.lat];
     const selectedType = type;
 
     savePointFeature({ coords, title, selectedType, setLayersRef });

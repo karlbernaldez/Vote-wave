@@ -122,7 +122,6 @@ const Login = () => {
     e.preventDefault(); // prevent form default reload
     try {
       const res = await loginUser({ email: email, password });
-      console.log(res)
       const token = res.token;
       const userProject = await fetchLatestUserProject(token);
       const projectId = userProject._id;
