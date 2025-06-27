@@ -122,6 +122,7 @@ export const handlePointerUp = async (
       type: 'line',
       source: sourceId,
       layout: {},
+      slot: "top",
       paint: {
         'line-color': '#0080ff',
         'line-opacity': 0.5,
@@ -203,6 +204,7 @@ export const handlePointerUp = async (
           id: labelLayerId,
           type: 'symbol',
           source: labelSourceId,
+          slot: "top",
           layout: {
             'text-field': ['get', 'text'],
             'text-size': 18,
