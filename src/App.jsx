@@ -111,7 +111,6 @@ const Layout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // ✅ Fix: define these early
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isLoginOrRegister = isLoginPage || isRegisterPage;

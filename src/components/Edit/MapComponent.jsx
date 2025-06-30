@@ -29,7 +29,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
         container: mapContainerRef.current,
         projection: 'mercator',
         style: isDarkMode
-          ? 'mapbox://styles/karlbernaldizzy/cmca3bgd401i801r72mjd0yk7' //--Dark
+          ? 'mapbox://styles/karlbernaldizzy/cmcirw8l200bc01s78p7f2m2q' //--Dark
           : 'mapbox://styles/karlbernaldizzy/cmbqag5o7008p01sp609t4vwv',
         center: [120.0, 15.5],
         minZoom: 3.5,
@@ -72,7 +72,7 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
     if (mapRef.current) {
       mapRef.current.setStyle(
         isDarkMode
-          ? 'mapbox://styles/karlbernaldizzy/cmca3bgd401i801r72mjd0yk7'
+          ? 'mapbox://styles/karlbernaldizzy/cmcirw8l200bc01s78p7f2m2q'
           : 'mapbox://styles/karlbernaldizzy/cmbqag5o7008p01sp609t4vwv'
       );
     }

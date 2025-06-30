@@ -25,6 +25,7 @@ import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
 import { savePointFeature } from "../components/Edit/utils/ToolBarUtils";
 import { setupMap } from "../utils/mapSetup";
 import { fetchFeatures } from "../api/featureServices";
+import Swal from 'sweetalert2';
 
 const Container = styled.div`
   position: relative;
@@ -66,6 +67,9 @@ const Edit = ({ isDarkMode, logger }) => {
   const setLayersRef = useRef();
   const markerTitleRef = useRef('');
 
+  const token = localStorage.getItem('authToken');
+  const projectId = localStorage.getItem('projectId');
+
   // ─── Refs ─────────────────────────────────────────────
   useEffect(() => {
     setLayersRef.current = setLayers;
@@ -77,7 +81,7 @@ const Edit = ({ isDarkMode, logger }) => {
 
   const handleSaveTitle = (title) => {
     markerTitleRef.current = title;
-    setMarkerTitle(title);         
+    setMarkerTitle(title);
     saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type)(title);
 
     const coords = [selectedPoint.lng, selectedPoint.lat];
@@ -97,8 +101,20 @@ const Edit = ({ isDarkMode, logger }) => {
 
     const setupFeaturesAndLayers = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const projectId = localStorage.getItem('projectId');
+        if (!projectId) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Project Selected',
+            text: 'Please select a project first.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,  // The toast will auto-close after 3 seconds
+          });
+          setIsLoading(false);
+          return;  // Stop the execution if no project is selected
+        }
+
         const savedFeatures = await fetchFeatures(token);
 
         // ⚠️ Extra safety check: filter features by projectId from localStorage
@@ -195,7 +211,7 @@ const Edit = ({ isDarkMode, logger }) => {
         <MapComponent onMapLoad={handleMapLoad} isDarkMode={isDarkMode} />
       </MapWrapper>
 
-      {showToolbar && (
+      {showToolbar && projectId && (
         <DrawToolBar
           draw={drawInstance}
           mapRef={mapRef}
@@ -214,6 +230,7 @@ const Edit = ({ isDarkMode, logger }) => {
           title={MarkerTitle}
         />
       )}
+
 
       {isCanvasActive && (
         <Canvas
@@ -240,13 +257,15 @@ const Edit = ({ isDarkMode, logger }) => {
         />
       )}
 
-      <LayerPanel
-        layers={layers}
-        setLayers={setLayers}
-        mapRef={mapRef}
-        isDarkMode={isDarkMode}
-        draw={drawInstance}
-      />
+       {projectId && (
+        <LayerPanel
+          layers={layers}
+          setLayers={setLayers}
+          mapRef={mapRef}
+          isDarkMode={isDarkMode}
+          draw={drawInstance}
+        />
+      )}
 
       <MarkerTitleModal
         isOpen={showTitleModal}

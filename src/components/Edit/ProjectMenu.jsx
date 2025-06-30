@@ -196,7 +196,9 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
     });
 
     const onIdle = () => {
-      map.off("idle", onIdle); // remove listener
+      map.off("idle", onIdle);
+
+      console.log(map.getStyle().layers)
 
       try {
         const canvas = map.getCanvas();
