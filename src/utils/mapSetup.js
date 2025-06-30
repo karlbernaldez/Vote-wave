@@ -111,7 +111,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: name,
         type: 'line',
         source: sourceId,
-        slot: 'middle',
+        slot: 'top',
         paint: {
           'line-color': '#0080ff',
           'line-opacity': 0.5,
