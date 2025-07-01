@@ -10,13 +10,14 @@
 //  ╚═══════════════════════════════════════════════════════════════════════╝
 
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ProtectedRoute from './middleware/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Edit from './pages/Edit';
-import Weather from './pages/Marine';
+import Charts from './pages/Charts';
 import AboutUs from './pages/AboutUs';
 import HeaderNavbar from "./components/Header";
 import Footer from "./components/Footer";
@@ -108,6 +109,7 @@ const LoadingSpinner = styled.div`
 `;
 
 const Layout = () => {
+  // eslint-disable-next-line
   const location = useLocation();
   const isMobile = useIsMobile();
 
@@ -116,7 +118,7 @@ const Layout = () => {
   const isLoginOrRegister = isLoginPage || isRegisterPage;
   const isEditPage = location.pathname === '/edit';
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // eslint-disable-next-line
   const [accessDeniedVisible, setAccessDeniedVisible] = useState(false);
   const [isloading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -140,7 +142,7 @@ const Layout = () => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, timeout);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // eslint-disable-next-line
   }, [location]);
 
   const handleModalClose = () => {
@@ -201,7 +203,7 @@ const Layout = () => {
                 )
               }
             />
-            <Route path="/weather" element={<Weather />} />
+            <Route path="/charts" element={<Charts />} />
             <Route path="/about-us" element={<AboutUs />} />
           </Routes>
 

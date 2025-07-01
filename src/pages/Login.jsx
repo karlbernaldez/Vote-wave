@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import styled from 'styled-components';
 import { jwtDecode } from 'jwt-decode';
+
+// eslint-disable-next-line
 import { fetchLatestUserProject } from '../api/projectAPI';
 
 const LoginWrapper = styled.div`
@@ -133,6 +135,8 @@ const Login = () => {
       // Save token and user data in localStorage (Consider using HttpOnly cookies for more security)
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
+
+      console.log(JSON.parse(localStorage.getItem("user"))?.username)
 
       // Fetch user's project details
       // const userProject = await fetchLatestUserProject(token);

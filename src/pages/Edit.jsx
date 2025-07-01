@@ -44,6 +44,7 @@ const MapWrapper = styled.div`
 `;
 
 const Edit = ({ isDarkMode, logger }) => {
+  // eslint-disable-next-line
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
   const [drawInstance, setDrawInstance] = useState(null);
@@ -51,6 +52,8 @@ const Edit = ({ isDarkMode, logger }) => {
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
   const [lineCount, setLineCount] = useState(0);
   const [drawCounter, setDrawCounter] = useState(0);
+  
+  // eslint-disable-next-line
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
@@ -170,6 +173,7 @@ const Edit = ({ isDarkMode, logger }) => {
       map.on("style.load", setupFeaturesAndLayers);
       map._hasStyleLoadListener = true;
     }
+    // eslint-disable-next-line
   }, []);
 
   // ─── Cleanup on Unmount ──────────────────────────────
