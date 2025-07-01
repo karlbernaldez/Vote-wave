@@ -11,6 +11,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import styled from "@emotion/styled";
+import MiscLayer from "../components/Edit/MiscLayer";
 import MapComponent from "../components/Edit/MapComponent";
 import LayerPanel from "../components/Edit/LayerPanel";
 import DrawToolBar from "../components/Edit/Toolbar";
@@ -52,7 +53,7 @@ const Edit = ({ isDarkMode, logger }) => {
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
   const [lineCount, setLineCount] = useState(0);
   const [drawCounter, setDrawCounter] = useState(0);
-  
+
   // eslint-disable-next-line
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -101,7 +102,7 @@ const Edit = ({ isDarkMode, logger }) => {
   // ─── Map Load Setup ──────────────────────────────────
   const handleMapLoad = useCallback(async (map) => {
     mapRef.current = map;
-
+  
     const setupFeaturesAndLayers = async () => {
       try {
         if (!projectId) {
@@ -261,7 +262,7 @@ const Edit = ({ isDarkMode, logger }) => {
         />
       )}
 
-       {projectId && (
+      {projectId && (
         <LayerPanel
           layers={layers}
           setLayers={setLayers}
@@ -282,7 +283,11 @@ const Edit = ({ isDarkMode, logger }) => {
       <LegendBox isDarkMode={isDarkMode} />
 
       <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures }} />
+
       <ProjectInfo />
+      <MiscLayer
+        mapRef={mapRef}
+      />
 
       {isLoading && <MapLoading />}
     </Container>

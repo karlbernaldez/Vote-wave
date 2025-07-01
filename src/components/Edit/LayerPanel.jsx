@@ -150,9 +150,9 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                 <FaPlus style={{ marginRight: 4 }} /> Add GeoJSON Layer
               </button>
 
-              <button onClick={windLayer} style={buttonStyle(currentTheme)}>
+              {/* <button onClick={windLayer} style={buttonStyle(currentTheme)}>
                 <FaPlus style={{ marginRight: 4 }} /> Add Wind Layer
-              </button>
+              </button> */}
             </div>
           </>
         )}
