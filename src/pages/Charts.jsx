@@ -10,12 +10,12 @@
 //  ╚═══════════════════════════════════════════════════════════════════════╝
 
 import React, { useState } from "react";
-import { Charts } from "../components/Marine/Charts";
-import { toggleSelection } from "../components/Marine/toggleSelection"; // Import the function
-import OptionBox from "../components/Marine/OptionBox"; // Import OptionBox
+import { Charts } from "../components/Charts/Charts";
+import { toggleSelection } from "../components/Charts/toggleSelection"; // Import the function
+import OptionBox from "../components/Charts/OptionBox"; // Import OptionBox
 import line1 from "../assets/Line.png";
 import wave from "../assets/wave.png";
-import { MarineContainer, TitleWrapper, Title, Img, TextWrapper, ChartStyles, Line, ChartWrapper, Legend } from "../components/Marine/MarineStyle"; // Import styles
+import { MarineContainer, TitleWrapper, Title, Img, TextWrapper, ChartStyles, Line, ChartWrapper, Legend } from "../components/Charts/MarineStyle"; // Import styles
 
 const Marine = () => {
   const [selected, setSelected] = useState({

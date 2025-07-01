@@ -6,6 +6,7 @@ import { createProject, fetchUserProjects } from '../../api/projectAPI'; // â¬…ï
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+// eslint-disable-next-line
 const MySwal = withReactContent(Swal);
 
 
@@ -180,13 +181,27 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       return;
     }
 
-    const bounds = [
-      [122.35415305948624, 21.485977507010958],
-      [122.35415305948624, 5.068614222358221],
-      [142.99892460585733, 5.068614222358221],
-      [142.99892460585733, 21.485977507010958],
-      [122.35415305948624, 21.485977507010958]
+    const bound = map.getBounds();
+    console.log("Current Map Bounds:", bound);
+
+    // eslint-disable-next-line
+    const TCID = [
+      [97.10652951545882, -0.29008965128676323],   // Southwest (sw)
+      [160.14948511399922, 27.23891969842279],      // Northeast (ne)
     ];
+
+    // eslint-disable-next-line
+    const TCAD = [
+      [99.79339501828959, 3.757304989541903],    // Southwest (sw)
+      [153.8595159535438, 27.162621752400347],    // Northeast (ne)
+    ];
+
+    const PAR = [
+      [99.66367446788888, 4.933531648734785],   // Southwest (sw)
+      [145.49962576487303, 24.92089153280473],  // Northeast (ne)
+    ];
+
+    const bounds = PAR
 
     setIsExporting(true); // Show loading modal
 
@@ -196,7 +211,9 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
     });
 
     const onIdle = () => {
-      map.off("idle", onIdle); // remove listener
+      map.off("idle", onIdle);
+
+      console.log(map.getStyle().layers)
 
       try {
         const canvas = map.getCanvas();

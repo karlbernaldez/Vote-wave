@@ -11,7 +11,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     map.addControl(new mapboxgl.NavigationControl());
     map._navigationControlAdded = true;
   }
-
   mapRef.current = map;
 
   loadImage(map, 'typhoon', '/hurricane.png');

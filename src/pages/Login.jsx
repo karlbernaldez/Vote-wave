@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import styled from 'styled-components';
 import { jwtDecode } from 'jwt-decode';
+
+// eslint-disable-next-line
 import { fetchLatestUserProject } from '../api/projectAPI';
 
 const LoginWrapper = styled.div`
@@ -122,20 +124,33 @@ const Login = () => {
     e.preventDefault(); // prevent form default reload
     try {
       const res = await loginUser({ email: email, password });
-      const token = res.token;
-      const userProject = await fetchLatestUserProject(token);
-      const projectId = userProject._id;
 
-      if (!token) throw new Error('Token not received');
+      const token = res.accessToken; // Get token from the response
 
+      if (!token) throw new Error('No token received from the server.');
+
+      // Decode the JWT to extract user data
       const decoded = jwtDecode(token);
+
+      // Save token and user data in localStorage (Consider using HttpOnly cookies for more security)
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
-      localStorage.setItem('projectId', projectId )
-      
+
+      console.log(JSON.parse(localStorage.getItem("user"))?.username)
+
+      // Fetch user's project details
+      // const userProject = await fetchLatestUserProject(token);
+      // const projectId = userProject._id;
+
+      // if (!projectId) throw new Error('Project not found or missing.');
+
+      // // Save the projectId for future requests
+      // localStorage.setItem('projectId', projectId);
+
+      // Navigate to the edit page
       navigate('/edit');
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // Show error message to the user
     }
   };
 

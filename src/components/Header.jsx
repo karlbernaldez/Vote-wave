@@ -223,6 +223,7 @@ const UserControls = styled.div`
   font-weight: 400;
   margin-left: auto;
   margin-right: 1rem;
+  word-spacing: 0.15rem; /* Add spacing between words */
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
@@ -254,10 +255,14 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const isLinkActive = (path) => location.pathname === path;
-
-
-
   const isAuthenticated = localStorage.getItem("authToken");
+  const showWelcomeMessage = location.pathname === "/edit";
+
+  let username = JSON.parse(localStorage.getItem("user"))?.username;
+
+  username = username
+    ? username.toLowerCase().replace(/^./, username[0].toUpperCase())
+    : '';
 
   return (
     <StyledHeaderNavbar isLoading={isLoading}>
@@ -276,8 +281,8 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
             <StyledNavLink to="/" exact="true" activeclassname="active">
               Home
             </StyledNavLink>
-            <StyledNavLink to="/weather" $isactive={isLinkActive("/weather")}>
-              Weather
+            <StyledNavLink to="/charts" $isactive={isLinkActive("/charts")}>
+              Charts
             </StyledNavLink>
             <StyledNavLink to="/edit" $isactive={isLinkActive("/edit")}>
               Editor
@@ -292,15 +297,15 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         </NavAndToggleWrapper>
 
-        {isAuthenticated && (
+        {isAuthenticated && showWelcomeMessage && (
           <UserControls>
             <span>
-              Welcome back, {JSON.parse(localStorage.getItem("user"))?.last_name || "User"}
+              Welcome back {username || "User"}
             </span>
           </UserControls>
         )}
 
-        
+
 
         <MobileWrapper>
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
@@ -317,8 +322,8 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
         <StyledNavLink to="/" onClick={toggleMenu} $isactive={isLinkActive("/")}>
           Home
         </StyledNavLink>
-        <StyledNavLink to="/weather" onClick={toggleMenu} $isactive={isLinkActive("/weather")}>
-          Weather
+        <StyledNavLink to="/charts" onClick={toggleMenu} $isactive={isLinkActive("/charts")}>
+          Charts
         </StyledNavLink>
         <StyledNavLink to="/edit" onClick={toggleMenu} $isactive={isLinkActive("/edit")}>
           Editor
