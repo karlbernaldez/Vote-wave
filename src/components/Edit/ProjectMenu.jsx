@@ -106,8 +106,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [description, setDescription] = useState('');
   const [chartType, setChartType] = useState('12');
   const [isExporting, setIsExporting] = useState(false);
-
   const menuRef = useRef(null);
+  const [forecastDate, setForecastDate] = useState('');
 
   const logout = () => {
     localStorage.removeItem("authToken");
@@ -116,12 +116,40 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   };
 
   const handleCreateProject = async () => {
+    // Validation
+    if (!projectName.trim()) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Project Name is required!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    if (!forecastDate) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Forecast Date is required!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
     try {
       const token = localStorage.getItem("authToken");
       const payload = {
         name: projectName,
         chartType,
         description,
+        forecastDate
       };
 
       const created = await createProject(payload, token); // 👈 This already throws an error with backend message
@@ -132,7 +160,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       localStorage.setItem("chartType", chartType);
 
       if (onNew) {
-        onNew({ name: projectName, chartType, description });
+        onNew({ name: projectName, chartType, description, forecastDate });
       }
 
       // ✅ Success Toast
@@ -150,7 +178,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       setMainOpen(false);
       setProjectOpen(false);
       setProjectName('');
-      setChartType('12');
+      setChartType('');
       setDescription('');
 
       // Refresh
@@ -218,10 +246,11 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       try {
         const canvas = map.getCanvas();
         const dataURL = canvas.toDataURL("image/png");
+        const projectName = localStorage.getItem("projectName");
 
         const imgLink = document.createElement("a");
         imgLink.href = dataURL;
-        imgLink.download = `map-screenshot-${Date.now()}.png`;
+        imgLink.download = projectName;
         document.body.appendChild(imgLink);
         imgLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(imgLink);
@@ -232,7 +261,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
 
         const geojsonLink = document.createElement("a");
         geojsonLink.href = url;
-        geojsonLink.download = `features-${Date.now()}.geojson`;
+        geojsonLink.download = `${projectName}.geojson`;
         document.body.appendChild(geojsonLink);
         geojsonLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(geojsonLink);
@@ -332,6 +361,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
           setChartType={setChartType}
           description={description}
           setDescription={setDescription}
+          forecastDate={forecastDate}
+          setForecastDate={setForecastDate}
         />
       )}
 
@@ -341,6 +372,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
           projects={projects}
           onClose={() => setShowProjectList(false)}
           onSelect={(proj) => {
+            console.log("Selected project:", proj);
             localStorage.setItem("projectId", proj._id);
             localStorage.setItem("projectName", proj.name);
             localStorage.setItem("chartType", proj.chartType || '12');
