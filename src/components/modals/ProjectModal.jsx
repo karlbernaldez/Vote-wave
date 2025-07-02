@@ -241,7 +241,7 @@ const ProjectModal = ({ visible, onClose, onSubmit, projectName, setProjectName,
               onClick={() => setIsDropdownOpen(prev => !prev)}
               onBlur={() => setIsDropdownOpen(false)}
             >
-              <option value="12">Wave Analysis</option>
+              <option value="Wave Analysis">Wave Analysis</option>
               <option value="12">12</option>
               <option value="24">24</option>
               <option value="36">36</option>
