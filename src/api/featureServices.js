@@ -63,9 +63,9 @@ export const fetchFeatures = async (token) => {
     } else {
       // If refreshing the token fails, redirect to login
       alert('Session expired. Please log in again.');
-      window.location.href = '/login';
       localStorage.removeItem('projectId');
       localStorage.removeItem('authToken');
+      window.location.href = '/login';
       return;
     }
   }

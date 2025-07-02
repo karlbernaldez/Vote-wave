@@ -106,7 +106,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     slot: 'bottom',
     paint: {
       "fill-color": "#2e3d4d",
-      "fill-opacity": 1,
+      "fill-opacity": 0.7,
     },
   });
 

@@ -246,10 +246,11 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       try {
         const canvas = map.getCanvas();
         const dataURL = canvas.toDataURL("image/png");
+        const projectName = localStorage.getItem("projectName");
 
         const imgLink = document.createElement("a");
         imgLink.href = dataURL;
-        imgLink.download = `map-screenshot-${Date.now()}.png`;
+        imgLink.download = projectName;
         document.body.appendChild(imgLink);
         imgLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(imgLink);
@@ -260,7 +261,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
 
         const geojsonLink = document.createElement("a");
         geojsonLink.href = url;
-        geojsonLink.download = `features-${Date.now()}.geojson`;
+        geojsonLink.download = `${projectName}.geojson`;
         document.body.appendChild(geojsonLink);
         geojsonLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(geojsonLink);
