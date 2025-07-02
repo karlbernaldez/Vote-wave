@@ -1,4 +1,4 @@
-import mapboxgl from 'mapbox-gl';
+import phGeoJson from '../data/ph.json';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
 export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef }) {
@@ -6,11 +6,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   if (typeof setLoading === 'function') {
     setLoading(true)
   };
-
-  // if (!map._navigationControlAdded) {
-  //   map.addControl(new mapboxgl.NavigationControl());
-  //   map._navigationControlAdded = true;
-  // }
 
   mapRef.current = map;
 
@@ -181,7 +176,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     });
   }
 
-
   // === Front lines with animated dashed effect ===
   let animationFrameIds = [];
 
@@ -275,6 +269,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     });
   }
 
+
   map.addSource('wind_data_source', {
     type: 'raster-array',
     url: 'mapbox://karlbernaldizzy.noaa_grib',
@@ -291,7 +286,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       'raster-particle-speed-factor': 0.4,
       'raster-particle-fade-opacity-factor': 0.9,
       'raster-particle-reset-rate-factor': 0.4,
-      'raster-particle-count': 30000,
+      'raster-particle-count': 16000,
       'raster-particle-max-speed': 40,
       'raster-particle-color': [
         'interpolate',
@@ -359,6 +354,25 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     }
   });
 
+  const geoJsonSourceId = 'my-geojson-source';
+  const geoJsonLayerId = 'my-geojson-layer';
+
+  map.addSource(geoJsonSourceId, {
+    type: 'geojson',
+    data: phGeoJson, // from your import
+  });
+
+  map.addLayer({
+    id: `${geoJsonLayerId}_line`,
+    type: "line",
+    source: geoJsonSourceId,
+    slot: 'middle',
+    paint: {
+      "line-color": "#000",
+      "line-width": .5,
+    },
+  });
+
   const PARstate = localStorage.getItem('PAR');
   const TCIDstate = localStorage.getItem('TCID');
   const TCADstate = localStorage.getItem('TCAD');
@@ -375,13 +389,13 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   } else {
     map.setLayoutProperty('TCID', 'visibility', 'none');
   }
-  
+
   if (TCADstate === 'true') {
     map.setLayoutProperty('TCAD', 'visibility', 'visible');
   } else {
     map.setLayoutProperty('TCAD', 'visibility', 'none');
   }
-  
+
   if (windLayerState === 'true') {
     map.setLayoutProperty('wind-layer', 'visibility', 'visible');
   } else {
