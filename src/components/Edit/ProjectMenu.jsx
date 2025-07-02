@@ -106,8 +106,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [description, setDescription] = useState('');
   const [chartType, setChartType] = useState('12');
   const [isExporting, setIsExporting] = useState(false);
-
   const menuRef = useRef(null);
+  const [forecastDate, setForecastDate] = useState('');
 
   const logout = () => {
     localStorage.removeItem("authToken");
@@ -332,6 +332,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
           setChartType={setChartType}
           description={description}
           setDescription={setDescription}
+          forecastDate={forecastDate}
+          setForecastDate={setForecastDate}
         />
       )}
 
