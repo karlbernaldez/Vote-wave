@@ -121,6 +121,7 @@ const ProjectListModal = ({ visible, onClose, projects, onSelect }) => {
     localStorage.setItem("projectId", project._id);
     localStorage.setItem("projectName", project.name);
     localStorage.setItem("chartType", project.chartType || '12');
+    localStorage.setItem("forecastDate", project.forecastDate);
 
     if (onSelect) onSelect(project);
     onClose();
