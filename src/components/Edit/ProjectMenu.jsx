@@ -205,8 +205,9 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       return;
     }
 
-    if (!features?.features?.length) {
-      alert("⚠️ No features to export.");
+    if (!features || !features.features || features.features.length === 0) {
+      alert("⚠️ Please reload page to export.");
+      window.location.reload();  // Refresh the page
       return;
     }
 
@@ -230,7 +231,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       [145.49962576487303, 24.92089153280473],  // Northeast (ne)
     ];
 
-    const bounds = TCID
+    const bounds = TCAD
 
     setIsExporting(true); // Show loading modal
 
