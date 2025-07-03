@@ -158,6 +158,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       localStorage.setItem("projectId", created._id);
       localStorage.setItem("projectName", projectName);
       localStorage.setItem("chartType", chartType);
+      localStorage.setItem("forecastDate", forecastDate);
 
       if (onNew) {
         onNew({ name: projectName, chartType, description, forecastDate });
@@ -229,7 +230,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       [145.49962576487303, 24.92089153280473],  // Northeast (ne)
     ];
 
-    const bounds = PAR
+    const bounds = TCID
 
     setIsExporting(true); // Show loading modal
 

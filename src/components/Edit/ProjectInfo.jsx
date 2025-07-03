@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { fetchProjectById } from '../../api/projectAPI';
 
 const InfoContainer = styled.div`
   position: fixed;
@@ -24,13 +25,28 @@ const Label = styled.span`
 const ProjectInfo = () => {
   const [projectName, setProjectName] = useState('');
   const [chartType, setChartType] = useState('');
+  const [forecastDate, setForecastDate] = useState('');
 
   useEffect(() => {
-    const name = localStorage.getItem('projectName');
-    const chart = localStorage.getItem('chartType');
-    if (name) setProjectName(name);
-    if (chart) setChartType(chart);
-  }, []);
+  const fetchData = async () => {
+    const projectId = localStorage.getItem('projectId');
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const project = await fetchProjectById(projectId, token);
+      console.log("Fetched project:", project);
+
+      if (project) {
+        if (project.name) setProjectName(project.name);
+        if (project.chart) setChartType(project.chartType);
+      }
+    } catch (error) {
+      console.error("Error fetching project:", error);
+    }
+  };
+
+  fetchData();
+}, []);
 
   if (!projectName) return null; // Hide if no project
 
@@ -41,6 +57,9 @@ const ProjectInfo = () => {
       </div>
       <div>
         <Label>Chart Type:</Label> {chartType}
+      </div>
+      <div>
+        <Label>Forecast Date:</Label> {forecastDate}
       </div>
     </InfoContainer>
   );
