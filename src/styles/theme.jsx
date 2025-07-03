@@ -80,6 +80,7 @@ export const theme = {
     background: '#ebebeb',
     lightBackground: '#f3f3f3',
     darkBackground: '#121212',
+    textBackground: 'rgba(255, 255, 255, 0.7)',
 
     textPrimary: '#000',
     mobileTextPrimary: '#000',
@@ -142,6 +143,7 @@ export const darkTheme = {
     background: '#121212',
     lightBackground: '#2c3e50',
     darkBackground: '#1c1c1c',
+    textBackground: 'rgba(0, 0, 0, 0.7)',
 
     textPrimary: '#ffffff',
     mobileTextPrimary: '#ffffff',

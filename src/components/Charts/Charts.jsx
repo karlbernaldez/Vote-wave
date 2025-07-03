@@ -142,7 +142,8 @@ const TextOverlay = styled.div`
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Adds a subtle shadow to the text for better readability */
   padding: 5px; /* Optional: adds some space around the text */
   text-align: justify; /* Justify text alignment */
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${({ theme }) => theme.colors.textBackground};
+  border-radius: 8px;
 `;
 
 const Image = styled.img`
