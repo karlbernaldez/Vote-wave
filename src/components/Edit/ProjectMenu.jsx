@@ -104,7 +104,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [projects, setProjects] = useState([]);
   const [showProjectList, setShowProjectList] = useState(false);
   const [description, setDescription] = useState('');
-  const [chartType, setChartType] = useState('12');
+  const [chartType, setChartType] = useState('Wave Analysis');
   const [isExporting, setIsExporting] = useState(false);
   const menuRef = useRef(null);
   const [forecastDate, setForecastDate] = useState('');
@@ -151,6 +151,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
         description,
         forecastDate
       };
+
+      console.log("Creating project with payload:", payload);
 
       const created = await createProject(payload, token); // 👈 This already throws an error with backend message
 

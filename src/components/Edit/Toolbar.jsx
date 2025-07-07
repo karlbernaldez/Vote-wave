@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { TbTools } from 'react-icons/tb';
+import wave from "../../assets/draw_icons/wave.png";
 import l1 from "../../assets/draw_icons/L1.png";
 import lpa from "../../assets/draw_icons/LPA.png";
 import hpa from "../../assets/draw_icons/HPA.png";
@@ -36,22 +37,15 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
 
   const tools = useMemo(() => [
     {
-      id: 'less_1',
-      icon: <img src={l1} alt="Less than 1 Meter" style={{ width: 40, height: 40 }} />,
-      label: 'Less than 1 Meter (1)',
-      hotkey: '1',
-      modal: 'pointInputChoice',
-    },
-    {
       id: 'low_pressure',
-      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 20, height: 20 }} />,
+      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 16, height: 20 }} />,
       label: 'Low Pressure Area (A)',
       hotkey: 'a',
       modal: 'pointInputChoice',
     },
     {
       id: 'high_pressure',
-      icon: <img src={hpa} alt="High Pressure Area" style={{ width: 20, height: 20 }} />,
+      icon: <img src={hpa} alt="High Pressure Area" style={{ width: 16, height: 20 }} />,
       label: 'High Pressure Area (H)',
       hotkey: 'h',
       modal: 'pointInputChoice',
@@ -63,6 +57,8 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
       hotkey: 'm',
       modal: 'pointInputChoice',
     },
+
+
     // { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
     // { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
     // { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
@@ -207,18 +203,41 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
             </ToolButton>
 
             <ToolButton
-              title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
+              title="Mark Less than 1 Meter (1)"
+              isdarkmode={isdarkmode}
+              onClick={() => {
+                selectedToolRef.current = 'less_1';
+                setSelectedToolType('less_1');
+
+                // Turn off any active drawing modes
+                if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+                if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+
+                // Open the input method choice modal
+                toggleModal('pointInputChoice', true);
+              }}
+            >
+              <img
+                src={l1}
+                alt="Less than 1 Meter"
+                style={{ width: 36, height: 36 }}
+              />
+            </ToolButton>
+
+            <ToolButton
+              title={isDrawing ? 'Stop Wave Height Drawing (X)' : 'Start Wave Height Drawing (🖊️)'}
               $active={isCanvasActive}
               $isdarkmode={isdarkmode}
               onClick={() => {
-                // Turn off flag if it's active
                 if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
-
-                // Toggle freehand drawing mode
                 toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas);
               }}
             >
-              {isDrawing ? '❌' : '🖊️'}
+              {isDrawing ? (
+                '❌'
+              ) : (
+                <img src={wave} alt="Wave Height Drawing" style={{ width: 20, height: 20 }} />
+              )}
             </ToolButton>
 
 
