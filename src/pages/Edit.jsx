@@ -1,15 +1,4 @@
-//  ╔═══════════════════════════════════════════════════════════════════════╗
-//  ║                        🌪 Component B Project 1                       ║
-//  ╠═══════════════════════════════════════════════════════════════════════╣
-//  ║  📁 Project       : DOST-MECO-TECO-VOTE III Component-B               ║
-//  ║  📝 Description   :  Weather forecasting platform                     ║
-//  ║  👨‍💻 Author        : Karl Santiago Bernaldez                           ║
-//  ║  📅 Created       : 2025-03-24                                        ║
-//  ║  🕓 Last Updated  : 2025-06-10                                        ║
-//  ║  🧭 Version       : v1.0.2                                            ║
-//  ╚═══════════════════════════════════════════════════════════════════════╝
-
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import styled from "@emotion/styled";
 import MiscLayer from "../components/Edit/MiscLayer";
 import MapComponent from "../components/Edit/MapComponent";
@@ -53,7 +42,6 @@ const Edit = ({ isDarkMode, logger }) => {
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
   const [lineCount, setLineCount] = useState(0);
   const [drawCounter, setDrawCounter] = useState(0);
-
   // eslint-disable-next-line
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -102,7 +90,7 @@ const Edit = ({ isDarkMode, logger }) => {
   // ─── Map Load Setup ──────────────────────────────────
   const handleMapLoad = useCallback(async (map) => {
     mapRef.current = map;
-  
+
     const setupFeaturesAndLayers = async () => {
       try {
         if (!projectId) {
@@ -174,7 +162,6 @@ const Edit = ({ isDarkMode, logger }) => {
       map.on("style.load", setupFeaturesAndLayers);
       map._hasStyleLoadListener = true;
     }
-    // eslint-disable-next-line
   }, []);
 
   // ─── Cleanup on Unmount ──────────────────────────────
@@ -186,22 +173,37 @@ const Edit = ({ isDarkMode, logger }) => {
     };
   }, []);
 
-  // ─── Keyboard Shortcuts ──────────────────────────────
+  // ─── Idle Timeout Detection ──────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      const tag = document.activeElement.tagName;
-      const modal = document.querySelector(".modal");
-      const isInModalInput = modal?.contains(document.activeElement) && (tag === "INPUT" || tag === "TEXTAREA");
+    let inactivityTimer;
 
-      if (showTitleModal && isInModalInput) return;
-
-      // if (e.key.toLowerCase() === "c") toggleCanvas();
-      // if (e.key.toLowerCase() === "q") toggleFlagCanvas();
+    // Reset inactivity timer on any user activity (mousemove, click, keydown, scroll)
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        // Trigger page reload after 1 minute of inactivity
+        window.location.reload();
+      }, 90000); // 1 minute = 60000 ms
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showTitleModal, toggleCanvas, toggleFlagCanvas]);
+    // Add event listeners for user activity
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+
+    // Set an initial timer on component mount
+    resetTimer();
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+    };
+  }, []);
 
   // ─── Delay Toolbar ───────────────────────────────────
   useEffect(() => {
@@ -235,7 +237,6 @@ const Edit = ({ isDarkMode, logger }) => {
           title={MarkerTitle}
         />
       )}
-
 
       {isCanvasActive && (
         <Canvas
@@ -276,8 +277,8 @@ const Edit = ({ isDarkMode, logger }) => {
         isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}
         onSave={handleSaveTitle}
-        inputValue={MarkerTitle} // 👈 controlled input value
-        onInputChange={handleTitleChange} // 👈 real-time update
+        inputValue={MarkerTitle}
+        onInputChange={handleTitleChange}
       />
 
       <LegendBox isDarkMode={isDarkMode} />
