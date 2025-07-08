@@ -40,6 +40,7 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
 
   const setActiveLayer = (id) => {
     const layer = layers.find((layer) => layer.id === id);
+    console.log(layer)
     const addedLayers = mapRef.current.getStyle().layers;
     if (!layer) {
       console.warn(`Layer with ID ${id} not found.`);
@@ -149,9 +150,9 @@ const LayerPanel = ({ mapRef, isDarkMode, layers, setLayers, draw }) => {
                 <FaPlus style={{ marginRight: 4 }} /> Add GeoJSON Layer
               </button>
 
-              <button onClick={windLayer} style={buttonStyle(currentTheme)}>
+              {/* <button onClick={windLayer} style={buttonStyle(currentTheme)}>
                 <FaPlus style={{ marginRight: 4 }} /> Add Wind Layer
-              </button>
+              </button> */}
             </div>
           </>
         )}

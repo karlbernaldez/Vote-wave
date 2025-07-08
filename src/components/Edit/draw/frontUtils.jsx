@@ -111,6 +111,7 @@ export const handlePointerUp = async (
       id: bgLayerId,
       type: 'line',
       source: sourceId,
+      slot: "top",
       paint: {
         'line-color': backgroundColor,
         'line-width': 6,
@@ -126,6 +127,7 @@ export const handlePointerUp = async (
       id: dashedLayerId,
       type: 'line',
       source: sourceId,
+      slot: "top",
       paint: {
         'line-color': animatedColor,
         'line-width': 6,

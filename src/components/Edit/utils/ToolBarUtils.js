@@ -1,17 +1,105 @@
 import { m } from "framer-motion";
 import { removeFeature } from "./layerUtils";
+import { v4 as uuidv4 } from 'uuid';
+import { saveFeature } from '../../../api/featureServices';
+import Swal from 'sweetalert2';
 
 export const handleDrawModeChange = (mode, draw, setLayersRef) => {
   if (draw?.changeMode) {
-    // console.log(`Switching to mode: ${mode}`);
     if (mode === 'typhoon') { mode = 'draw_point'; } // Normalize to draw_point for typhoon
     draw.changeMode(mode, {
-      setLayersRef, // ✅ now it's correctly passed
+      setLayersRef,
     });
-  } else {
-    // console.warn('Draw instance is not available or changeMode is not a function');
   }
 };
+
+export function savePointFeature({ coords, title, selectedType, setLayersRef }) {
+  if (typeof setLayersRef?.current !== 'function') return;
+
+  const feature = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: coords,
+    },
+    properties: {
+      title,
+      type: selectedType,
+    },
+  };
+
+  const baseName = title || 'Untitled Layer';
+  const sourceId = `${selectedType}_${baseName}`;
+  const layerId = `${selectedType}_${baseName}`;
+  const closedMode = false;
+
+  setLayersRef.current((prevLayers) => {
+    const existingNames = prevLayers.map((l) => l.name);
+    const owner = JSON.parse(localStorage.getItem("user"));
+    const projectId = localStorage.getItem("projectId");
+
+    // ❌ Block and alert if duplicate layer name exists
+    if (existingNames.includes(baseName)) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: `The marker named "${baseName}" already exists.`,
+        showConfirmButton: false,
+        timer: 3000,
+      });
+      return prevLayers;
+    }
+
+    const token = localStorage.getItem('authToken');
+
+    saveFeature({
+      geometry: feature.geometry,
+      properties: {
+        labelValue: baseName,
+        closedMode,
+        isFront: false,
+        owner: owner?.id,
+        project: projectId,
+        title,
+        type: selectedType,
+      },
+      name: baseName,
+      sourceId,
+    }, token)
+      .then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Feature saved!',
+          text: `"${baseName}" has been added successfully.`,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500,
+        });
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to save feature',
+          text: err?.message || 'An unknown error occurred.',
+          confirmButtonColor: '#d33',
+        });
+      });
+
+    return [
+      ...prevLayers,
+      {
+        id: layerId,
+        sourceID: sourceId,
+        name: baseName,
+        visible: true,
+        locked: false,
+      },
+    ];
+  });
+}
+
 
 // export const handleKeyPress = (
 //   event, tools, draw, isDrawing, toggleDrawing, 
@@ -55,7 +143,7 @@ export const handleDrawModeChange = (mode, draw, setLayersRef) => {
 //   // Handle stop drawing with 'x'
 //   if (key === 'x' && isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
 
-  
+
 // };
 
 export const toggleDrawing = (isDrawing, setIsDrawing, onToggleCanvas) => {

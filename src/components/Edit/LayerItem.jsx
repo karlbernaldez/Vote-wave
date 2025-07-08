@@ -1,182 +1,171 @@
 import React, { useState, useEffect } from "react";
 import { FaTrash, FaLock, FaLockOpen, FaEye, FaEyeSlash } from "react-icons/fa";
+import styled from "styled-components";
 import { removeFeature } from "./utils/layerUtils";
 
+const ListItem = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: ${({ isDarkMode }) => (isDarkMode ? "#fff" : "#222")};
+  font-size: 0.8rem;
+  cursor: move;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  user-select: none;
+
+  ${({ isActive }) =>
+    isActive &&
+    `
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+  `}
+`;
+
+const Name = styled.span`
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: ${({ isEditing }) => (isEditing ? 600 : 400)};
+  cursor: ${({ isEditing }) => (isEditing ? "text" : "pointer")};
+`;
+
+const NameInput = styled.input`
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  width: 100%;
+  font-size: 0.8rem;
+`;
+
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  padding: 2px;
+
+  &:hover {
+    opacity: 1;
+    color: ${({ danger }) => (danger ? "#e11d48" : "#3b82f6")};
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`;
+
 const LayerItem = ({
-    layer,
-    toggleLayerVisibility,
-    toggleLayerLock,
-    removeLayer,
-    updateLayerName,
-    isActiveLayer, // Check if this is the active layer
-    setActiveLayer, // Set this as the active layer
-    index, // Index for reordering
-    onDragStart, // Drag start handler
-    onDragOver, // Drag over handler
-    onDrop, // Drop handler
-    isDarkMode,
-    draw,
-    mapRef
+  layer,
+  toggleLayerVisibility,
+  toggleLayerLock,
+  removeLayer,
+  updateLayerName,
+  isActiveLayer,
+  setActiveLayer,
+  index,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  isDarkMode,
+  draw,
+  mapRef
 }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedName, setEditedName] = useState(layer.name);
-    const [hasUserModified, setHasUserModified] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(layer.name);
+  const [hasUserModified, setHasUserModified] = useState(false);
 
-    useEffect(() => {
-        const safeName = typeof editedName === "string" ? editedName.trim() : "";
-        if (!safeName && !hasUserModified) {
-            setEditedName("Untitled Layer");
-        }
-    }, [editedName, hasUserModified]);
-
-    const handleNameChange = (e) => {
-        setEditedName(e.target.value);
-        setHasUserModified(true);
-    };
-
-    const handleNameBlur = () => {
-        if (editedName.trim() === "") {
-            setEditedName("Untitled Layer");
-        }
-        setIsEditing(false);
-        if (editedName.trim() !== "" && editedName !== layer.name) {
-            updateLayerName(layer.id, editedName);
-        }
-    };
-
-    const handleNameKeyPress = (e) => {
-        if (e.key === "Enter") {
-            if (editedName.trim() === "") {
-                setEditedName("Untitled Layer");
-            }
-            setIsEditing(false);
-            if (editedName.trim() !== "" && editedName !== layer.name) {
-                updateLayerName(layer.id, editedName);
-            }
-        }
-    };
-
-    const handleNameDoubleClick = () => {
-        setIsEditing(true); // Enable editing on double-click
-    };
-
-    const handleDelete = (layer, layerId) => {
-        if (layer.locked) {
-            if (window.confirm("Are you sure you want to delete this locked layer?")) {
-                removeLayer(layerId);
-            }
-        } else {
-            removeLayer(layerId);
-            removeFeature(draw, layer.id, layer.sourceID, mapRef)
-
-        }
-    };
-
-    const handleLayerClick = () => {
-        setActiveLayer(layer.id);
-
+  useEffect(() => {
+    const safeName = typeof editedName === "string" ? editedName.trim() : "";
+    if (!safeName && !hasUserModified) {
+      setEditedName("Untitled Layer");
     }
+  }, [editedName, hasUserModified]);
 
-    return (
-        <li
-            onClick={handleLayerClick} // Set the active layer on click
-            style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                backgroundColor: isActiveLayer
-                    ? "#007bff"
-                    : isDarkMode
-                        ? "#444" // darker background for dark mode
-                        : "#f5f5f5", // light background for light mode
-                color: isDarkMode ? "white" : "black", // ensure text is visible
-                padding: "8px",
-                borderRadius: "6px",
-                marginBottom: "8px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                border: isEditing ? "2px solid #007bff" : "none", // Highlight if editing
-                cursor: "move", // Indicate this is draggable
-            }}
-            draggable
-            onDragStart={(e) => onDragStart(e, index)} // Handle drag start
-            onDragOver={(e) => onDragOver(e)} // Allow dropping
-            onDrop={(e) => onDrop(e, index)} // Handle drop event
-        >
-            {/* Toggle Visibility */}
-            <button
-                onClick={(e) => { e.stopPropagation(); toggleLayerVisibility(layer.id); }}
-                style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-            >
-                {layer.visible ? <FaEye /> : <FaEyeSlash />}
-            </button>
+  const handleNameChange = (e) => {
+    setEditedName(e.target.value);
+    setHasUserModified(true);
+  };
 
-            {/* Layer Name */}
-            <span
-                onDoubleClick={handleNameDoubleClick} // Enable editing on double-click
-                style={{
-                    flexGrow: 1,
-                    marginLeft: "8px",
-                    cursor: "pointer",
-                    fontWeight: isEditing ? "bold" : "normal", // Make name bold when editing
-                    whiteSpace: "nowrap", // Prevent name from wrapping
-                    overflow: "hidden", // Hide overflow
-                    textOverflow: "ellipsis", // Show ellipsis if name is too long
-                }}
-            >
-                {isEditing ? (
-                    <input
-                        type="text"
-                        value={editedName}
-                        onChange={handleNameChange}
-                        onBlur={handleNameBlur}
-                        onKeyPress={handleNameKeyPress}
-                        autoFocus
-                        style={{
-                            border: "none",
-                            outline: "none",
-                            fontWeight: "bold",
-                            backgroundColor: "transparent",
-                            padding: "2px",
-                            fontSize: "14px",
-                        }}
-                    />
-                ) : (
-                    editedName ?? "Untitled Layer"
-                )}
-            </span>
+  const finalizeEdit = () => {
+    const trimmed = editedName.trim();
+    if (!trimmed) {
+      setEditedName("Untitled Layer");
+    }
+    setIsEditing(false);
+    if (trimmed && trimmed !== layer.name) {
+      updateLayerName(layer.id, trimmed);
+    }
+  };
 
-            {/* Lock/Unlock Button */}
-            <button
-                onClick={(e) => { e.stopPropagation(); toggleLayerLock(layer.id); }}
-                style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-                disabled={layer.isMap} // Prevent locking the base map layer
-            >
-                {layer.locked ? <FaLock /> : <FaLockOpen />}
-            </button>
+  const handleDelete = () => {
+    if (layer.locked) {
+      if (window.confirm("Are you sure you want to delete this locked layer?")) {
+        removeLayer(layer.id);
+      }
+    } else {
+      removeLayer(layer.id);
+      removeFeature(draw, layer.id, layer.sourceID, mapRef);
+    }
+  };
 
-            {/* Remove Layer Button */}
-            <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(layer, layer.id); }} // Custom delete handler
-                style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "#d9534f",
-                }}
-                disabled={layer.isMap || layer.locked} // Prevent deleting the base map or locked layers
-            >
-                <FaTrash />
-            </button>
-        </li>
-    );
+  return (
+    <ListItem
+      isDarkMode={isDarkMode}
+      isActive={isActiveLayer}
+      draggable
+      onClick={() => setActiveLayer(layer.id)}
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, index)}
+    >
+      <IconButton onClick={(e) => { e.stopPropagation(); toggleLayerVisibility(layer.id); }}>
+        {layer.visible ? <FaEye /> : <FaEyeSlash />}
+      </IconButton>
+
+      <Name isEditing={isEditing} onDoubleClick={() => setIsEditing(true)}>
+        {isEditing ? (
+          <NameInput
+            value={editedName}
+            onChange={handleNameChange}
+            onBlur={finalizeEdit}
+            onKeyDown={(e) => e.key === "Enter" && finalizeEdit()}
+            autoFocus
+          />
+        ) : (
+          editedName || "Untitled Layer"
+        )}
+      </Name>
+
+      <IconButton
+        onClick={(e) => { e.stopPropagation(); toggleLayerLock(layer.id); }}
+        disabled={layer.isMap}
+      >
+        {layer.locked ? <FaLock /> : <FaLockOpen />}
+      </IconButton>
+
+      <IconButton
+        onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+        disabled={layer.isMap || layer.locked}
+        danger
+      >
+        <FaTrash />
+      </IconButton>
+    </ListItem>
+  );
 };
 
 export default LayerItem;

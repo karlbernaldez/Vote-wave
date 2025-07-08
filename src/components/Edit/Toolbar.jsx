@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { TbTools } from 'react-icons/tb';
-import storm from "../../assets/draw_icons/hurricane.png";
+import wave from "../../assets/draw_icons/wave.png";
+import l1 from "../../assets/draw_icons/L1.png";
 import lpa from "../../assets/draw_icons/LPA.png";
+import hpa from "../../assets/draw_icons/HPA.png";
+import storm from "../../assets/draw_icons/hurricane.png";
 import PointInputChoiceModal from '../modals/MarkerChoice';
 import ManualInputModal from '../modals/ManualInputModal';
 import FeatureNotAvailableModal from '../modals/FeatureNotAvailable';
 import { typhoonMarker as saveMarkerFn } from "../../utils/mapUtils";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { ToolbarContainer, ToolButton, CollapseToggle } from './styles/ToolBarStyles';
-import { saveFeature } from '../../api/featureServices';
-import { v4 as uuidv4 } from 'uuid';
-import { handleDrawModeChange, toggleDrawing, toggleFlagDrawing, startDrawing, startFlagDrawing, stopDrawing, stopFlagDrawing, toggleCollapse } from './utils/ToolBarUtils';
+import { handleDrawModeChange, savePointFeature, toggleDrawing, toggleFlagDrawing, startDrawing, startFlagDrawing, stopDrawing, stopFlagDrawing, toggleCollapse } from './utils/ToolBarUtils';
 
-const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers, closedMode, setClosedMode, setType }) => {
+const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanvasActive, isdarkmode, setLayersRef, setLayers, closedMode, setClosedMode, setType, selectedToolRef, title }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isFlagDrawing, setIsFlagDrawing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedToolType, setSelectedToolType] = useState(null);
   const [manualInputData, setManualInputData] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
-  const selectedToolRef = useRef(null);
-
   const [openModals, setOpenModals] = useState({ featureNotAvailable: false, pointInputChoice: false, manualInput: false });
 
   useEffect(() => {
@@ -28,6 +28,9 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     }
   }, [setLayersRef, setLayers]);
 
+  useEffect(() => {
+  }, [title]);
+
   const toggleModal = (modalKey, isOpen) => {
     setOpenModals(prev => ({ ...prev, [modalKey]: isOpen }));
   };
@@ -35,9 +38,16 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
   const tools = useMemo(() => [
     {
       id: 'low_pressure',
-      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 20, height: 20 }} />,
+      icon: <img src={lpa} alt="Low Pressure Area" style={{ width: 16, height: 20 }} />,
       label: 'Low Pressure Area (A)',
       hotkey: 'a',
+      modal: 'pointInputChoice',
+    },
+    {
+      id: 'high_pressure',
+      icon: <img src={hpa} alt="High Pressure Area" style={{ width: 16, height: 20 }} />,
+      label: 'High Pressure Area (H)',
+      hotkey: 'h',
       modal: 'pointInputChoice',
     },
     {
@@ -47,10 +57,12 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
       hotkey: 'm',
       modal: 'pointInputChoice',
     },
-    { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
-    { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
-    { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
-    { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' },
+
+
+    // { id: 'draw_line_string', icon: '📏', label: 'Draw Line (L)', hotkey: 'l' },
+    // { id: 'draw_polygon', icon: '⭐', label: 'Draw Polygon (P)', hotkey: 'p' },
+    // { id: 'draw_rectangle', icon: '⬛', label: 'Draw Rectangle (R)', hotkey: 'r' },
+    // { id: 'draw_circle', icon: '⚪', label: 'Draw Circle (C)', hotkey: 'c', modal: 'featureNotAvailable' },
   ], []);
 
   const handleToolClick = (tool) => {
@@ -78,95 +90,49 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
     if (method === 'manual') {
       toggleModal('manualInput', true);
     } else if (method === 'map') {
-      // console.log(`Map input selected for ${selectedType}`);
-      if (selectedType === 'typhoon') {
+      if (['typhoon', 'low_pressure', 'high_pressure', 'less_1'].includes(selectedType)) {
         handleDrawModeChange('draw_point', draw, setLayersRef);
-      } else if (selectedType === 'low_pressure') {
-        handleDrawModeChange('draw_point', draw, setLayersRef);
+
+        const map = mapRef.current;
+        if (!map) {
+          console.warn('Map is not ready yet.');
+          return;
+        }
+
+        const onDrawCreate = (e) => {
+          const point = e.features[0];
+          const [lng, lat] = point.geometry.coordinates;
+          const coords = [lng, lat];
+
+          if (selectedType.toLowerCase() === 'less_1') {
+            const uuid = uuidv4();
+            const title = `Low Waves_${uuid}`;
+            setShowTitleModal(false);
+            saveMarkerFn({ lat, lng }, mapRef, setShowTitleModal, selectedType)(title);
+            savePointFeature({ coords, title, selectedType, setLayersRef });
+          }
+
+          map.off('draw.create', onDrawCreate);
+        };
+
+        map.on('draw.create', onDrawCreate);
       }
     }
   };
 
   const handleManualInputSubmit = async (data) => {
     const selectedType = selectedToolRef.current || 'typhoon';
-
     if (setType) setType(selectedType);
 
     const coords = [parseFloat(data.lng), parseFloat(data.lat)];
     const title = data.title;
 
     saveMarkerFn({ lat: data.lat, lng: data.lng }, mapRef, setShowTitleModal, selectedType)(title);
+    savePointFeature({ coords, title, selectedType, setLayersRef });
 
-    const feature = {
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: coords,
-      },
-      properties: {
-        title,
-        type: selectedType,
-      },
-    };
-
-    if (typeof setLayersRef?.current === 'function') {
-      const uuid = uuidv4();
-      const baseName = title || 'Untitled Layer'; // base name for unique naming
-      const sourceId = `${selectedType}_${baseName}_${uuid}`; // create sourceId similarly
-      const layerId = `${selectedType}_${baseName}_${uuid}`; // generate an ID if needed
-      const closedMode = false; // your default or passed value
-
-      setLayersRef.current((prevLayers) => {
-        let counter = 1;
-        let uniqueName = baseName;
-        const existingNames = prevLayers.map((l) => l.name);
-        const owner = JSON.parse(localStorage.getItem("user"));
-        const projectId = localStorage.getItem("projectId");
-
-        // Generate unique name if conflict exists
-        while (existingNames.includes(uniqueName)) {
-          uniqueName = `${baseName} ${counter++}`;
-        }
-
-        if (feature && feature.geometry) {
-          const token = localStorage.getItem('authToken');
-          // Save asynchronously, but do not block state update
-          saveFeature({
-            geometry: feature.geometry,
-            properties: {
-              labelValue: uniqueName,
-              closedMode: closedMode,
-              isFront: false,
-              owner: owner?.id,
-              project: projectId,
-            },
-            name: uniqueName,
-            sourceId: sourceId,
-          }, token).catch((err) => {
-            console.error('Error saving feature:', err);
-          });
-        }
-
-        // Return updated layers array with new layer metadata
-        return [
-          ...prevLayers,
-          {
-            id: layerId,
-            sourceID: sourceId,
-            name: uniqueName,
-            visible: true,
-            locked: false,
-          },
-        ];
-      });
-    }
-
-
-    // 5. UI clean-up
     setManualInputData(data);
     toggleModal('manualInput', false);
   };
-
 
   const handleDrawing = useCallback((event) => {
 
@@ -237,18 +203,41 @@ const DrawToolbar = ({ draw, mapRef, onToggleCanvas, onToggleFlagCanvas, isCanva
             </ToolButton>
 
             <ToolButton
-              title={isDrawing ? 'Stop Freehand Drawing (X)' : 'Start Freehand Drawing (🖊️)'}
+              title="Mark Less than 1 Meter (1)"
+              isdarkmode={isdarkmode}
+              onClick={() => {
+                selectedToolRef.current = 'less_1';
+                setSelectedToolType('less_1');
+
+                // Turn off any active drawing modes
+                if (isDrawing) stopDrawing(setIsDrawing, onToggleCanvas);
+                if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
+
+                // Open the input method choice modal
+                toggleModal('pointInputChoice', true);
+              }}
+            >
+              <img
+                src={l1}
+                alt="Less than 1 Meter"
+                style={{ width: 36, height: 36 }}
+              />
+            </ToolButton>
+
+            <ToolButton
+              title={isDrawing ? 'Stop Wave Height Drawing (X)' : 'Start Wave Height Drawing (🖊️)'}
               $active={isCanvasActive}
               $isdarkmode={isdarkmode}
               onClick={() => {
-                // Turn off flag if it's active
                 if (isFlagDrawing) stopFlagDrawing(setIsFlagDrawing, onToggleFlagCanvas);
-
-                // Toggle freehand drawing mode
                 toggleDrawing(isDrawing, setIsDrawing, onToggleCanvas);
               }}
             >
-              {isDrawing ? '❌' : '🖊️'}
+              {isDrawing ? (
+                '❌'
+              ) : (
+                <img src={wave} alt="Wave Height Drawing" style={{ width: 20, height: 20 }} />
+              )}
             </ToolButton>
 
 

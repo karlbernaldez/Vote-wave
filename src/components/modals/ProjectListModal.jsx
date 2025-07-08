@@ -4,46 +4,59 @@ import { formatDistanceToNow } from 'date-fns'; // Optional: for formatting time
 
 const Backdrop = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 1500;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: ${({ theme }) => theme.colors.loadingBackground || "rgba(0, 0, 0, 0.3)"};
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen};
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
 const ModalContainer = styled.div`
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  padding: ${({ theme }) => theme.spacing.medium};
   width: 90%;
   max-width: 480px;
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  font-family: ${({ theme }) => theme.fonts.regular};
+
+  /* Scrollbar theming */
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.colors.scrollThumb || "#ccc"} transparent`};
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.scrollThumb || "#bbb"};
+    border-radius: 4px;
+  }
 `;
 
 const Title = styled.h2`
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #222;
+  margin-bottom: ${({ theme }) => theme.spacing.small};
+  font-size: ${({ theme }) => theme.fontSizes.large};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.textPrimary};
   position: sticky;
   top: 0;
-  background: white;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  padding-bottom: 0.25rem;
   z-index: 1;
 `;
 
 const ProjectItem = styled.button`
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 0.8rem;
+  background: ${({ theme }) => theme.colors.background};
+  border: 1px solid ${({ theme }) => theme.colors.border || "#e0e0e0"};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: ${({ theme }) => theme.spacing.medium};
+  margin-bottom: ${({ theme }) => theme.spacing.small};
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -51,26 +64,28 @@ const ProjectItem = styled.button`
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    background: #f0faff;
+    background: ${({ theme }) => theme.colors.highlight}15;
     transform: scale(1.01);
-    box-shadow: 0 4px 12px rgba(0, 160, 255, 0.15);
+    box-shadow: 0 4px 12px ${({ theme }) => theme.colors.highlight}33;
   }
 
   h4 {
     margin: 0 0 0.3rem;
-    font-size: 1.05rem;
-    color: #333;
+    font-size: ${({ theme }) => theme.fontSizes.medium};
+    color: ${({ theme }) => theme.colors.textPrimary};
+    font-family: ${({ theme }) => theme.fonts.medium};
   }
 
   p {
     margin: 0;
-    font-size: 0.9rem;
-    color: #666;
+    font-size: ${({ theme }) => theme.fontSizes.small};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    font-family: ${({ theme }) => theme.fonts.light};
   }
 
   small {
-    font-size: 0.75rem;
-    color: #999;
+    font-size: ${({ theme }) => theme.fontSizes.xsmall};
+    color: ${({ theme }) => theme.colors.textSecondary};
     display: block;
     margin-top: 0.4rem;
   }
@@ -78,24 +93,25 @@ const ProjectItem = styled.button`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: ${({ theme }) => theme.spacing.small};
+  right: ${({ theme }) => theme.spacing.small};
   background: transparent;
   border: none;
   font-size: 1.4rem;
-  color: #888;
+  color: ${({ theme }) => theme.colors.textSecondary};
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 
   &:hover {
-    color: #e53935;
+    color: ${({ theme }) => theme.mainColors.blue};
   }
 `;
 
 const EmptyMessage = styled.p`
   text-align: center;
-  color: #888;
-  font-size: 0.95rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: ${({ theme }) => theme.fontSizes.small};
+  font-family: ${({ theme }) => theme.fonts.light};
 `;
 
 const ProjectListModal = ({ visible, onClose, projects, onSelect }) => {
@@ -105,6 +121,7 @@ const ProjectListModal = ({ visible, onClose, projects, onSelect }) => {
     localStorage.setItem("projectId", project._id);
     localStorage.setItem("projectName", project.name);
     localStorage.setItem("chartType", project.chartType || '12');
+    localStorage.setItem("forecastDate", project.forecastDate);
 
     if (onSelect) onSelect(project);
     onClose();

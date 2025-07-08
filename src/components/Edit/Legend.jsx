@@ -75,51 +75,60 @@ const Footer = styled.div`
 
 // Legend item
 const LegendItem = ({ label, symbol }) => (
-    <ListItem>
-        <SymbolWrapper>{symbol}</SymbolWrapper>
-        <span>{label}</span>
-    </ListItem>
+  <ListItem>
+    <SymbolWrapper>{symbol}</SymbolWrapper>
+    <span>{label}</span>
+  </ListItem>
 );
 
 // Final Component
 const LegendBox = () => {
-    return (
-        <Box>
-            <Title>Legend</Title>
-            <List>
-                <LegendItem label="Wave Heights" symbol={<Line color="#3b82f6" />} />
-                <LegendItem
-                    label="Tropical Cyclone"
-                    symbol={
-                        <img
-                            src="/hurricane.png"
-                            alt="Tropical Cyclone"
-                            style={{ width: '1.2rem', height: '1.5rem', objectFit: 'contain' }}
-                        />
-                    }
-                />
-                <LegendItem label="LPA" symbol={<Letter color="#dc2626">L</Letter>} />
-                <LegendItem label="HPA" symbol={<Letter color="#2563eb">H</Letter>} />
-                <LegendItem label="Surface Fronts"
-                    symbol={
-                        <div
-                            style={{
-                                width: '1.5rem',
-                                height: '0.25rem',
-                                backgroundImage: 'linear-gradient(to right, #2563eb 25%, #ef4444 25%, #ef4444 50%, #2563eb 50%, #2563eb 75%, #ef4444 75%)',
-                                backgroundSize: '100% 100%',
-                                borderRadius: '0.25rem',
-                            }}
-                        />
-                    }
-                />
-            </List>
-            <Footer>
-                <span>Checked: <strong>RBB</strong></span>
-                <span>By: <strong>MACD</strong></span>
-            </Footer>
-        </Box>
-    );
+  return (
+    <Box>
+      <Title>Legend</Title>
+      <List>
+        <LegendItem
+          label="Wave Heights"
+          symbol={
+            <img
+              src="/wave.png"  // ✅ Replace with actual path
+              alt="Wave Height"
+              style={{ width: '1.2rem', height: '1.2rem', objectFit: 'contain' }}
+            />
+          }
+        />
+        <LegendItem
+          label="Tropical Cyclone"
+          symbol={
+            <img
+              src="/hurricane.png"
+              alt="Tropical Cyclone"
+              style={{ width: '1.2rem', height: '1.5rem', objectFit: 'contain' }}
+            />
+          }
+        />
+        <LegendItem label="LPA" symbol={<Letter color="#dc2626">L</Letter>} />
+        <LegendItem label="HPA" symbol={<Letter color="#2563eb">H</Letter>} />
+        <LegendItem label="Surface Fronts"
+          symbol={
+            <div
+              style={{
+                width: '1.5rem',
+                height: '0.25rem',
+                backgroundImage: 'linear-gradient(to right, #2563eb 25%, #ef4444 25%, #ef4444 50%, #2563eb 50%, #2563eb 75%, #ef4444 75%)',
+                backgroundSize: '100% 100%',
+                borderRadius: '0.25rem',
+              }}
+            />
+          }
+        />
+      </List>
+      <Footer>
+        <span>Checked: <strong>RBB</strong></span>
+        <span>By: <strong>MACD</strong></span>
+      </Footer>
+    </Box>
+  );
 };
 
 export default LegendBox;

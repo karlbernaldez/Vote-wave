@@ -1,21 +1,134 @@
-import mapboxgl from 'mapbox-gl';
+import phGeoJson from '../data/ph.json';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading }) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef }) {
   if (!map) return console.warn('No map instance provided');
   if (typeof setLoading === 'function') {
     setLoading(true)
   };
 
-  if (!map._navigationControlAdded) {
-    map.addControl(new mapboxgl.NavigationControl());
-    map._navigationControlAdded = true;
-  }
+  map.addSource('wind_data_source', {
+    type: 'raster-array',
+    url: 'mapbox://karlbernaldizzy.noaa_grib',
+    tileSize: 4320
+  });
+
+  map.addLayer({
+    id: 'wind-layer',
+    type: 'raster-particle',
+    source: 'wind_data_source',
+    'source-layer': '10m_wind',
+    slot: 'bottom',
+    paint: {
+      'raster-particle-speed-factor': 0.4,
+      'raster-particle-fade-opacity-factor': 0.9,
+      'raster-particle-reset-rate-factor': 0.4,
+      'raster-particle-count': 48000,
+      'raster-particle-max-speed': 40,
+      'raster-particle-color': [
+        'interpolate',
+        ['linear'],
+        ['raster-particle-speed'],
+        .8,
+        'rgba(134,163,171,256)',
+        2.5,
+        'rgba(126,152,188,256)',
+        4.12,
+        'rgba(110,143,208,256)',
+        4.63,
+        'rgba(110,143,208,256)',
+        6.17,
+        'rgba(15,147,167,256)',
+        7.72,
+        'rgba(15,147,167,256)',
+        9.26,
+        'rgba(57,163,57,256)',
+        10.29,
+        'rgba(57,163,57,256)',
+        11.83,
+        'rgba(194,134,62,256)',
+        13.37,
+        'rgba(194,134,63,256)',
+        14.92,
+        'rgba(200,66,13,256)',
+        16.46,
+        'rgba(200,66,13,256)',
+        18.0,
+        'rgba(210,0,50,256)',
+        20.06,
+        'rgba(215,0,50,256)',
+        21.6,
+        'rgba(175,80,136,256)',
+        23.66,
+        'rgba(175,80,136,256)',
+        25.21,
+        'rgba(117,74,147,256)',
+        27.78,
+        'rgba(117,74,147,256)',
+        29.32,
+        'rgba(68,105,141,256)',
+        31.89,
+        'rgba(68,105,141,256)',
+        33.44,
+        'rgba(194,251,119,256)',
+        42.18,
+        'rgba(194,251,119,256)',
+        43.72,
+        'rgba(241,255,109,256)',
+        48.87,
+        'rgba(241,255,109,256)',
+        50.41,
+        'rgba(256,256,256,256)',
+        57.61,
+        'rgba(256,256,256,256)',
+        59.16,
+        'rgba(0,256,256,256)',
+        68.93,
+        'rgba(0,256,256,256)',
+        69.44,
+        'rgba(256,37,256,256)'
+      ]
+    }
+  });
+
+  const geoJsonSourceId = 'my-geojson-source';
+  const geoJsonLayerId = 'my-geojson-layer';
+
+  map.addSource(geoJsonSourceId, {
+    type: 'geojson',
+    data: phGeoJson, // from your import
+  });
+
+  map.addLayer({
+    id: `${geoJsonLayerId}_fill`,
+    type: "fill",
+    source: geoJsonSourceId,
+    slot: 'bottom',
+    paint: {
+      "fill-color": "#2e3d4d",
+      "fill-opacity": 0.7,
+    },
+  });
+
+
+  map.addLayer({
+    id: `${geoJsonLayerId}_line`,
+    type: "line",
+    source: geoJsonSourceId,
+    slot: 'middle',
+    paint: {
+      "line-color": "#000",
+      "line-width": .5,
+    },
+  });
+
 
   mapRef.current = map;
 
   loadImage(map, 'typhoon', '/hurricane.png');
   loadImage(map, 'low_pressure', '/LPA.png');
+  loadImage(map, 'high_pressure', '/HPA.png');
+  loadImage(map, 'less_1', '/L1.png');
 
   map.on('load', () => {
     initTyphoonLayer(map);
@@ -33,8 +146,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   const nonFrontLines = [];
 
   let totalLineCount = 0;
-
-  // console.log('Initial features:', featuresArray);
 
   // === Classify features ===
   featuresArray.forEach((feature) => {
@@ -78,9 +189,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       const [lng, lat] = coordinates;
       const title = point.name || '';
       const sourceId = point.sourceId || 'typhoon';
-      const markerType = sourceId.includes('_')
-        ? sourceId.substring(0, sourceId.lastIndexOf('_'))
-        : sourceId;
+      const markerType = point.properties.type
 
       if (lng !== undefined && lat !== undefined) {
         saveMarkerFn({ lat, lng }, mapRef, () => { }, markerType)(title);
@@ -106,14 +215,19 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         data: geojsonFeature,
       });
 
+      // Determine if the line should be dashed
+      const isDashed = feature.properties?.closedMode === false;
+
       map.addLayer({
         id: name,
         type: 'line',
         source: sourceId,
+        slot: 'top',
         paint: {
           'line-color': '#0080ff',
           'line-opacity': 0.5,
-          'line-width': 2,
+          'line-width': 3,
+          'line-dasharray': isDashed ? [.5, .5] : [], // Dashed line if not closedMode
         },
         filter: ['==', '$type', 'LineString'],
       });
@@ -160,6 +274,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
             id: labelLayerId,
             type: 'symbol',
             source: labelSourceId,
+            slot: 'top',
             layout: {
               'text-field': ['get', 'text'],
               'text-size': 18,
@@ -177,13 +292,11 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     });
   }
 
-
   // === Front lines with animated dashed effect ===
   let animationFrameIds = [];
 
   if (frontLines.length > 0) {
     frontLines.forEach((feature, index) => {
-      // console.log('Adding front line feature:', feature);
       const sourceId = feature.sourceId;
       const bgLayerId = `${sourceId}_bg`;
       const dashLayerId = `${sourceId}_dash`;
@@ -200,6 +313,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: bgLayerId,
         type: 'line',
         source: sourceId,
+        slot: 'top',
         paint: {
           'line-color': '#0000FF',
           'line-width': 6,
@@ -211,6 +325,7 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         id: dashLayerId,
         type: 'line',
         source: sourceId,
+        slot: 'top',
         paint: {
           'line-color': '#FF0000',
           'line-width': 6,
@@ -270,6 +385,35 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     });
   }
 
+  const PARstate = localStorage.getItem('PAR');
+  const TCIDstate = localStorage.getItem('TCID');
+  const TCADstate = localStorage.getItem('TCAD');
+  const windLayerState = localStorage.getItem('wind_layer');
+
+  if (PARstate === 'true') {
+    map.setLayoutProperty('PAR', 'visibility', 'visible');
+  } else {
+    map.setLayoutProperty('PAR', 'visibility', 'none');
+  }
+
+  if (TCIDstate === 'true') {
+    map.setLayoutProperty('TCID', 'visibility', 'visible');
+  } else {
+    map.setLayoutProperty('TCID', 'visibility', 'none');
+  }
+
+  if (TCADstate === 'true') {
+    map.setLayoutProperty('TCAD', 'visibility', 'visible');
+  } else {
+    map.setLayoutProperty('TCAD', 'visibility', 'none');
+  }
+
+  if (windLayerState === 'true') {
+    map.setLayoutProperty('wind-layer', 'visibility', 'visible');
+  } else {
+    map.setLayoutProperty('wind-layer', 'visibility', 'none');
+  }
+
   // ✅ When fully idle (all sources & layers processed)
   map.once('idle', () => {
     if (typeof setLoading === 'function') setLoading(false); // ✅ Hide modal
@@ -279,10 +423,17 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
   // === Map loaded and draw.create handler ===
   map.on('draw.create', (e) => {
     const feature = e.features[0];
+
     if (feature?.geometry.type === 'Point') {
       const [lng, lat] = feature.geometry.coordinates;
       setSelectedPoint({ lng, lat });
-      setShowTitleModal(true);
+
+      const selectedType = selectedToolRef?.current || '';
+
+      if (selectedType.toLowerCase() !== 'less_1') {
+        setShowTitleModal(true);
+      }
+
       draw.delete(feature.id);
     }
   });

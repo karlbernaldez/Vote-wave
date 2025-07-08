@@ -9,7 +9,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: ${({ theme }) => theme.colors.loadingBackground || "rgba(0, 0, 0, 0.3)"};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,18 +17,19 @@ const Overlay = styled.div`
 `;
 
 const ModalContainer = styled(motion.div)`
-  background: white;
+  background: ${({ theme }) => theme.colors.lightBackground};
   padding: 30px 20px;
   border-radius: 16px;
   max-width: 320px;
   width: 100%;
   text-align: center;
   position: relative;
-  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
 const IconWrapper = styled.div`
-  background: #f1f5f9;
+  background: ${({ theme }) => theme.colors.itemBackground || "#f1f5f9"};
   border-radius: 50%;
   width: 48px;
   height: 48px;
@@ -39,9 +40,10 @@ const IconWrapper = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  margin-bottom: ${({ theme }) => theme.spacing.small};
+  color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const Input = styled.input`
@@ -59,21 +61,27 @@ const Input = styled.input`
 `;
 
 const ActionButton = styled.button`
-  background-color: #2563eb;
-  color: white;
+  background-color: ${({ theme }) => theme.mainColors.blue};
+  color: ${({ theme }) => theme.mainColors.white};
   border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-weight: 500;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: ${({ theme }) => `${theme.spacing.small} ${theme.spacing.medium}`};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  font-family: ${({ theme }) => theme.fonts.medium};
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   justify-content: center;
+  margin-bottom: 10px;
 
   &:hover {
-    background-color: #1d4ed8;
+    background-color: ${({ theme }) => theme.mainColors.lightBlue};
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -83,16 +91,11 @@ const animationVariants = {
   exit: { opacity: 0, y: -20 }
 };
 
-const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
-  const [input, setInput] = useState('');
-
-  useEffect(() => {
-    if (isOpen) setInput('');
-  }, [isOpen]);
+const MarkerTitleModal = ({ isOpen, onClose, onSave, inputValue, onInputChange }) => {
 
   const handleSave = () => {
-    onSave(input || 'Untitled Marker');
-    setInput(''); // Reset input after saving
+    const title = inputValue || 'Untitled Marker';
+    onSave(title);
   };
 
   const handleKeyDown = (e) => {
@@ -120,10 +123,10 @@ const MarkerTitleModal = ({ isOpen, onClose, onSave }) => {
 
             <Input
               type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={inputValue}
+              onChange={(e) => onInputChange(e.target.value)}
               placeholder="e.g. Kristine"
-              onKeyDown={handleKeyDown} // Add the onKeyDown event handler
+              onKeyDown={handleKeyDown}
             />
 
             <ActionButton onClick={handleSave}>

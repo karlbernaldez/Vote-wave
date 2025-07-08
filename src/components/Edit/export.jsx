@@ -10,6 +10,7 @@ const ExportMapButton = ({ mapRef, features }) => {
 
     if (!features || !features.features || features.features.length === 0) {
       alert("⚠️ No features to export.");
+      window.location.reload();  // Refresh the page
       return;
     }
 

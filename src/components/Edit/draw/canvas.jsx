@@ -1,16 +1,9 @@
+import Slider from '@mui/material/Slider';
+import { styled } from '@mui/material/styles';
 import { Stage, Layer, Line } from 'react-konva';
 import { useRef, useState, useEffect } from 'react';
 import { saveFeature } from '../../../api/featureServices';
-import Slider from '@mui/material/Slider';
-import { styled } from '@mui/material/styles';
-
-import {
-  convertToGeoJSON,
-  downloadGeoJSON,
-  handlePointerDown,
-  handlePointerMove,
-  handlePointerUp,
-} from './canvasUtils';
+import { convertToGeoJSON, downloadGeoJSON, handlePointerDown, handlePointerMove, handlePointerUp, chaikinSmoothing } from './canvasUtils';
 
 // Custom ValueLabel that appears below the thumb, centered, without background color
 const ValueLabelComponent = styled(({ children, value, open }) => (
@@ -54,7 +47,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, clos
 
   return (
     <div>
-      
+
       {/* Slider for label value - fixed at bottom center */}
       <div
         style={{
@@ -104,7 +97,7 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, clos
             setLayersRef,
             saveFeature,
             closedMode,
-            lineCount,  
+            lineCount,
             labelValue // <-- pass label value here if needed
           )
         }
@@ -120,10 +113,10 @@ const DrawingCanvas = ({ mapRef, drawCounter, setDrawCounter, setLayersRef, clos
           {lines.map((line, i) => (
             <Line
               key={i}
-              points={line.points}
+              points={chaikinSmoothing(line.points)}
               stroke="red"
               strokeWidth={2}
-              tension={0.5}
+              tension={1.5}
               lineCap="round"
               lineJoin="round"
             />

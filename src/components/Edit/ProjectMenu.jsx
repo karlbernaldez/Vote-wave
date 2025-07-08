@@ -6,95 +6,93 @@ import { createProject, fetchUserProjects } from '../../api/projectAPI'; // ⬅�
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+// eslint-disable-next-line
 const MySwal = withReactContent(Swal);
 
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   position: fixed;
   top: 1.15rem;
   left: 1.5rem;
-  z-index: 1000;
-  font-family: 'Inter', sans-serif;
+  z-index: ${({ theme }) => theme.zIndex.stickyHeader};
+  font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
-const MenuButton = styled.button`
-  background: #ffffff;
-  border: 1px solid #ccc;
-  font-size: 1em;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+export const MenuButton = styled.button`
+  background: ${({ theme }) => theme.colors.lightBackground};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
+  padding: 0.45rem 0.9rem;
+  font-size: 0.95rem;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
   cursor: pointer;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: background-color 0.2s ease;
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #f7f7f7;
+    background: ${({ theme }) => theme.colors.background};
+    transform: scale(1.03);
   }
 `;
 
-const Dropdown = styled.div`
+export const Dropdown = styled.div`
   margin-top: 0.5rem;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ddd'};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  min-width: 180px;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
-const MenuItem = styled.button`
-  background: none;
+export const MenuItem = styled.button`
+  background: transparent;
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.95rem;
   text-align: left;
   cursor: pointer;
-  color: ${({ $danger }) => ($danger ? '#e53935' : '#333')};
-  border-radius: 6px;
+  color: ${({ $danger, theme }) =>
+    $danger ? theme.mainColors.blue : theme.colors.textPrimary};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${({ $danger }) => ($danger ? '#fdecea' : '#e6f7ff')};
+    background: ${({ theme }) => theme.colors.background};
   }
 `;
 
-const SubDropdown = styled.div`
+export const SubDropdown = styled.div`
   position: absolute;
   top: 3.5rem;
   left: 100%;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  margin-left: 0.5rem;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
   display: flex;
   flex-direction: column;
   min-width: 160px;
-  margin-left: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
-const SubMenuItem = styled(MenuItem)`
-  padding: 0.6rem 1rem;
+export const SubMenuItem = styled(MenuItem)`
+  padding: 0.65rem 1rem;
 `;
 
-const LoadingModal = styled.div`
+export const LoadingModal = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.95);
+  background: ${({ theme }) => theme.colors.loadingBackground};
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  color: white;
-  font-size: 1.5rem;
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen};
+  color: ${({ theme }) => theme.colors.loadingText};
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   user-select: none;
 `;
 
@@ -106,10 +104,10 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [projects, setProjects] = useState([]);
   const [showProjectList, setShowProjectList] = useState(false);
   const [description, setDescription] = useState('');
-  const [chartType, setChartType] = useState('12');
+  const [chartType, setChartType] = useState('Wave Analysis');
   const [isExporting, setIsExporting] = useState(false);
-
   const menuRef = useRef(null);
+  const [forecastDate, setForecastDate] = useState('');
 
   const logout = () => {
     localStorage.removeItem("authToken");
@@ -118,13 +116,43 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   };
 
   const handleCreateProject = async () => {
+    // Validation
+    if (!projectName.trim()) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Project Name is required!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    if (!forecastDate) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Forecast Date is required!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
     try {
       const token = localStorage.getItem("authToken");
       const payload = {
         name: projectName,
         chartType,
         description,
+        forecastDate
       };
+
+      console.log("Creating project with payload:", payload);
 
       const created = await createProject(payload, token); // 👈 This already throws an error with backend message
 
@@ -132,9 +160,10 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       localStorage.setItem("projectId", created._id);
       localStorage.setItem("projectName", projectName);
       localStorage.setItem("chartType", chartType);
+      localStorage.setItem("forecastDate", forecastDate);
 
       if (onNew) {
-        onNew({ name: projectName, chartType, description });
+        onNew({ name: projectName, chartType, description, forecastDate });
       }
 
       // ✅ Success Toast
@@ -152,7 +181,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
       setMainOpen(false);
       setProjectOpen(false);
       setProjectName('');
-      setChartType('12');
+      setChartType('');
       setDescription('');
 
       // Refresh
@@ -174,19 +203,37 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const exportMapImageAndGeoJSON = () => {
     const map = mapRef?.current;
     if (!map) {
-      console.error("❌ Map reference is not available.");
+      alert("⚠️ Map is not ready yet.");
       return;
     }
 
-    if (!features?.features?.length) {
-      alert("⚠️ No features to export.");
+    if (!features || !features.features || features.features.length === 0) {
+      alert("⚠️ Please reload page to export.");
+      window.location.reload();  // Refresh the page
       return;
     }
 
-    const bounds = [
-      [110, 0],
-      [141, 27],
+    const bound = map.getBounds();
+    console.log("Current Map Bounds:", bound);
+
+    // eslint-disable-next-line
+    const TCID = [
+      [97.10652951545882, -0.29008965128676323],   // Southwest (sw)
+      [160.14948511399922, 27.23891969842279],      // Northeast (ne)
     ];
+
+    // eslint-disable-next-line
+    const TCAD = [
+      [99.79339501828959, 3.757304989541903],    // Southwest (sw)
+      [153.8595159535438, 27.162621752400347],    // Northeast (ne)
+    ];
+
+    const PAR = [
+      [99.66367446788888, 4.933531648734785],   // Southwest (sw)
+      [145.49962576487303, 24.92089153280473],  // Northeast (ne)
+    ];
+
+    const bounds = TCAD
 
     setIsExporting(true); // Show loading modal
 
@@ -196,15 +243,18 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
     });
 
     const onIdle = () => {
-      map.off("idle", onIdle); // remove listener
+      map.off("idle", onIdle);
+
+      console.log(map.getStyle().layers)
 
       try {
         const canvas = map.getCanvas();
         const dataURL = canvas.toDataURL("image/png");
+        const projectName = localStorage.getItem("projectName");
 
         const imgLink = document.createElement("a");
         imgLink.href = dataURL;
-        imgLink.download = `map-screenshot-${Date.now()}.png`;
+        imgLink.download = projectName;
         document.body.appendChild(imgLink);
         imgLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(imgLink);
@@ -215,16 +265,30 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
 
         const geojsonLink = document.createElement("a");
         geojsonLink.href = url;
-        geojsonLink.download = `features-${Date.now()}.geojson`;
+        geojsonLink.download = `${projectName}.geojson`;
         document.body.appendChild(geojsonLink);
         geojsonLink.dispatchEvent(new MouseEvent("click"));
         document.body.removeChild(geojsonLink);
 
         URL.revokeObjectURL(url);
 
-        console.log("✅ Export complete.");
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `Export successful!`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
       } catch (err) {
-        console.error("❌ Export failed:", err);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: `Export failed: ${err.message}`,
+          showConfirmButton: false,
+          timer: 3000,
+        });
       } finally {
         setIsExporting(false); // Hide loading modal
       }
@@ -301,6 +365,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
           setChartType={setChartType}
           description={description}
           setDescription={setDescription}
+          forecastDate={forecastDate}
+          setForecastDate={setForecastDate}
         />
       )}
 
@@ -310,6 +376,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
           projects={projects}
           onClose={() => setShowProjectList(false)}
           onSelect={(proj) => {
+            console.log("Selected project:", proj);
             localStorage.setItem("projectId", proj._id);
             localStorage.setItem("projectName", proj.name);
             localStorage.setItem("chartType", proj.chartType || '12');

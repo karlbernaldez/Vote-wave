@@ -5,67 +5,68 @@ import { MdLockOutline } from 'react-icons/md';
 
 const Overlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: ${({ theme }) => theme.colors.loadingBackground || "rgba(0, 0, 0, 0.3)"};
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: ${({ theme }) => theme.zIndex.loadingScreen || 1000};
 `;
 
 const ModalContainer = styled(motion.div)`
-  background: white;
-  padding: 30px 20px;
-  border-radius: 16px;
+  background: ${({ theme }) => theme.colors.lightBackground};
+  padding: ${({ theme }) => `${theme.spacing.large} ${theme.spacing.medium}`};
+  border-radius: ${({ theme }) => theme.borderRadius.xlarge};
   max-width: 320px;
   width: 100%;
   text-align: center;
   position: relative;
-  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: ${({ theme }) => theme.colors.boxShadow};
 `;
 
 const IconWrapper = styled.div`
-  background: #f1f5f9;
+  background: ${({ theme }) => theme.colors.itemBackground || "#f1f5f9"};
   border-radius: 50%;
   width: 48px;
   height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 16px;
+  margin: 0 auto ${({ theme }) => theme.spacing.medium};
 `;
 
 const Title = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  margin-bottom: ${({ theme }) => theme.spacing.xsmall};
+  color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const Description = styled.p`
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 24px;
+  font-size: ${({ theme }) => theme.fontSizes.small};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  margin-bottom: ${({ theme }) => theme.spacing.large};
 `;
 
 const ActionButton = styled.button`
-  background-color: #2563eb;
-  color: white;
+  background-color: ${({ theme }) => theme.mainColors.blue};
+  color: ${({ theme }) => theme.mainColors.white};
   border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-weight: 500;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: ${({ theme }) => `${theme.spacing.small} ${theme.spacing.medium}`};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: ${({ theme }) => theme.spacing.xsmall};
   width: 100%;
   justify-content: center;
+  font-family: ${({ theme }) => theme.fonts.medium};
+  transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: #1d4ed8;
+    background-color: ${({ theme }) => theme.mainColors.lightBlue || "#1d4ed8"};
   }
 `;
 

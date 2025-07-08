@@ -11,6 +11,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import styled from "@emotion/styled";
+import MiscLayer from "../components/Edit/MiscLayer";
 import MapComponent from "../components/Edit/MapComponent";
 import LayerPanel from "../components/Edit/LayerPanel";
 import DrawToolBar from "../components/Edit/Toolbar";
@@ -19,16 +20,17 @@ import FlagCanvas from "../components/Edit/draw/front";
 import LegendBox from "../components/Edit/Legend";
 import ProjectMenu from "../components/Edit/ProjectMenu";
 import ProjectInfo from "../components/Edit/ProjectInfo";
-import ExportMapButton from "../components/Edit/export";
 import MarkerTitleModal from "../components/modals/MarkerTitleModal";
 import MapLoading from "../components/modals/MapLoading";
 import { typhoonMarker as saveMarkerFn } from "../utils/mapUtils";
+import { savePointFeature } from "../components/Edit/utils/ToolBarUtils";
 import { setupMap } from "../utils/mapSetup";
 import { fetchFeatures } from "../api/featureServices";
+import Swal from 'sweetalert2';
 
 const Container = styled.div`
   position: relative;
-  height: 92.8vh;
+  height: 92.6vh;
   width: 100%;
   display: flex;
   overflow: hidden;
@@ -43,6 +45,7 @@ const MapWrapper = styled.div`
 `;
 
 const Edit = ({ isDarkMode, logger }) => {
+  // eslint-disable-next-line
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
   const [drawInstance, setDrawInstance] = useState(null);
@@ -50,18 +53,26 @@ const Edit = ({ isDarkMode, logger }) => {
   const [isFlagCanvasActive, setIsFlagCanvasActive] = useState(false);
   const [lineCount, setLineCount] = useState(0);
   const [drawCounter, setDrawCounter] = useState(0);
+
+  // eslint-disable-next-line
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
+  const [MarkerTitle, setMarkerTitle] = useState('');
   const [showToolbar, setShowToolbar] = useState(false);
   const [closedMode, setClosedMode] = useState(false);
   const [type, setType] = useState(null);
   const [savedFeatures, setSavedFeatures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const selectedToolRef = useRef(null);
   const mapRef = useRef(null);
   const cleanupRef = useRef(null);
   const setLayersRef = useRef();
+  const markerTitleRef = useRef('');
+
+  const token = localStorage.getItem('authToken');
+  const projectId = localStorage.getItem('projectId');
 
   // ─── Refs ─────────────────────────────────────────────
   useEffect(() => {
@@ -72,16 +83,42 @@ const Edit = ({ isDarkMode, logger }) => {
   const toggleCanvas = useCallback(() => setIsCanvasActive(prev => !prev), []);
   const toggleFlagCanvas = useCallback(() => setIsFlagCanvasActive(prev => !prev), []);
 
-  const typhoonMarker = saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type);
+  const handleSaveTitle = (title) => {
+    markerTitleRef.current = title;
+    setMarkerTitle(title);
+    saveMarkerFn(selectedPoint, mapRef, setShowTitleModal, type)(title);
+
+    const coords = [selectedPoint.lng, selectedPoint.lat];
+    const selectedType = type;
+
+    savePointFeature({ coords, title, selectedType, setLayersRef });
+  };
+
+  const handleTitleChange = (value) => {
+    markerTitleRef.current = value;
+    setMarkerTitle(value);
+  };
 
   // ─── Map Load Setup ──────────────────────────────────
   const handleMapLoad = useCallback(async (map) => {
     mapRef.current = map;
-
+  
     const setupFeaturesAndLayers = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const projectId = localStorage.getItem('projectId');
+        if (!projectId) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Project Selected',
+            text: 'Please select a project first.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,  // The toast will auto-close after 3 seconds
+          });
+          setIsLoading(false);
+          return;  // Stop the execution if no project is selected
+        }
+
         const savedFeatures = await fetchFeatures(token);
 
         // ⚠️ Extra safety check: filter features by projectId from localStorage
@@ -114,6 +151,7 @@ const Edit = ({ isDarkMode, logger }) => {
           },
           logger,
           setLoading: setIsLoading,
+          selectedToolRef
         });
       } catch (error) {
         console.error('[MAP LOAD ERROR]', error);
@@ -136,6 +174,7 @@ const Edit = ({ isDarkMode, logger }) => {
       map.on("style.load", setupFeaturesAndLayers);
       map._hasStyleLoadListener = true;
     }
+    // eslint-disable-next-line
   }, []);
 
   // ─── Cleanup on Unmount ──────────────────────────────
@@ -177,7 +216,7 @@ const Edit = ({ isDarkMode, logger }) => {
         <MapComponent onMapLoad={handleMapLoad} isDarkMode={isDarkMode} />
       </MapWrapper>
 
-      {showToolbar && (
+      {showToolbar && projectId && (
         <DrawToolBar
           draw={drawInstance}
           mapRef={mapRef}
@@ -192,8 +231,11 @@ const Edit = ({ isDarkMode, logger }) => {
           closedMode={closedMode}
           setClosedMode={setClosedMode}
           setType={setType}
+          selectedToolRef={selectedToolRef}
+          title={MarkerTitle}
         />
       )}
+
 
       {isCanvasActive && (
         <Canvas
@@ -220,32 +262,32 @@ const Edit = ({ isDarkMode, logger }) => {
         />
       )}
 
-      <LayerPanel
-        layers={layers}
-        setLayers={setLayers}
-        mapRef={mapRef}
-        isDarkMode={isDarkMode}
-        draw={drawInstance}
-      />
+      {projectId && (
+        <LayerPanel
+          layers={layers}
+          setLayers={setLayers}
+          mapRef={mapRef}
+          isDarkMode={isDarkMode}
+          draw={drawInstance}
+        />
+      )}
 
       <MarkerTitleModal
         isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}
-        onSave={typhoonMarker}
+        onSave={handleSaveTitle}
+        inputValue={MarkerTitle} // 👈 controlled input value
+        onInputChange={handleTitleChange} // 👈 real-time update
       />
 
       <LegendBox isDarkMode={isDarkMode} />
 
       <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures }} />
-      <ProjectInfo />
 
-      {/* <ExportMapButton
+      <ProjectInfo />
+      <MiscLayer
         mapRef={mapRef}
-        features={{
-          type: "FeatureCollection",
-          features: savedFeatures,
-        }} 
-        /> */}
+      />
 
       {isLoading && <MapLoading />}
     </Container>
