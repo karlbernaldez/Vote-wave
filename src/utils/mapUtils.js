@@ -152,7 +152,8 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     'icon-image': ['get', 'icon'],
     'icon-size': [
       'case',
-      ['==', ['get', 'markerType'], 'low_pressure'], 0.1,
+      ['==', ['get', 'markerType'], 'low_pressure'], 0.028,
+      ['==', ['get', 'markerType'], 'high_pressure'], 0.028,
       ['==', ['get', 'markerType'], 'less_1'], 0.28,
       0.07
     ],
@@ -183,6 +184,15 @@ export const typhoonMarker = (selectedPoint, mapRef, setShowTitleModal, type) =>
     ];
     paint['text-halo-color'] = '#FFFFFF';
     paint['text-halo-width'] = 1;
+    paint['text-opacity'] = [
+      'case',
+      ['any',
+        ['==', ['get', 'markerType'], 'low_pressure'],
+        ['==', ['get', 'markerType'], 'high_pressure']
+      ],
+      0,   // fully transparent
+      1    // visible for others (like typhoon, etc.)
+    ];
   }
 
   // ✅ Add layer only if not exists

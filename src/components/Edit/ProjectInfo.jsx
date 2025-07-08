@@ -28,25 +28,32 @@ const ProjectInfo = () => {
   const [forecastDate, setForecastDate] = useState('');
 
   useEffect(() => {
-  const fetchData = async () => {
-    const projectId = localStorage.getItem('projectId');
-    const token = localStorage.getItem("authToken");
+    const fetchData = async () => {
+      const projectId = localStorage.getItem('projectId');
+      const token = localStorage.getItem('authToken');
 
-    try {
-      const project = await fetchProjectById(projectId, token);
-      console.log("Fetched project:", project);
+      try {
+        const project = await fetchProjectById(projectId, token);
+        console.log('Fetched project:', project);
 
-      if (project) {
-        if (project.name) setProjectName(project.name);
-        if (project.chart) setChartType(project.chartType);
+        if (project) {
+          // Setting projectName and chartType, add forecastDate if available
+          if (project.name) setProjectName(project.name);
+          if (project.chartType) setChartType(project.chartType);
+          if (project.forecastDate) {
+            const date = new Date(project.forecastDate);
+            setForecastDate(
+              date.toLocaleString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+            ); // Full date with weekday
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching project:', error);
       }
-    } catch (error) {
-      console.error("Error fetching project:", error);
-    }
-  };
+    };
 
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   if (!projectName) return null; // Hide if no project
 
@@ -56,10 +63,10 @@ const ProjectInfo = () => {
         <Label>Project:</Label> {projectName}
       </div>
       <div>
-        <Label>Chart Type:</Label> {chartType}
+        <Label>Chart Type:</Label> {chartType || 'N/A'} {/* Show 'N/A' if chartType is empty */}
       </div>
       <div>
-        <Label>Forecast Date:</Label> {forecastDate}
+        <Label>Forecast Date:</Label> {forecastDate || 'N/A'} {/* Show 'N/A' if forecastDate is empty */}
       </div>
     </InfoContainer>
   );

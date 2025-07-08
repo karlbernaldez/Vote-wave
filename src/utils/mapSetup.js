@@ -226,8 +226,8 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         paint: {
           'line-color': '#0080ff',
           'line-opacity': 0.5,
-          'line-width': 2,
-          'line-dasharray': isDashed ? [2, 2] : [], // Dashed line if not closedMode
+          'line-width': 3,
+          'line-dasharray': isDashed ? [.5, .5] : [], // Dashed line if not closedMode
         },
         filter: ['==', '$type', 'LineString'],
       });

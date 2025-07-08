@@ -1,6 +1,27 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
+export const chaikinSmoothing = (points, iterations = 2) => {
+  for (let k = 0; k < iterations; k++) {
+    let newPoints = [];
+    for (let i = 0; i < points.length - 2; i += 2) {
+      const x0 = points[i];
+      const y0 = points[i + 1];
+      const x1 = points[i + 2];
+      const y1 = points[i + 3];
+
+      const Qx = 0.75 * x0 + 0.25 * x1;
+      const Qy = 0.75 * y0 + 0.25 * y1;
+      const Rx = 0.25 * x0 + 0.75 * x1;
+      const Ry = 0.25 * y0 + 0.75 * y1;
+
+      newPoints.push(Qx, Qy, Rx, Ry);
+    }
+    points = newPoints;
+  }
+  return points;
+};
+
 export const convertToGeoJSON = (lines, mapRef) => {
   if (!mapRef.current) {
     console.error('Map reference is not available!');
@@ -10,9 +31,12 @@ export const convertToGeoJSON = (lines, mapRef) => {
   const geojsonFeatures = lines.map((line) => {
     const coords = [];
 
-    for (let i = 0; i < line.points.length; i += 2) {
-      const x = line.points[i];
-      const y = line.points[i + 1];
+    // ✅ Apply smoothing to each line's points
+    const smoothedPoints = chaikinSmoothing(line.points, 4); // you can tweak the iteration count
+
+    for (let i = 0; i < smoothedPoints.length; i += 2) {
+      const x = smoothedPoints[i];
+      const y = smoothedPoints[i + 1];
       const lngLat = mapRef.current.unproject([x, y]);
       coords.push([lngLat.lng, lngLat.lat]);
     }
