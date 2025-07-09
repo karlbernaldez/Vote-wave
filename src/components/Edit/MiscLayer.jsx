@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 
 // Control Panel Container - Fixed size
 const ControlPanelContainer = styled.div`
@@ -108,14 +111,26 @@ const ProjectInfo = ({ mapRef }) => {
     }, [mapRef]);
 
     const toggleLayer = (layer) => {
+        const projectId = localStorage.getItem('projectId');
+        if (!projectId) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'warning',
+                title: 'Please select or create a project first.',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });
+            return;
+        }
+
         switch (layer) {
             case 'PAR':
                 setShowPAR(prev => {
                     const newState = !prev;
                     localStorage.setItem('PAR', newState.toString());
-                    if (mapRef.current) {
-                        mapRef.current.setLayoutProperty('PAR', 'visibility', newState ? 'visible' : 'none');
-                    }
+                    mapRef.current?.setLayoutProperty('PAR', 'visibility', newState ? 'visible' : 'none');
                     return newState;
                 });
                 break;
@@ -123,9 +138,7 @@ const ProjectInfo = ({ mapRef }) => {
                 setShowTCID(prev => {
                     const newState = !prev;
                     localStorage.setItem('TCID', newState.toString());
-                    if (mapRef.current) {
-                        mapRef.current.setLayoutProperty('TCID', 'visibility', newState ? 'visible' : 'none');
-                    }
+                    mapRef.current?.setLayoutProperty('TCID', 'visibility', newState ? 'visible' : 'none');
                     return newState;
                 });
                 break;
@@ -133,9 +146,7 @@ const ProjectInfo = ({ mapRef }) => {
                 setShowTCAD(prev => {
                     const newState = !prev;
                     localStorage.setItem('TCAD', newState.toString());
-                    if (mapRef.current) {
-                        mapRef.current.setLayoutProperty('TCAD', 'visibility', newState ? 'visible' : 'none');
-                    }
+                    mapRef.current?.setLayoutProperty('TCAD', 'visibility', newState ? 'visible' : 'none');
                     return newState;
                 });
                 break;
@@ -143,9 +154,7 @@ const ProjectInfo = ({ mapRef }) => {
                 setShowWindLayer(prev => {
                     const newState = !prev;
                     localStorage.setItem('wind_layer', newState.toString());
-                    if (mapRef.current) {
-                        mapRef.current.setLayoutProperty('wind-layer', 'visibility', newState ? 'visible' : 'none');
-                    }
+                    mapRef.current?.setLayoutProperty('wind-layer', 'visibility', newState ? 'visible' : 'none');
                     return newState;
                 });
                 break;

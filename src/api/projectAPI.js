@@ -50,7 +50,7 @@ export const fetchLatestUserProject = async (token) => {
   }
 
   const projects = await response.json();
-  
+
   // Assuming projects are returned in an array and sorted by most recent first
   const latestProject = projects[0];
 
@@ -76,19 +76,50 @@ export const fetchProjectById = async (id, token) => {
   return response.json();
 };
 
-// 📌 Delete a project
-export const deleteProjectById = async (id, token) => {
+export const updateProjectById = async (id, projectData, token) => {
   const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {
-    method: 'DELETE',
+    method: 'PUT',
     headers: {
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify(projectData),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to delete project');
+    throw new Error(error.message || 'Failed to update project');
   }
 
   return response.json();
 };
+
+// 📌 Delete a project
+export const deleteProjectById = async (id, token) => {
+  try {
+    const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Check if the response status is OK
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || `Failed to delete project with ID: ${id}`);
+    }
+
+    // If no content is returned (204 No Content), no need to parse JSON
+    if (response.status === 204) {
+      return { message: 'Project deleted successfully' };
+    }
+
+    // If response includes content, parse JSON (in case it returns additional info)
+    return response.json();
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    throw new Error(error.message || 'An unexpected error occurred');
+  }
+};
+

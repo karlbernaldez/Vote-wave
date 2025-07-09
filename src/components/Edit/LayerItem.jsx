@@ -98,6 +98,7 @@ const LayerItem = ({
   const handleNameChange = (e) => {
     setEditedName(e.target.value);
     setHasUserModified(true);
+    console.log('Name changed to:', e.target.value); // Log name change
   };
 
   const finalizeEdit = () => {
@@ -108,6 +109,7 @@ const LayerItem = ({
     setIsEditing(false);
     if (trimmed && trimmed !== layer.name) {
       updateLayerName(layer.id, trimmed);
+      console.log('Layer name finalized as:', trimmed); // Log finalized name change
     }
   };
 
