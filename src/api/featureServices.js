@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 const API_BASE_URL = 'http://34.30.147.189:5000/api/features'; // Adjust if using a different port
 
@@ -19,6 +20,50 @@ const isTokenValid = (token) => {
   } catch (error) {
     console.error('[ERROR] Invalid token:', error);
     return false;
+  }
+};
+
+// Function to refresh the access token using the refresh token
+const refreshAccessToken = async () => {
+  try {
+    const response = await fetch(`http://34.30.147.189:5000/api/auth/refresh-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // This ensures cookies are sent with the request
+    });
+
+    if (!response.ok) {
+      console.error('[ERROR] Failed to refresh token.');
+      return null;
+    }
+
+    const data = await response.json();
+    return data.accessToken; // Return the new access token
+  } catch (error) {
+    console.error('[ERROR] Error while refreshing token:', error);
+    return null;
+  }
+};
+
+// Function to delete a feature
+export const deleteFeature = async (sourceId, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${sourceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete feature');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('[ERROR] Failed to delete feature:', error);
+    throw error;
   }
 };
 
@@ -98,46 +143,41 @@ export const fetchFeatures = async (token) => {
   }
 };
 
-// Function to refresh the access token using the refresh token
-const refreshAccessToken = async () => {
+export async function updateFeatureNameAPI(layerId, newName) {
   try {
-    const response = await fetch(`http://34.30.147.189:5000/api/auth/refresh-token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // This ensures cookies are sent with the request
-    });
+    const token = localStorage.getItem('authToken');
 
-    if (!response.ok) {
-      console.error('[ERROR] Failed to refresh token.');
-      return null;
+    console.log("Token:", token);  // Log the token to see if it's properly fetched
+
+    if (!token) {
+      alert('No token found. Please log in again.');
+      return;
     }
 
-    const data = await response.json();
-    return data.accessToken; // Return the new access token
-  } catch (error) {
-    console.error('[ERROR] Error while refreshing token:', error);
-    return null;
-  }
-};
+    console.log("Sending request to update feature name with layerId:", layerId, "and newName:", newName);  // Log the request details
 
-// Function to delete a feature
-export const deleteFeature = async (sourceId, token) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/${sourceId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await axios.patch(
+      `http://34.30.147.189:5000/api/features/${encodeURIComponent(layerId)}`,
+      { newName },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Ensure the token is passed correctly
+        },
+      }
+    );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to delete feature');
+    console.log("API Response:", response.data);  // Log the API response
+
+    return response.data;
+  } catch (err) {
+    // Log specific errors
+    if (err.response) {
+      console.error('API Error:', err.response.data);
+    } else if (err.request) {
+      console.error('Request Error:', err.request);
+    } else {
+      console.error('Error:', err.message);
     }
-
-    return response.json();
-  } catch (error) {
-    console.error('[ERROR] Failed to delete feature:', error);
-    throw error;
+    throw new Error('Failed to update feature name');
   }
-};
+}

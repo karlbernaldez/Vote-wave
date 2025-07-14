@@ -15,6 +15,13 @@ import { NavLink, useLocation } from "react-router-dom";
 import { PagasaLogo } from "./Logo";
 import { FaSun, FaMoon } from "react-icons/fa";
 
+// Breakpoint constants for consistency
+const BREAKPOINTS = {
+  mobile: '939px',
+  tablet: '1080px',
+  desktop: '1280px'
+};
+
 const StyledHeaderNavbar = styled.div`
   display: flex;
   justify-content: center;
@@ -26,124 +33,186 @@ const StyledHeaderNavbar = styled.div`
   top: 0;
   z-index: 100;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
+  transition: all 0.3s ease;
 `;
 
 const CenterWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 clamp(1rem, 4vw, 2rem);
   height: 70px;
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
+  position: relative;
 `;
 
 const Logo = styled.a`
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-left: 6rem;
+  gap: clamp(8px, 1.5vw, 12px);
+  margin-left: clamp(1rem, 8vw, 6rem);
   text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
 
-  @media (max-width: 939px) {
-    margin-left: 1rem;
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    margin-left: 0;
   }
 `;
 
 const PagasaLogoInstance = styled(PagasaLogo)`
-  height: 28px !important;
-  width: 28px !important;
+  height: clamp(24px, 4vw, 28px) !important;
+  width: clamp(24px, 4vw, 28px) !important;
+  transition: all 0.3s ease;
 `;
 
 const Title = styled.div`
   color: ${({ theme }) => theme.colors.highlight};
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${({ theme }) => theme.fontSizes.xxlarge};
+  font-size: clamp(${({ theme }) => theme.fontSizes.large}, 3vw, ${({ theme }) => theme.fontSizes.xxlarge});
   font-weight: ${({ theme }) => theme.fontWeights.bold};
+  transition: font-size 0.3s ease;
+  
+  @media (max-width: 480px) {
+    font-size: ${({ theme }) => theme.fontSizes.large};
+  }
 `;
 
 const NavAndToggleWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: auto;
-  gap: 3rem;
-  margin-right: 2rem;
+  gap: clamp(1rem, 3vw, 3rem);
+  margin-right: clamp(1rem, 3vw, 2rem);
+  transition: all 0.3s ease;
+  opacity: 1;
+  transform: translateX(0);
 
-  @media (max-width: 939px) {
-    display: none;
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    opacity: 0;
+    transform: translateX(20px);
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+  }
+
+  @media (min-width: 940px) {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    position: static;
   }
 `;
 
 const Navbar = styled.div`
   display: flex;
-  gap: 30px;
-  margin-left: 8rem;
+  gap: clamp(15px, 3vw, 30px);
+  margin-left: clamp(2rem, 8vw, 8rem);
+  transition: all 0.3s ease;
+
+  @media (max-width: ${BREAKPOINTS.tablet}) {
+    margin-left: clamp(1rem, 4vw, 4rem);
+    gap: clamp(12px, 2.5vw, 25px);
+  }
+
+  @media (max-width: 1120px) {
+    margin-left: clamp(0.5rem, 2vw, 2rem);
+    gap: clamp(10px, 2vw, 20px);
+  }
 `;
 
 const StyledNavLink = styled(NavLink)`
   color: ${({ theme }) => theme.colors.textPrimary};
   text-decoration: none;
   padding: 10px 0;
-  transition: color 0.3s ease;
+  font-size: clamp(${({ theme }) => theme.fontSizes.small}, 1.8vw, ${({ theme }) => theme.fontSizes.medium});
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: ${({ theme }) => theme.colors.highlight};
+    transition: width 0.3s ease;
+  }
 
   &.active,
   &:hover {
     color: ${({ theme }) => theme.colors.highlight};
+    
+    &::after {
+      width: 100%;
+    }
   }
 
   pointer-events: ${({ isactive }) => (isactive ? "none" : "auto")};
+
+  @media (max-width: 1120px) {
+    font-size: ${({ theme }) => theme.fontSizes.small};
+  }
 `;
 
 const ThemeToggleButton = styled.button`
   background-color: ${({ theme }) => theme.colors.toggleBackground};
   color: ${({ theme }) => theme.colors.toggle};
   border: 1px solid ${({ theme }) => theme.colors.toggleBorder};
-  padding: 4px 16px;
+  padding: clamp(2px, 1vw, 4px) clamp(8px, 2vw, 16px);
   border-radius: 50px;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.fontSizes.xlarge};
+  font-size: clamp(${({ theme }) => theme.fontSizes.medium}, 2vw, ${({ theme }) => theme.fontSizes.xlarge});
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  margin-left: 2rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(32px, 5vw, 48px);
+  height: clamp(28px, 4vw, 36px);
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.boxShadowHover};
+    transform: translateY(-1px);
   }
 
-  @media (min-width: 940px) and (max-width: 1080px) {
-    margin-left: -10rem;
-  }
-
-  @media (max-width: 939px) {
-    padding: 2px 8px;
-    font-size: ${({ theme }) => theme.fontSizes.medium};
+  &:active {
+    transform: translateY(0);
   }
 
   @media (max-width: 300px) {
-    display: none;
+    min-width: 28px;
+    height: 24px;
+    padding: 2px 6px;
   }
 `;
 
 const IconContainer = styled.div`
   display: flex;
-  transition: transform 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: ${({ isDarkMode }) =>
-    isDarkMode ? "translateX(10px)" : "translateX(-10px)"};
-
-  @media (max-width: 939px) {
-    transform: ${({ isDarkMode }) =>
-    isDarkMode ? "translateX(6px)" : "translateX(-6px)"};
-  }
+    isDarkMode ? "translateX(0) rotate(180deg)" : "translateX(0) rotate(0deg)"};
 `;
 
 const MobileWrapper = styled.div`
-  display: flex;
+  display: none;
   align-items: center;
-  gap: 1rem;
+  gap: clamp(0.5rem, 2vw, 1rem);
   margin-left: auto;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease;
 
-  @media (min-width: 940px) {
-    display: none;
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
   }
 `;
 
@@ -152,65 +221,72 @@ const Hamburger = styled.div`
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
   transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.toggleBackground};
+  }
 
   span {
     height: 3px;
     width: 25px;
     background: ${({ theme }) => theme.colors.highlight};
     border-radius: ${({ theme }) => theme.borderRadius.xxsmall};
-    transition: transform 0.3s ease, background 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
   }
 
   &.open span:nth-child(1) {
-    transform: rotate(45deg) translateY(10px);
+    transform: rotate(45deg) translate(7px, 7px);
   }
 
   &.open span:nth-child(2) {
     opacity: 0;
+    transform: scale(0);
   }
 
   &.open span:nth-child(3) {
-    transform: rotate(-45deg) translateY(-10px);
+    transform: rotate(-45deg) translate(7px, -7px);
   }
 `;
 
 const MobileMenu = styled.div`
   display: none;
 
-  @media (max-width: 939px) {
+  @media (max-width: ${BREAKPOINTS.mobile}) {
     display: ${({ open }) => (open ? "flex" : "none")};
     position: absolute;
-    top: 50px;
-    right: 2rem;
-    width: 150px;
+    top: 60px;
+    right: clamp(1rem, 4vw, 2rem);
+    width: clamp(140px, 30vw, 160px);
     flex-direction: column;
     background: ${({ theme }) => theme.gradients.background};
     padding: 0.5rem 0.8rem;
     box-shadow: ${({ theme }) => theme.colors.boxShadow};
     border-radius: ${({ theme }) => theme.borderRadius.small};
-    transform: translateY(-10px);
-    opacity: 0;
+    transform: ${({ open }) => (open ? "translateY(0) scale(1)" : "translateY(-20px) scale(0.95)")};
+    opacity: ${({ open }) => (open ? 1 : 0)};
     z-index: 99;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-
-    ${({ open }) =>
-    open &&
-    `
-      transform: translateY(0);
-      opacity: 1;
-    `}
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top right;
 
     & a {
       font-size: ${({ theme }) => theme.fontSizes.small};
       color: ${({ theme }) => theme.colors.mobileTextPrimary};
       text-decoration: none;
       padding: 8px 12px;
-      margin: 4px 0;
+      margin: 2px 0;
       border-radius: ${({ theme }) => theme.borderRadius.xsmall};
       font-weight: ${({ theme }) => theme.fontWeights.regular};
       letter-spacing: 0.5px;
-      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: ${({ theme }) => theme.colors.toggleBackground};
+        transform: translateX(4px);
+      }
     }
   }
 `;
@@ -222,8 +298,19 @@ const UserControls = styled.div`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 400;
   margin-left: auto;
-  margin-right: 1rem;
-  word-spacing: 0.15rem; /* Add spacing between words */
+  margin-right: clamp(1rem, 3vw, 2rem);
+  word-spacing: 0.15rem;
+  font-size: clamp(${({ theme }) => theme.fontSizes.small}, 1.5vw, ${({ theme }) => theme.fontSizes.medium});
+  transition: all 0.3s ease;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: none;
+  }
+
+  @media (max-width: 1120px) {
+    font-size: ${({ theme }) => theme.fontSizes.small};
+    margin-right: 1rem;
+  }
 `;
 
 const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
@@ -236,7 +323,7 @@ const ThemeToggle = ({ isDarkMode, setIsDarkMode }) => {
 
     const timeoutId = setTimeout(() => {
       setIsDarkMode(!isDarkMode);
-    }, 300);
+    }, 150); // Reduced debounce time for better responsiveness
 
     setDebounceTimeout(timeoutId);
   };
@@ -304,8 +391,6 @@ const HeaderNavbar = ({ isLoading, isDarkMode, setIsDarkMode }) => {
             </span>
           </UserControls>
         )}
-
-
 
         <MobileWrapper>
           <ThemeToggle isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />

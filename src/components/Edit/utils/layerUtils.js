@@ -1,5 +1,5 @@
 // components/utils/layerUtils.js
-import { deleteFeature } from '../../../api/featureServices';
+import { deleteFeature, updateFeatureNameAPI } from '../../../api/featureServices';
 import { fill } from '../draw/styles';
 
 export function addWindLayer(map) {
@@ -87,7 +87,7 @@ export function addWindLayer(map) {
         }
     });
 
-}
+};
 
 export function addGeoJsonLayer(map, file, layers, setLayers) {
     const reader = new FileReader();
@@ -158,7 +158,7 @@ export function addGeoJsonLayer(map, file, layers, setLayers) {
     };
 
     reader.readAsText(file);
-}
+};
 
 export function toggleLayerVisibility(map, layer, setLayers) {
     if (!map || !layer) return;
@@ -202,7 +202,7 @@ export function toggleLayerVisibility(map, layer, setLayers) {
             l.id === id ? { ...l, visible: !visible } : l
         )
     );
-}
+};
 
 export function toggleLayerLock(layer, setLayers) {
     setLayers((prev) =>
@@ -210,7 +210,7 @@ export function toggleLayerLock(layer, setLayers) {
             l.id === layer.id ? { ...l, locked: !l.locked } : l
         )
     );
-}
+};
 
 export function removeLayer(map, layer, setLayers) {
     if (!map || !layer) return;
@@ -245,7 +245,7 @@ export function removeLayer(map, layer, setLayers) {
 
     // Update state
     setLayers((prev) => prev.filter((l) => l.id !== id));
-}
+};
 
 export async function removeFeature(draw, layerID, featureID, layer) {
 
@@ -273,13 +273,40 @@ export async function removeFeature(draw, layerID, featureID, layer) {
     } catch (error) {
         console.error(`Failed to delete feature ${layerID} from backend.`, error);
     }
-}
+};
 
 export function updateLayerName(layerId, newName, setLayers) {
-    setLayers((prev) =>
-        prev.map((l) => (l.id === layerId ? { ...l, name: newName } : l))
-    );
-}
+    // Log the requested update for debugging
+    console.log("Layer name update requested:", newName);
+
+    // Update the layer name only if it's different
+    setLayers((prev) => {
+        const updatedLayers = prev.map((layer) => {
+            if (layer.id === layerId) {
+                // Log current layer name for debugging
+                console.log(`Current layer name: ${layer.name}, New name: ${newName}`);
+
+                if (layer.name === newName) {
+                    console.log("The new name is the same as the old one. No update needed.");
+                    return layer;  // No change if the name is the same
+                }
+
+                // Log the layer after the name is updated
+                const updatedLayer = { ...layer, name: newName };
+                console.log("Updated layer:", updatedLayer);
+
+                return updatedLayer;  // Update name
+            }
+            return layer;  // Keep other layers unchanged
+        });
+
+        // Log the updated layers after mapping
+        console.log("Updated layers:", updatedLayers);
+
+        return updatedLayers;  // Update state with the new layer list
+    });
+};
+
 
 export const handleDragStart = (event, index, setDragging, setDraggedLayerIndex) => {
     setDragging(true);
