@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled, { useTheme, css, keyframes } from 'styled-components';
 import { fetchProjectById } from '../../api/projectAPI';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -9,25 +9,67 @@ import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 import { FaChevronDown } from 'react-icons/fa';
 
+// Breakpoint constants for desktop responsiveness
+const DESKTOP_BREAKPOINTS = {
+  small: '1024px',
+  medium: '1280px',
+  large: '1440px',
+  xlarge: '1920px'
+};
+
 const InfoContainer = styled.div`
   position: fixed;
-  top: 5.5rem;
-  left: 1.5rem;
+  top: clamp(4.5rem, 5vw, 5.5rem);
+  left: clamp(1rem, 2vw, 1.5rem);
   background: ${({ theme }) => theme.colors.lightBackground};
   border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
-  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.medium}`};
+  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.8rem, 2vw, 1.2rem);
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fontSizes.small};
+  font-size: clamp(0.75rem, 1.2vw, 0.875rem);
   color: ${({ theme }) => theme.colors.textPrimary};
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
   z-index: 200;
   cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: clamp(200px, 25vw, 280px);
+  max-width: clamp(280px, 30vw, 350px);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.colors.boxShadow}, 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    top: 5rem;
+    left: 1rem;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.8rem;
+    min-width: 200px;
+  }
+  
+  @media (max-width: ${DESKTOP_BREAKPOINTS.medium}) {
+    top: 5rem;
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.large}) {
+    top: 5rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    top: 6rem;
+    left: 2rem;
+    font-size: 1rem;
+    padding: 1.2rem 1.5rem;
+  }
 `;
 
 const Label = styled.span`
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  margin-right: ${({ theme }) => theme.spacing.xsmall};
+  margin-right: clamp(0.25rem, 0.8vw, 0.5rem);
+  color: ${({ theme }) => theme.colors.textSecondary};
+  display: inline-block;
+  min-width: clamp(3rem, 8vw, 4rem);
 `;
 
 const Overlay = styled.div`
@@ -41,36 +83,95 @@ const Overlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: ${({ theme }) => theme.zIndex.modal || 1000};
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
 `;
 
 const ModalContainer = styled.div`
   background: ${({ theme }) => theme.colors.lightBackground};
-  padding: ${({ theme }) => theme.spacing.large};
+  padding: clamp(1.5rem, 3vw, 2rem);
   border-radius: ${({ theme }) => theme.borderRadius.large};
   width: 100%;
-  max-width: 380px;
+  max-width: clamp(350px, 40vw, 480px);
+  min-width: 320px;
   box-shadow: ${({ theme }) => theme.colors.boxShadow};
   font-family: ${({ theme }) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.textPrimary};
+  transform: scale(0.9);
+  animation: modalIn 0.3s ease forwards;
+  
+  @keyframes modalIn {
+    to {
+      transform: scale(1);
+    }
+  }
+
+  h2, h3 {
+    margin: 0 0 clamp(1rem, 2vw, 1.5rem) 0;
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
+    font-weight: ${({ theme }) => theme.fontWeights.medium};
+  }
+
+  p {
+    margin: 0 0 clamp(0.8rem, 1.5vw, 1rem) 0;
+    font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+    line-height: 1.5;
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    max-width: 350px;
+    padding: 1.5rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    max-width: 520px;
+    padding: 2.5rem;
+  }
 `;
 
 const Field = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.medium};
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+
+  label {
+    display: block;
+    margin-bottom: clamp(0.3rem, 0.8vw, 0.5rem);
+    font-weight: ${({ theme }) => theme.fontWeights.medium};
+    font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
 `;
 
 const Input = styled.input`
-  width: 94%;
-  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.small}`};
-  font-size: ${({ theme }) => theme.fontSizes.medium};
+  width: 100%;
+  padding: clamp(0.5rem, 1.2vw, 0.75rem) clamp(0.6rem, 1.5vw, 0.8rem);
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   border: 1px solid ${({ theme }) => theme.colors.border || '#ccc'};
   background-color: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.textPrimary};
+  font-family: ${({ theme }) => theme.fonts.regular};
+  box-sizing: border-box;
+  transition: all 0.3s ease;
 
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.colors.highlight};
     box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.highlight}33;
+    transform: translateY(-1px);
+  }
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.highlight};
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
   }
 `;
 
@@ -81,42 +182,80 @@ const SelectWrapper = styled.div`
 
 const StyledSelect = styled.select`
   width: 100%;
-  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.large} ${theme.spacing.xsmall} ${theme.spacing.small}`};
+  padding: clamp(0.5rem, 1.2vw, 0.75rem) clamp(2rem, 4vw, 2.5rem) clamp(0.5rem, 1.2vw, 0.75rem) clamp(0.6rem, 1.5vw, 0.8rem);
   border: 1px solid ${({ theme }) => theme.colors.border || "#ccc"};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  font-size: ${({ theme }) => theme.fontSizes.medium};
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   font-family: ${({ theme }) => theme.fonts.regular};
   box-sizing: border-box;
   background: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.textPrimary};
   appearance: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
 
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.colors.highlight};
     box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.highlight}33;
+    transform: translateY(-1px);
+  }
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.highlight};
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    padding: 0.5rem 2rem 0.5rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    padding: 0.8rem 2.5rem 0.8rem 1rem;
+    font-size: 1rem;
   }
 `;
 
 const ChevronIcon = styled(FaChevronDown)`
   position: absolute;
   top: 50%;
-  right: ${({ theme }) => theme.spacing.small};
+  right: clamp(0.5rem, 1.2vw, 0.8rem);
   transform: translateY(-50%) ${({ $open }) => ($open ? 'rotate(180deg)' : 'rotate(0deg)')};
   transition: transform 0.3s ease;
   pointer-events: none;
   color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    right: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    right: 1rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const ButtonRow = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: ${({ theme }) => theme.spacing.medium};
+  gap: clamp(0.8rem, 2vw, 1.2rem);
+  margin-top: clamp(1.5rem, 3vw, 2rem);
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.medium}) {
+    flex-direction: row;
+  }
 `;
 
 const Button = styled.button`
-  padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.medium}`};
-  font-size: ${({ theme }) => theme.fontSizes.small};
+  padding: clamp(0.5rem, 1.2vw, 0.75rem) clamp(1rem, 2.5vw, 1.5rem);
+  font-size: clamp(0.8rem, 1.2vw, 0.9rem);
   border: none;
   border-radius: ${({ theme }) => theme.borderRadius.small};
   font-family: ${({ theme }) => theme.fonts.medium};
@@ -125,9 +264,30 @@ const Button = styled.button`
   background-color: ${({ disabled, danger, theme }) =>
     disabled ? '#e0e0e0' : danger ? '#e74c3c' : theme.mainColors.blue};
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  transition: all 0.3s ease;
+  flex: 1;
+  min-height: clamp(36px, 5vw, 44px);
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
 
   &:hover {
     opacity: ${({ disabled }) => (disabled ? 1 : 0.9)};
+    transform: ${({ disabled }) => (disabled ? 'none' : 'translateY(-1px)')};
+  }
+
+  &:active {
+    transform: ${({ disabled }) => (disabled ? 'none' : 'translateY(0)')};
+  }
+
+  @media (max-width: ${DESKTOP_BREAKPOINTS.small}) {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+
+  @media (min-width: ${DESKTOP_BREAKPOINTS.xlarge}) {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    min-height: 48px;
   }
 `;
 
@@ -354,11 +514,12 @@ const ProjectInfo = () => {
                           backgroundColor: theme.colors.background,
                           borderRadius: theme.borderRadius.medium,
                           fontFamily: theme.fonts.regular,
-                          fontSize: theme.fontSizes.medium,
+                          fontSize: 'clamp(0.85rem, 1.2vw, 0.95rem)',
                           color: theme.colors.textPrimary,
-                          height: '40px',
-                          paddingLeft: theme.spacing.small,
+                          height: 'clamp(36px, 5vw, 44px)',
+                          paddingLeft: 'clamp(0.6rem, 1.5vw, 0.8rem)',
                           border: `1px solid #ccc`,
+                          transition: 'all 0.3s ease',
                           '& input': {
                             textAlign: 'left',
                           },
@@ -368,6 +529,7 @@ const ProjectInfo = () => {
                           '&.Mui-focused': {
                             borderColor: theme.colors.highlight,
                             boxShadow: `0 0 0 2px ${theme.colors.highlight}33`,
+                            transform: 'translateY(-1px)',
                           },
                           '& .MuiSvgIcon-root': {
                             color: '#a0a0a0',
