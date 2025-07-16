@@ -194,7 +194,7 @@ const Layout = () => {
                   <MobileAccessModal isOpen={modalVisible} onClose={handleModalClose} />
                 ) : (
                   <ProtectedRoute
-                    element={() => <Edit isDarkMode={isDarkMode} logger={logger} />}
+                    element={() => <Edit isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} logger={logger} />}
                     onDeny={() => (
                       <AccessDeniedModal isOpen={true} onClose={handleAccessDeniedClose} />
                     )}

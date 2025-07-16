@@ -1,7 +1,7 @@
 import phGeoJson from '../data/ph.json';
 import { loadImage, initTyphoonLayer, initDrawControl, typhoonMarker as saveMarkerFn } from './mapUtils';
 
-export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef }) {
+export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelectedPoint, setShowTitleModal, setLineCount, initialFeatures = [], logger, setLoading, selectedToolRef, setCapturedImages }) {
   if (!map) return console.warn('No map instance provided');
   if (typeof setLoading === 'function') {
     setLoading(true)
@@ -91,54 +91,54 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     }
   });
 
-//   map.addLayer({
-//   id: 'wind-layer_colorblind',
-//   type: 'raster-particle',
-//   source: 'wind_data_source',
-//   'source-layer': '10m_wind',
-//   slot: 'bottom',
-//   paint: {
-//     'raster-particle-speed-factor': 0.2,
-//     'raster-particle-fade-opacity-factor': 0.9,
-//     'raster-particle-reset-rate-factor': 0.4,
-//     'raster-particle-count': 20000,
-//     'raster-particle-max-speed': 80,
-//     'raster-particle-color': [
-//       'interpolate',
-//       ['linear'],
-//       ['raster-particle-speed'],
-//       .8, 'rgba(158,1,66,256)',   // Deep Red
-//       2.5, 'rgba(213,62,79,256)', // Red
-//       4.12, 'rgba(244,109,67,256)', // Orange
-//       4.63, 'rgba(253,174,97,256)', // Light Orange
-//       6.17, 'rgba(254,224,139,256)', // Yellow
-//       7.72, 'rgba(217,239,139,256)', // Light Green
-//       9.26, 'rgba(166,217,106,256)', // Green
-//       10.29, 'rgba(102,189,99,256)', // Strong Green
-//       11.83, 'rgba(26,152,80,256)',  // Dark Green
-//       13.37, 'rgba(0,104,55,256)',   // Darker Green
-//       14.92, 'rgba(0,69,41,256)',    // Very Dark Green
-//       16.46, 'rgba(37,52,148,256)',  // Dark Blue
-//       18.0, 'rgba(8,29,88,256)',     // Deep Blue
-//       20.06, 'rgba(49,54,149,256)',  // Purple
-//       21.6, 'rgba(0,0,0,256)',       // Black
-//       23.66, 'rgba(255,255,255,256)', // White
-//       25.21, 'rgba(166,206,227,256)', // Light Blue
-//       27.78, 'rgba(31,120,180,256)', // Moderate Blue
-//       29.32, 'rgba(51,160,44,256)',  // Bright Green
-//       31.89, 'rgba(255,255,191,256)', // Very Light Yellow
-//       33.44, 'rgba(227,26,28,256)',  // Bright Red
-//       42.18, 'rgba(255,127,0,256)',  // Bright Orange
-//       43.72, 'rgba(255,255,51,256)', // Yellow
-//       48.87, 'rgba(127,127,127,256)', // Neutral Gray
-//       50.41, 'rgba(186,186,186,256)', // Light Gray
-//       57.61, 'rgba(204,204,204,256)', // Gray
-//       59.16, 'rgba(150,150,150,256)', // Darker Gray
-//       68.93, 'rgba(0,128,0,256)',    // Dark Green
-//       69.44, 'rgba(0,0,255,256)'     // Blue
-//     ]
-//   }
-// });
+  //   map.addLayer({
+  //   id: 'wind-layer_colorblind',
+  //   type: 'raster-particle',
+  //   source: 'wind_data_source',
+  //   'source-layer': '10m_wind',
+  //   slot: 'bottom',
+  //   paint: {
+  //     'raster-particle-speed-factor': 0.2,
+  //     'raster-particle-fade-opacity-factor': 0.9,
+  //     'raster-particle-reset-rate-factor': 0.4,
+  //     'raster-particle-count': 20000,
+  //     'raster-particle-max-speed': 80,
+  //     'raster-particle-color': [
+  //       'interpolate',
+  //       ['linear'],
+  //       ['raster-particle-speed'],
+  //       .8, 'rgba(158,1,66,256)',   // Deep Red
+  //       2.5, 'rgba(213,62,79,256)', // Red
+  //       4.12, 'rgba(244,109,67,256)', // Orange
+  //       4.63, 'rgba(253,174,97,256)', // Light Orange
+  //       6.17, 'rgba(254,224,139,256)', // Yellow
+  //       7.72, 'rgba(217,239,139,256)', // Light Green
+  //       9.26, 'rgba(166,217,106,256)', // Green
+  //       10.29, 'rgba(102,189,99,256)', // Strong Green
+  //       11.83, 'rgba(26,152,80,256)',  // Dark Green
+  //       13.37, 'rgba(0,104,55,256)',   // Darker Green
+  //       14.92, 'rgba(0,69,41,256)',    // Very Dark Green
+  //       16.46, 'rgba(37,52,148,256)',  // Dark Blue
+  //       18.0, 'rgba(8,29,88,256)',     // Deep Blue
+  //       20.06, 'rgba(49,54,149,256)',  // Purple
+  //       21.6, 'rgba(0,0,0,256)',       // Black
+  //       23.66, 'rgba(255,255,255,256)', // White
+  //       25.21, 'rgba(166,206,227,256)', // Light Blue
+  //       27.78, 'rgba(31,120,180,256)', // Moderate Blue
+  //       29.32, 'rgba(51,160,44,256)',  // Bright Green
+  //       31.89, 'rgba(255,255,191,256)', // Very Light Yellow
+  //       33.44, 'rgba(227,26,28,256)',  // Bright Red
+  //       42.18, 'rgba(255,127,0,256)',  // Bright Orange
+  //       43.72, 'rgba(255,255,51,256)', // Yellow
+  //       48.87, 'rgba(127,127,127,256)', // Neutral Gray
+  //       50.41, 'rgba(186,186,186,256)', // Light Gray
+  //       57.61, 'rgba(204,204,204,256)', // Gray
+  //       59.16, 'rgba(150,150,150,256)', // Darker Gray
+  //       68.93, 'rgba(0,128,0,256)',    // Dark Green
+  //       69.44, 'rgba(0,0,255,256)'     // Blue
+  //     ]
+  //   }
+  // });
 
   const geoJsonSourceId = 'my-geojson-source';
   const geoJsonLayerId = 'my-geojson-layer';
@@ -465,12 +465,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
     map.setLayoutProperty('wind-layer', 'visibility', 'none');
   }
 
-  // ✅ When fully idle (all sources & layers processed)
-  map.once('idle', () => {
-    if (typeof setLoading === 'function') setLoading(false); // ✅ Hide modal
-    setMapLoaded(true);
-  });
-
   // === Map loaded and draw.create handler ===
   map.on('draw.create', (e) => {
     const feature = e.features[0];
@@ -486,6 +480,36 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
       }
 
       draw.delete(feature.id);
+    }
+  });
+
+  // ✅ When fully idle (all sources & layers processed)
+  map.once('idle', () => {
+    if (typeof setLoading === 'function') setLoading(false); // ✅ Hide modal
+    setMapLoaded(true);
+
+    try {
+      const canvas = map.getCanvas();
+      const imageDataUrl = canvas.toDataURL("image/png");
+
+      // Determine theme from localStorage
+      const isDarkMode = localStorage.getItem("isDarkMode") === "true";
+      const snapshotKey = isDarkMode ? "map_snapshot_dark" : "map_snapshot_light";
+
+      // Save to localStorage using dynamic key
+      localStorage.setItem(snapshotKey, imageDataUrl);
+
+      // Update app state if needed
+      if (typeof setCapturedImages === "function") {
+        setCapturedImages(prev => ({
+          ...prev,
+          [isDarkMode ? "dark" : "light"]: imageDataUrl,
+        }));
+      }
+
+      console.log(`[Map Snapshot] Captured and saved as ${snapshotKey}`);
+    } catch (e) {
+      console.error("❌ Error capturing map snapshot:", e);
     }
   });
 

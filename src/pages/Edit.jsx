@@ -33,7 +33,7 @@ const MapWrapper = styled.div`
   position: relative;
 `;
 
-const Edit = ({ isDarkMode, logger }) => {
+const Edit = ({ isDarkMode, setIsDarkMode, logger }) => {
   // eslint-disable-next-line
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState([]);
@@ -52,6 +52,11 @@ const Edit = ({ isDarkMode, logger }) => {
   const [type, setType] = useState(null);
   const [savedFeatures, setSavedFeatures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [capturedImages, setCapturedImages] = useState({
+    light: null,
+    dark: null
+  });
 
   const selectedToolRef = useRef(null);
   const mapRef = useRef(null);
@@ -139,7 +144,8 @@ const Edit = ({ isDarkMode, logger }) => {
           },
           logger,
           setLoading: setIsLoading,
-          selectedToolRef
+          selectedToolRef,
+          setCapturedImages,
         });
       } catch (error) {
         console.error('[MAP LOAD ERROR]', error);
@@ -283,7 +289,14 @@ const Edit = ({ isDarkMode, logger }) => {
 
       <LegendBox isDarkMode={isDarkMode} />
 
-      <ProjectMenu mapRef={mapRef} features={{ type: "FeatureCollection", features: savedFeatures }} />
+      <ProjectMenu
+        mapRef={mapRef}
+        features={{ type: "FeatureCollection", features: savedFeatures }}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        setMapLoaded={setMapLoaded}
+        isLoading={isLoading}
+      />
 
       <ProjectInfo />
       <MiscLayer

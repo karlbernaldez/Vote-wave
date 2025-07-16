@@ -43,14 +43,14 @@ const MapComponent = ({ onMapLoad, isDarkMode }) => {
 
       map.fitBounds(
         [
-          [114.0, 5.0],
-          [130.0, 21.0],
+          [99.79339501828959, 3.757304989541903],
+          [153.8595159535438, 27.162621752400347],
         ],
         {
           padding: { top: 200, bottom: 100, left: 100, right: 200 },
         }
       );
-      
+
       map.on('load', () => {
         mapRef.current = map;
         if (onMapLoad) {
