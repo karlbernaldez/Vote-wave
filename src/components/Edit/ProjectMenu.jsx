@@ -4,12 +4,12 @@ import withReactContent from 'sweetalert2-react-content';
 import { fetchUserProjects } from '../../api/projectAPI';
 import ProjectListModal from '../modals/ProjectListModal';
 import React, { useState, useRef, useEffect } from 'react';
-import { Wrapper, MenuButton, Dropdown,MenuItem, SubDropdown, SubMenuItem, LoadingModal } from './styles/ProjectMenu';
-import { logout, handleCreateProject as createProjectHandler, exportMapImageAndGeoJSON as exportProjectHandler } from './utils/ProjectUtils';
+import { Wrapper, MenuButton, Dropdown, MenuItem, SubDropdown, SubMenuItem, LoadingModal } from './styles/ProjectMenu';
+import { logout, handleCreateProject as createProjectHandler, exportMapImageAndGeoJSON as exportProjectHandler, downloadCachedSnapshotZip } from './utils/ProjectUtils';
 
 const MySwal = withReactContent(Swal);
 
-const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
+const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features, isDarkMode, setIsDarkMode, setMapLoaded, isLoading }) => {
   const [mainOpen, setMainOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -21,7 +21,6 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
   const [isExporting, setIsExporting] = useState(false);
   const menuRef = useRef(null);
   const [forecastDate, setForecastDate] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -70,9 +69,9 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features }) => {
               }}>
                 Open Project
               </SubMenuItem>
-              <SubMenuItem onClick={() =>
-                exportProjectHandler({ mapRef, features, setIsExporting, isDarkMode, setIsDarkMode })
-              }>
+              <SubMenuItem onClick={async () => {
+                downloadCachedSnapshotZip(setIsDarkMode, features);
+              }}>
                 Export Project
               </SubMenuItem>
             </SubDropdown>

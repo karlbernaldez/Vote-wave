@@ -6,3 +6,7 @@ html, body, #root {
   overflow: auto; /* Allow page to scroll */
   overflow-x: hidden;
 }
+
+.swal2-container {
+  z-index: 9999 !important;
+}

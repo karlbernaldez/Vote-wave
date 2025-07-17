@@ -193,11 +193,14 @@ const ThemeToggleButton = styled.button`
 
 const IconContainer = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease;
   transform: ${({ isDarkMode }) =>
-    isDarkMode ? "translateX(0) rotate(180deg)" : "translateX(0) rotate(0deg)"};
+    isDarkMode ? "translateX(10px)" : "translateX(-10px)"};
+
+  @media (max-width: 939px) {
+    transform: ${({ isDarkMode }) =>
+    isDarkMode ? "translateX(6px)" : "translateX(-6px)"};
+  }
 `;
 
 const MobileWrapper = styled.div`
