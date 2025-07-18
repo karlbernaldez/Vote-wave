@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import styled from 'styled-components';
 import { jwtDecode } from 'jwt-decode';
-
-// eslint-disable-next-line
-import { fetchLatestUserProject } from '../api/projectAPI';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const LoginWrapper = styled.div`
   height: 100vh;
@@ -114,6 +112,34 @@ const RegisterLink = styled.div`
   }
 `;
 
+const BackButton = styled.div`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  cursor: pointer;
+  color: white;
+  font-size: 1.2rem;
+  padding: 12px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background: transparent; /* Remove background */
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.7); /* Brighter border on hover */
+    transform: translateY(-3px); /* Slight lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+  }
+
+  &:active {
+    transform: translateY(1px); /* Subtle downwards effect when clicked */
+  }
+
+  &:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Focus ring with blue accent */
+  }
+`;
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -152,10 +178,6 @@ const Login = () => {
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
 
-      // const userProject = await fetchLatestUserProject(token);
-      // const projectId = userProject._id;
-      // localStorage.setItem('projectId', projectId);
-
       navigate('/edit');
     } catch (err) {
       setError(err.message);
@@ -164,6 +186,9 @@ const Login = () => {
 
   return (
     <LoginWrapper>
+      <BackButton onClick={() => navigate('/')}>
+        <FaArrowLeft />
+      </BackButton>
       <LoginBox>
         <Logo>
           <img src="/pagasa-logo.png" alt="PAGASA Logo" />
