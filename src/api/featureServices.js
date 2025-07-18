@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://34.30.147.189:5000/api/features'; // Adjust if using a different port
+const API_BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/api/features`; // Adjust if using a different port
 
 const isTokenValid = (token) => {
   if (!token) return false;
@@ -26,7 +26,7 @@ const isTokenValid = (token) => {
 // Function to refresh the access token using the refresh token
 const refreshAccessToken = async () => {
   try {
-    const response = await fetch(`http://34.30.147.189:5000/api/auth/refresh-token`, {
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // This ensures cookies are sent with the request
@@ -147,17 +147,13 @@ export async function updateFeatureNameAPI(layerId, newName) {
   try {
     const token = localStorage.getItem('authToken');
 
-    console.log("Token:", token);  // Log the token to see if it's properly fetched
-
     if (!token) {
       alert('No token found. Please log in again.');
       return;
     }
 
-    console.log("Sending request to update feature name with layerId:", layerId, "and newName:", newName);  // Log the request details
-
     const response = await axios.patch(
-      `http://34.30.147.189:5000/api/features/${encodeURIComponent(layerId)}`,
+      `${API_BASE_URL}/${encodeURIComponent(layerId)}`,
       { newName },
       {
         headers: {
@@ -165,8 +161,6 @@ export async function updateFeatureNameAPI(layerId, newName) {
         },
       }
     );
-
-    console.log("API Response:", response.data);  // Log the API response
 
     return response.data;
   } catch (err) {

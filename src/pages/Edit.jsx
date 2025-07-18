@@ -121,12 +121,15 @@ const Edit = ({ isDarkMode, setIsDarkMode, logger }) => {
 
         setSavedFeatures(filteredFeatures);
 
-        const initialLayers = filteredFeatures.map(f => ({
-          id: f.sourceId,
-          name: f.name || "Untitled Feature",
-          visible: true,
-          locked: false,
-        }));
+        const initialLayers = filteredFeatures.map(f => {
+          return {
+            id: f.sourceId,
+            name: f.name || "Untitled Feature",
+            visible: true,
+            locked: false,
+            type: f.properties.type || 'Wave Height',
+          };
+        });
 
         setLayers(initialLayers);
 

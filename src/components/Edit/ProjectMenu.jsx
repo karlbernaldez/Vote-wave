@@ -5,7 +5,7 @@ import { fetchUserProjects } from '../../api/projectAPI';
 import ProjectListModal from '../modals/ProjectListModal';
 import React, { useState, useRef, useEffect } from 'react';
 import { Wrapper, MenuButton, Dropdown, MenuItem, SubDropdown, SubMenuItem, LoadingModal } from './styles/ProjectMenu';
-import { logout, handleCreateProject as createProjectHandler, exportMapImageAndGeoJSON as exportProjectHandler, downloadCachedSnapshotZip } from './utils/ProjectUtils';
+import { logout, handleCreateProject as createProjectHandler, downloadCachedSnapshotZip } from './utils/ProjectUtils';
 
 const MySwal = withReactContent(Swal);
 

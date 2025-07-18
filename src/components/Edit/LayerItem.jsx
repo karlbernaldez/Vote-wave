@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FaTrash, FaLock, FaLockOpen, FaEye, FaEyeSlash } from "react-icons/fa";
 import styled from "styled-components";
 import { removeFeature } from "./utils/layerUtils";
@@ -23,10 +23,8 @@ const ListItem = styled.li`
 
   ${({ isActive }) =>
     isActive &&
-    `
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-  `}
+    `border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);`}
 `;
 
 const Name = styled.span`
@@ -82,15 +80,19 @@ const LayerItem = ({
   onDrop,
   isDarkMode,
   draw,
-  mapRef
+  mapRef,
+  setDragging,
+  setDraggedLayerIndex,
+  setLayers
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(layer.name);
   const [hasUserModified, setHasUserModified] = useState(false);
 
+  const nameInputRef = useRef(null); // To handle focus on input
+
   useEffect(() => {
-    const safeName = typeof editedName === "string" ? editedName.trim() : "";
-    if (!safeName && !hasUserModified) {
+    if (!editedName.trim() && !hasUserModified) {
       setEditedName("Untitled Layer");
     }
   }, [editedName, hasUserModified]);
@@ -98,20 +100,19 @@ const LayerItem = ({
   const handleNameChange = (e) => {
     setEditedName(e.target.value);
     setHasUserModified(true);
-    console.log('Name changed to:', e.target.value); // Log name change
   };
 
-  const finalizeEdit = () => {
+  const finalizeEdit = useCallback(() => {
     const trimmed = editedName.trim();
     if (!trimmed) {
-      setEditedName("Untitled Layer");
+      setEditedName(layer.name);
     }
     setIsEditing(false);
+
     if (trimmed && trimmed !== layer.name) {
-      updateLayerName(layer.id, trimmed);
-      console.log('Layer name finalized as:', trimmed); // Log finalized name change
+      updateLayerName(layer.id, trimmed, setLayers);
     }
-  };
+  }, [editedName, layer.id, updateLayerName, setLayers]);
 
   const handleDelete = () => {
     if (layer.locked) {
@@ -124,23 +125,38 @@ const LayerItem = ({
     }
   };
 
+  const handleVisibilityToggle = (e) => {
+    e.stopPropagation();
+    toggleLayerVisibility(layer.id);
+  };
+
+  const handleLockToggle = (e) => {
+    e.stopPropagation();
+    toggleLayerLock(layer.id);
+  };
+
+  const handleLayerClick = () => {
+    setActiveLayer(layer.id);
+  };
+
   return (
     <ListItem
       isDarkMode={isDarkMode}
       isActive={isActiveLayer}
       draggable
-      onClick={() => setActiveLayer(layer.id)}
-      onDragStart={(e) => onDragStart(e, index)}
+      onClick={handleLayerClick}
+      onDragStart={(e) => onDragStart(e, index, setDragging, setDraggedLayerIndex)}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, index)}
     >
-      <IconButton onClick={(e) => { e.stopPropagation(); toggleLayerVisibility(layer.id); }}>
+      <IconButton onClick={handleVisibilityToggle}>
         {layer.visible ? <FaEye /> : <FaEyeSlash />}
       </IconButton>
 
       <Name isEditing={isEditing} onDoubleClick={() => setIsEditing(true)}>
         {isEditing ? (
           <NameInput
+            ref={nameInputRef}
             value={editedName}
             onChange={handleNameChange}
             onBlur={finalizeEdit}
@@ -152,15 +168,15 @@ const LayerItem = ({
         )}
       </Name>
 
-      <IconButton
-        onClick={(e) => { e.stopPropagation(); toggleLayerLock(layer.id); }}
-        disabled={layer.isMap}
-      >
+      <IconButton onClick={handleLockToggle} disabled={layer.isMap}>
         {layer.locked ? <FaLock /> : <FaLockOpen />}
       </IconButton>
 
       <IconButton
-        onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDelete();
+        }}
         disabled={layer.isMap || layer.locked}
         danger
       >

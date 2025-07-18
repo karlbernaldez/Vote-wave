@@ -1,11 +1,14 @@
 import JSZip from 'jszip';
 import Swal from 'sweetalert2';
 import { createProject } from '../../../api/projectAPI';
+import { logoutUser } from '../../../api/auth';
 
 export const logout = () => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
-  window.location.href = "/";
+  // Clear all data in localStorage
+  localStorage.clear();
+
+  // Call the logoutUser function to handle the logout process
+  logoutUser();
 };
 
 export const handleCreateProject = async ({
@@ -96,170 +99,6 @@ export const handleCreateProject = async ({
   }
 };
 
-export const exportMapImageAndGeoJSON = async ({
-  mapRef,
-  features,
-  setIsExporting,
-  setIsDarkMode,
-  isDarkMode,
-  setMapLoaded,
-  getIsLoading,
-}) => {
-  const map = mapRef?.current;
-  const projectName = localStorage.getItem("projectName") || "export";
-
-  if (!map) {
-    return Swal.fire("Map Not Ready", "⚠️ Map is not ready yet.", "warning");
-  }
-
-  if (!features?.features?.length) {
-    return Swal.fire("No Features", "⚠️ No features to export.", "warning").then(() => {
-      window.location.reload();
-    });
-  }
-
-  const bounds = [
-    [99.79339501828959, 3.757304989541903],
-    [153.8595159535438, 27.162621752400347],
-  ];
-
-  const waitForIdle = (mapInstance) =>
-    new Promise((resolve) => {
-      const handler = () => {
-        mapInstance.off("idle", handler);
-        resolve();
-      };
-      mapInstance.on("idle", handler);
-    });
-
-  const waitUntil = async (conditionFn, timeout = 10000, interval = 100) => {
-    const start = Date.now();
-    return new Promise((resolve, reject) => {
-      const check = () => {
-        if (conditionFn()) return resolve(true);
-        if (Date.now() - start >= timeout)
-          return reject(new Error("Timed out waiting for condition"));
-        setTimeout(check, interval);
-      };
-      check();
-    });
-  };
-
-  const captureScreenshot = async (mapInstance) => {
-    let canvas = mapInstance.getCanvas();
-
-    // Retry if canvas is not ready
-    let retries = 0;
-    const maxRetries = 10;
-    while ((!canvas || canvas.width === 0 || canvas.height === 0) && retries < maxRetries) {
-      await new Promise((r) => setTimeout(r, 200));
-      canvas = mapInstance.getCanvas();
-      retries++;
-    }
-
-    if (!canvas || canvas.width === 0 || canvas.height === 0) {
-      throw new Error("Canvas is not available or not ready");
-    }
-
-    // 🔁 Double-frame delay to ensure rendering is complete
-    await new Promise((resolve) => requestAnimationFrame(() =>
-      requestAnimationFrame(resolve)
-    ));
-
-    const dataURL = canvas.toDataURL("image/png");
-    return await (await fetch(dataURL)).blob();
-  };
-
-  const downloadZip = async (files, zipName) => {
-    const zip = new JSZip();
-    files.forEach(([name, blob]) => zip.file(name, blob));
-
-    const zipBlob = await zip.generateAsync({ type: "blob" });
-    const url = URL.createObjectURL(zipBlob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = zipName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  try {
-    setIsExporting(true);
-    Swal.fire({
-      title: "Exporting Map...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-    console.log("[Export] Fitting map to bounds...");
-    map.fitBounds(bounds, { padding: 10, duration: 0 });
-    await waitForIdle(map);
-
-    const currentTheme = isDarkMode ? "dark" : "light";
-    console.log(`[Export] Capturing ${currentTheme} mode image...`);
-    const firstImage = await captureScreenshot(map);
-
-    console.log("[Export] Toggling theme...");
-    if (typeof setMapLoaded === "function") setMapLoaded(false);
-    setIsDarkMode((prev) => !prev);
-
-    // Just wait for isLoading to be false again
-    await waitUntil(() => getIsLoading() === false, 10000, 200);
-    await waitForIdle(mapRef.current);
-
-    // Extra frame delay to ensure canvas repaint is complete
-    await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 100)));
-
-    const toggledTheme = currentTheme === "dark" ? "light" : "dark";
-    console.log(`[Export] Capturing ${toggledTheme} mode image...`);
-    const secondImage = await captureScreenshot(mapRef.current);
-
-    console.log("[Export] Restoring original theme...");
-    setIsDarkMode((prev) => !prev);
-
-    await waitUntil(() => getIsLoading() === false, 10000, 200);
-    await waitForIdle(mapRef.current);
-    await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 100)));
-
-    const geojson = new Blob([JSON.stringify(features, null, 2)], {
-      type: "application/geo+json",
-    });
-
-    console.log("[Export] Creating ZIP...");
-    await downloadZip(
-      [
-        [`${projectName}-${currentTheme}.png`, firstImage],
-        [`${projectName}-${toggledTheme}.png`, secondImage],
-        [`${projectName}.geojson`, geojson],
-      ],
-      `${projectName}.zip`
-    );
-
-    Swal.close();
-    Swal.fire({
-      toast: true,
-      icon: "success",
-      title: "Export successful!",
-      position: "top-end",
-      showConfirmButton: false,
-      timer: 2000,
-    });
-  } catch (err) {
-    console.error("[Export] Failed:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Export failed",
-      text: err.message,
-    });
-  } finally {
-    if (typeof setMapLoaded === "function") setMapLoaded(true);
-    setIsExporting(false);
-  }
-};
-
 export async function downloadCachedSnapshotZip(setIsDarkMode, features) {
   const isDarkMode = localStorage.getItem("isDarkMode") === "true";
   const projectName = localStorage.getItem("projectName") || "map_snapshots";
@@ -311,6 +150,8 @@ export async function downloadCachedSnapshotZip(setIsDarkMode, features) {
 
   // Step 7: Prepare ZIP
   const zip = new JSZip();
+
+  // Handle snapshots (base64)
   if (lightSnapshot) {
     zip.file("map_snapshot_light.png", lightSnapshot.split(',')[1], { base64: true });
   }
@@ -318,14 +159,24 @@ export async function downloadCachedSnapshotZip(setIsDarkMode, features) {
     zip.file("map_snapshot_dark.png", darkSnapshot.split(',')[1], { base64: true });
   }
 
-  // Step 8: Add GeoJSON if available
-  if (features && features.type === "FeatureCollection") {
-    const geojsonBlob = new Blob([JSON.stringify(features, null, 2)], {
-      type: "application/geo+json",
+  // Handle GeoJSON - Fixed: Pass string directly instead of Blob
+  if (features && features.type === "FeatureCollection" && Array.isArray(features.features)) {
+    const geojsonString = JSON.stringify(features, null, 2);
+    zip.file("features.geojson", geojsonString);
+  } else {
+    console.error('Invalid or malformed GeoJSON:', features);
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid GeoJSON Format',
+      text: 'The provided GeoJSON is not valid. It will not be included in the download.',
+      toast: true,
+      position: 'top-end',
+      timer: 3000,
+      showConfirmButton: false,
     });
-    zip.file(`${projectName}.geojson`, geojsonBlob);
   }
 
+  // Step 8: Generate the ZIP file
   const blob = await zip.generateAsync({ type: "blob" });
 
   // Step 9: Trigger download
