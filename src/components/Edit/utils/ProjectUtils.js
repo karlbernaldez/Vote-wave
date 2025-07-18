@@ -1,11 +1,14 @@
 import JSZip from 'jszip';
 import Swal from 'sweetalert2';
 import { createProject } from '../../../api/projectAPI';
+import { logoutUser } from '../../../api/auth';
 
 export const logout = () => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
-  window.location.href = "/";
+  // Clear all data in localStorage
+  localStorage.clear();
+
+  // Call the logoutUser function to handle the logout process
+  logoutUser();
 };
 
 export const handleCreateProject = async ({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import styled from 'styled-components';
@@ -120,37 +120,45 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // prevent form default reload
-    try {
-      const res = await loginUser({ email: email, password });
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          localStorage.setItem('userLocation', JSON.stringify(coords));
+        },
+        (err) => {
+          console.warn('[Geolocation Error]', err.message);
+        }
+      );
+    } else {
+      console.warn('Geolocation is not supported by this browser.');
+    }
+  }, []);
 
-      const token = res.accessToken; // Get token from the response
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await loginUser({ email, password });
+      const token = res.accessToken;
 
       if (!token) throw new Error('No token received from the server.');
 
-      // Decode the JWT to extract user data
       const decoded = jwtDecode(token);
-
-      // Save token and user data in localStorage (Consider using HttpOnly cookies for more security)
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
 
-      console.log(JSON.parse(localStorage.getItem("user"))?.username)
-
-      // Fetch user's project details
       // const userProject = await fetchLatestUserProject(token);
       // const projectId = userProject._id;
-
-      // if (!projectId) throw new Error('Project not found or missing.');
-
-      // // Save the projectId for future requests
       // localStorage.setItem('projectId', projectId);
 
-      // Navigate to the edit page
       navigate('/edit');
     } catch (err) {
-      setError(err.message); // Show error message to the user
+      setError(err.message);
     }
   };
 

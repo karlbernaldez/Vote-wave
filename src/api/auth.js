@@ -1,4 +1,4 @@
-const AUTH_API_BASE_URL = 'http://34.30.147.189:5000/api/auth'; // Adjust if deployed
+const AUTH_API_BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/api/auth`;
 
 export const registerUser = async (userData) => {
   const response = await fetch(`${AUTH_API_BASE_URL}/register`, {
@@ -91,19 +91,32 @@ export const fetchWithAuth = async (url, options = {}) => {
   return response;
 };
 
-const logoutUser = async () => {
-  // Clear access token from localStorage
-  localStorage.removeItem('authToken');
+export const logoutUser = async () => {
+  try {
+    // Clear access token from localStorage
+    localStorage.removeItem('authToken');
 
-  // Make an API request to logout and invalidate refresh token
-  await fetch(`${AUTH_API_BASE_URL}/logout`, {
-    method: 'POST',
-    credentials: 'include',
-  });
+    // Send request to invalidate refresh token
+    const response = await fetch(`${AUTH_API_BASE_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include', // Ensure cookies are included in the request
+    });
 
-  // Clear refresh token from cookies on the client side
-  document.cookie = 'refreshToken=; Max-Age=0; path=/;'; // Expire the refresh token cookie immediately
+    if (!response.ok) {
+      throw new Error('Failed to logout on server');
+    }
 
-  // Redirect to login page
-  window.location.href = '/login';
+    // Clear refresh token from cookies on the client-side
+    document.cookie = 'refreshToken=; Max-Age=0; path=/;'; // Expire the refresh token cookie immediately
+
+    // Optionally, log out on client side
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+
+    // Redirect to login page
+    window.location.href = '/login';  // Or navigate using react-router, if needed
+  } catch (error) {
+    console.error("Error during logout:", error);
+    // Handle the error (e.g., show a toast or alert)
+  }
 };

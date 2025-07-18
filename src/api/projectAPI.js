@@ -1,4 +1,4 @@
-const PROJECT_API_BASE_URL = 'http://34.30.147.189:5000/api/projects'; // Change if deployed
+const PROJECT_API_BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/api/projects`;
 
 // 📌 Create a new project
 export const createProject = async (projectData, token) => {

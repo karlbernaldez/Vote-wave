@@ -507,7 +507,6 @@ export function setupMap({ map, mapRef, setDrawInstance, setMapLoaded, setSelect
         }));
       }
 
-      console.log(`[Map Snapshot] Captured and saved as ${snapshotKey}`);
     } catch (e) {
       console.error("❌ Error capturing map snapshot:", e);
     }
