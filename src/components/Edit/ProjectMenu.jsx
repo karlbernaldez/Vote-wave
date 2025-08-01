@@ -1,5 +1,6 @@
 import Swal from 'sweetalert2';
 import ProjectModal from '../modals/ProjectModal'
+import SubmitModal from '../modals/SubmitModal';
 import withReactContent from 'sweetalert2-react-content';
 import { fetchUserProjects } from '../../api/projectAPI';
 import ProjectListModal from '../modals/ProjectListModal';
@@ -13,6 +14,8 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features, isDark
   const [mainOpen, setMainOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projects, setProjects] = useState([]);
   const [showProjectList, setShowProjectList] = useState(false);
@@ -32,6 +35,26 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features, isDark
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSubmit = async (file) => {
+    setIsSubmitting(true);
+    try {
+      // Handle file submission here
+      const formData = new FormData();
+      formData.append('projectFile', file);
+      formData.append('projectId', localStorage.getItem('projectId'));
+
+      // Upload to your API
+      // await submitProject(formData);
+
+      console.log('Submitting file:', file);
+      setShowSubmitModal(false);
+    } catch (error) {
+      console.error('Submission failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Wrapper ref={menuRef}>
@@ -77,7 +100,7 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features, isDark
             </SubDropdown>
           )}
           <MenuItem onClick={onView}>View</MenuItem>
-          <MenuItem onClick={onExport}>Export</MenuItem>
+          <MenuItem onClick={() => setShowSubmitModal(true)}>Submit</MenuItem>
           <MenuItem onClick={logout} $danger>Logout</MenuItem>
         </Dropdown>
       )}
@@ -136,6 +159,18 @@ const ProjectMenu = ({ onNew, onSave, onView, onExport, mapRef, features, isDark
         <LoadingModal>
           Exporting map, please wait...
         </LoadingModal>
+      )}
+
+      {showSubmitModal && (
+        <SubmitModal
+          visible={showSubmitModal}
+          onClose={() => setShowSubmitModal(false)}
+          onSubmit={handleSubmit}
+          projectTitle={localStorage.getItem('projectName') || 'Untitled Project'}
+          projectType={localStorage.getItem('chartType') || 'Wave Analysis'}
+          forecastDate={forecastDate || 'Not set'}
+          isSubmitting={isSubmitting}
+        />
       )}
     </Wrapper>
   );

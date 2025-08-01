@@ -13,7 +13,9 @@ import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ProtectedRoute from './middleware/ProtectedRoute';
+import ProtectedAdminRoute from './middleware/ProtectedAdminRoute';
 import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Edit from './pages/Edit';
@@ -25,6 +27,7 @@ import styled from 'styled-components';
 import useIsMobile from './hooks/useIsMobile';
 import MobileAccessModal from './components/modals/MobileAccessModal';
 import AccessDeniedModal from './components/modals/AccessDeniedModal';
+import OnlyAdminModal from './components/modals/OnlyAdminModal';
 import { ThemeProvider } from 'styled-components';
 import { darkTheme, theme } from './styles/theme';
 import createLogger from '@adovelopers/logado';
@@ -115,6 +118,7 @@ const Layout = () => {
 
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
+  const isDashboardPage = location.pathname === '/dashboard';
   const isLoginOrRegister = isLoginPage || isRegisterPage;
   const isEditPage = location.pathname === '/edit';
 
@@ -159,10 +163,10 @@ const Layout = () => {
     window.location.href = path;
   };
 
-  const showHeader = !isLoginOrRegister;
-  const showFooter = !isEditPage && !isLoginOrRegister;
-  const showFreeSpace = !isEditPage && !isLoginOrRegister;
-  const addTopPadding = !isLoginOrRegister;
+  const showHeader = !(isLoginOrRegister || isDashboardPage);
+  const showFooter = !(isEditPage || isLoginOrRegister || isDashboardPage);
+  const showFreeSpace = !(isEditPage || isLoginOrRegister || isDashboardPage);
+  const addTopPadding = !isLoginOrRegister && !isDashboardPage;
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : theme}>
@@ -203,6 +207,19 @@ const Layout = () => {
                 )
               }
             />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedAdminRoute
+                  element={Dashboard}
+                  requireAuth={true}
+                  onDeny={() => {
+                    return <OnlyAdminModal isOpen={true} onClose={handleAccessDeniedClose} />;
+                  }}
+                />
+              }
+            />
+
             <Route path="/charts" element={<Charts />} />
             <Route path="/about-us" element={<AboutUs />} />
           </Routes>
