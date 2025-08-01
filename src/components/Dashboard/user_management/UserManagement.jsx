@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Plus, Edit, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, Check, Trash2, RefreshCw, AlertCircle, X } from 'lucide-react';
 import { fetchAllUsers, fetchUserDetails } from '../../../api/userAPI'; // Adjust path as needed
 
 const Content = styled.main`
@@ -196,12 +196,35 @@ const ActionButton = styled.button`
   background: none;
   cursor: pointer;
   border-radius: 6px;
-  color: ${props => props.variant === 'edit' ? '#3b82f6' : '#ef4444'};
+  color: ${props => {
+    switch(props.variant) {
+      case 'approve': return '#16a34a';
+      case 'delete': return '#ef4444';
+      default: return '#64748b';
+    }
+  }};
   transition: all 0.2s ease;
 
   &:hover {
-    color: ${props => props.variant === 'edit' ? '#2563eb' : '#dc2626'};
-    background: ${props => props.variant === 'edit' ? '#eff6ff' : '#fef2f2'};
+    color: ${props => {
+      switch(props.variant) {
+        case 'approve': return '#15803d';
+        case 'delete': return '#dc2626';
+        default: return '#475569';
+      }
+    }};
+    background: ${props => {
+      switch(props.variant) {
+        case 'approve': return '#f0fdf4';
+        case 'delete': return '#fef2f2';
+        default: return '#f1f5f9';
+      }
+    }};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -214,7 +237,9 @@ const Badge = styled.span`
     switch(props.variant) {
       case 'admin': return '#fef3c7';
       case 'user': return '#dbeafe';
-      case 'active': return '#f0fdf4';
+      case 'approved': return '#f0fdf4';
+      case 'pending': return '#fef3c7';
+      case 'rejected': return '#fef2f2';
       default: return '#f3f4f6';
     }
   }};
@@ -222,7 +247,9 @@ const Badge = styled.span`
     switch(props.variant) {
       case 'admin': return '#d97706';
       case 'user': return '#2563eb';
-      case 'active': return '#16a34a';
+      case 'approved': return '#16a34a';
+      case 'pending': return '#d97706';
+      case 'rejected': return '#dc2626';
       default: return '#6b7280';
     }
   }};
@@ -276,6 +303,14 @@ const getFullName = (firstName, lastName, username) => {
   return 'Unknown User';
 };
 
+const getApprovalStatus = (user) => {
+  // Check if user has an isApproved field, otherwise default to 'pending'
+  console.log('User approval status:', user.isApproved);
+  if (user.isApproved === true) return 'approved';
+  if (user.isApproved === false) return 'pending';
+  return 'pending';
+};
+
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -309,14 +344,50 @@ const UserManagement = () => {
     loadUsers();
   };
 
-  const handleEdit = (userId) => {
-    // TODO: Implement edit functionality
-    console.log('Edit user:', userId);
+  const handleApprove = async (userId) => {
+    try {
+      // TODO: Implement approve user API call
+      console.log('Approve user:', userId);
+      
+      // Optimistically update the UI
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user._id === userId 
+            ? { ...user, isApproved: true }
+            : user
+        )
+      );
+      
+      // Here you would make the actual API call
+      // await approveUser(userId, token);
+      
+    } catch (err) {
+      console.error('Error approving user:', err);
+      // Reload users to revert optimistic update on error
+      loadUsers();
+    }
   };
 
-  const handleDelete = (userId) => {
-    // TODO: Implement delete functionality
-    console.log('Delete user:', userId);
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // TODO: Implement delete user API call
+      console.log('Delete user:', userId);
+      
+      // Optimistically update the UI
+      setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
+      
+      // Here you would make the actual API call
+      // await deleteUser(userId, token);
+      
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      // Reload users to revert optimistic update on error
+      loadUsers();
+    }
   };
 
   const handleAddUser = () => {
@@ -327,14 +398,9 @@ const UserManagement = () => {
   // Calculate stats
   const stats = {
     total: users.length,
-    admins: users.filter(user => user.role === 'admin').length,
-    active: users.filter(user => user.status === 'Active').length,
-    recent: users.filter(user => {
-      if (!user.lastLogin) return false;
-      const lastLogin = new Date(user.lastLogin);
-      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      return lastLogin > oneDayAgo;
-    }).length
+    approved: users.filter(user => user.isApproved === true).length,
+    pending: users.filter(user => user.isApproved === undefined || user.isApproved === null).length,
+    admins: users.filter(user => user.role === 'admin').length
   };
 
   if (loading) {
@@ -397,16 +463,16 @@ const UserManagement = () => {
           <StatLabel>Total Users</StatLabel>
         </StatCard>
         <StatCard>
+          <StatValue>{stats.approved}</StatValue>
+          <StatLabel>Approved Users</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatValue>{stats.pending}</StatValue>
+          <StatLabel>Pending Approval</StatLabel>
+        </StatCard>
+        <StatCard>
           <StatValue>{stats.admins}</StatValue>
           <StatLabel>Administrators</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.active}</StatValue>
-          <StatLabel>Active Users</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.recent}</StatValue>
-          <StatLabel>Recent Logins (24h)</StatLabel>
         </StatCard>
       </StatsContainer>
 
@@ -429,57 +495,71 @@ const UserManagement = () => {
                 <TableHeaderCell>Position</TableHeaderCell>
                 <TableHeaderCell>Agency</TableHeaderCell>
                 <TableHeaderCell>Role</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
                 <TableHeaderCell>Last Login</TableHeaderCell>
                 <TableHeaderCell>Actions</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <tbody>
-              {users.map(user => (
-                <TableRow key={user._id}>
-                  <TableCell>
-                    <UserCell>
-                      <UserCellAvatar>
-                        {getUserInitials(user.firstName, user.lastName, user.username)}
-                      </UserCellAvatar>
-                      <UserCellInfo>
-                        <UserCellName>
-                          {getFullName(user.firstName, user.lastName, user.username)}
-                        </UserCellName>
-                        <UserCellUsername>@{user.username}</UserCellUsername>
-                      </UserCellInfo>
-                    </UserCell>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.position || 'N/A'}</TableCell>
-                  <TableCell>{user.agency || 'N/A'}</TableCell>
-                  <TableCell>
-                    <Badge variant={user.role}>
-                      {user.role === 'admin' ? 'Administrator' : 'User'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {user.lastLogin || 'Never'}
-                  </TableCell>
-                  <TableCell>
-                    <ActionButtons>
-                      <ActionButton 
-                        variant="edit" 
-                        onClick={() => handleEdit(user._id)}
-                        title="Edit User"
-                      >
-                        <Edit size={16} />
-                      </ActionButton>
-                      <ActionButton 
-                        variant="delete" 
-                        onClick={() => handleDelete(user._id)}
-                        title="Delete User"
-                      >
-                        <Trash2 size={16} />
-                      </ActionButton>
-                    </ActionButtons>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {users.map(user => {
+                const approvalStatus = getApprovalStatus(user);
+                const isApproved = user.isApproved === true;
+                
+                return (
+                  <TableRow key={user._id}>
+                    <TableCell>
+                      <UserCell>
+                        <UserCellAvatar>
+                          {getUserInitials(user.firstName, user.lastName, user.username)}
+                        </UserCellAvatar>
+                        <UserCellInfo>
+                          <UserCellName>
+                            {getFullName(user.firstName, user.lastName, user.username)}
+                          </UserCellName>
+                          <UserCellUsername>@{user.username}</UserCellUsername>
+                        </UserCellInfo>
+                      </UserCell>
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.position || 'N/A'}</TableCell>
+                    <TableCell>{user.agency || 'N/A'}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.role}>
+                        {user.role === 'admin' ? 'Administrator' : 'User'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={approvalStatus}>
+                        {approvalStatus === 'approved' ? 'Approved' : 
+                         approvalStatus === 'rejected' ? 'Rejected' : 'Pending'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.lastLogin || 'Never'}
+                    </TableCell>
+                    <TableCell>
+                      <ActionButtons>
+                        {!isApproved && (
+                          <ActionButton 
+                            variant="approve" 
+                            onClick={() => handleApprove(user._id)}
+                            title="Approve User"
+                          >
+                            <Check size={16} />
+                          </ActionButton>
+                        )}
+                        <ActionButton 
+                          variant="delete" 
+                          onClick={() => handleDelete(user._id)}
+                          title="Delete User"
+                        >
+                          <Trash2 size={16} />
+                        </ActionButton>
+                      </ActionButtons>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </tbody>
           </Table>
         )}

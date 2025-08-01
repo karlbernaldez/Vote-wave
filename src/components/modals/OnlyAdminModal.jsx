@@ -199,13 +199,13 @@ const SecondaryButton = styled.button`
 `;
 
 const animationVariants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     scale: 0.8,
     y: 20
   },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
     y: 0,
     transition: {
@@ -214,8 +214,8 @@ const animationVariants = {
       damping: 25
     }
   },
-  exit: { 
-    opacity: 0, 
+  exit: {
+    opacity: 0,
     scale: 0.8,
     y: -20,
     transition: {
@@ -234,6 +234,12 @@ const AccessDeniedModal = ({ isOpen, onClose }) => {
   const handleContactSupport = () => {
     // Handle contact support logic here
     console.log('Contact support clicked');
+  };
+  const handleProceedWithSignOut = () => {
+    onClose();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   return (
@@ -268,7 +274,7 @@ const AccessDeniedModal = ({ isOpen, onClose }) => {
               </Description>
 
               <ButtonGroup>
-                <ActionButton onClick={onClose}>
+                <ActionButton onClick={handleProceedWithSignOut}>
                   <MdLockOutline size={16} />
                   Login as Admin
                 </ActionButton>

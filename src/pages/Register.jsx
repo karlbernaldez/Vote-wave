@@ -1,330 +1,522 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { registerUser } from '../api/auth';
-import dayjs from 'dayjs';
-import styled from 'styled-components';
-import MapboxAutocomplete from '../components/AutoComplete';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, User, Mail, Lock, Phone, MapPin, Building, Briefcase, Eye, EyeOff, Check, AlertCircle, Cloud, Sun, CloudRain, Zap, Wind } from 'lucide-react';
+import { Container, WeatherElement, FloatingParticle, GradientOverlay, FormWrapper, Header, LogoContainer, Title, Subtitle, ProgressContainer, ProgressWrapper, ProgressStep, ProgressLine, FormContainer, FormContent, StepContainer, StepTitle, InputRow, InputGroup, InputWrapper, IconWrapper, StyledInput, RightIconWrapper, ErrorMessage, ButtonRow, Button, FooterText, FooterLink } from '../styles/register';
 
-const RegisterWrapper = styled.div`
-  height: 100vh;
-  background: url('/login_background.png') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Roboto', 'Open Sans', sans-serif;
-`;
+// Input Field Component - moved outside to prevent re-creation
+const InputField = ({
+    icon: Icon,
+    type = "text",
+    name,
+    placeholder,
+    showToggle = false,
+    formData,
+    errors,
+    touched,
+    showPassword,
+    showConfirmPassword,
+    setShowPassword,
+    setShowConfirmPassword,
+    handleInputChange,
+    handleBlur,
+    getMaxDate,
+    getMinDate
+}) => {
+    const isPassword = name === 'password' || name === 'confirmPassword';
+    const showPasswordState = name === 'password' ? showPassword : showConfirmPassword;
+    const setShowPasswordState = name === 'password' ? setShowPassword : setShowConfirmPassword;
+    const hasError = errors[name] && touched[name];
+    const hasSuccess = !errors[name] && formData[name] && touched[name];
 
-const RegisterBox = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid rgba(123, 124, 124, 0.2);
-  width: 450px;
-  color: white;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(6px);
-`;
+    const inputProps = {
+        type: isPassword && !showPasswordState ? "password" : type,
+        name,
+        value: formData[name],
+        onChange: handleInputChange,
+        onBlur: handleBlur,
+        placeholder,
+        hasError,
+        hasRightIcon: isPassword || hasError || hasSuccess,
+        ...(name === 'dateOfBirth' && {
+            max: getMaxDate(),
+            min: getMinDate()
+        })
+    };
 
-const Logo = styled.div`
-  text-align: center;
-  margin-bottom: 1.5rem;
+    return (
+        <InputGroup>
+            <InputWrapper>
+                <IconWrapper>
+                    <Icon size={18} />
+                </IconWrapper>
+                <StyledInput {...inputProps} />
+                {isPassword && (
+                    <RightIconWrapper
+                        clickable
+                        onClick={() => setShowPasswordState(!showPasswordState)}
+                    >
+                        {showPasswordState ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </RightIconWrapper>
+                )}
+                {!isPassword && hasSuccess && (
+                    <RightIconWrapper success>
+                        <Check size={18} />
+                    </RightIconWrapper>
+                )}
+                {!isPassword && hasError && (
+                    <RightIconWrapper error>
+                        <AlertCircle size={18} />
+                    </RightIconWrapper>
+                )}
+            </InputWrapper>
+            {hasError && (
+                <ErrorMessage>
+                    <AlertCircle size={14} />
+                    {errors[name]}
+                </ErrorMessage>
+            )}
+        </InputGroup>
+    );
+};
 
-  img {
-    width: 64px;
-    height: 64px;
-  }
-
-  h1 {
-    margin: 0.5rem 0 0;
-    font-size: 1.4rem;
-    font-weight: bold;
-  }
-
-  p {
-    font-size: 1rem;
-    opacity: 0.8;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-`;
-
-const Row = styled.div`
-  display: flex;
-  gap: .8rem;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: #1e1e1e;
-  color: white;
-  outline: none;
-
-  &::placeholder {
-    color: #aaa;
-  }
-`;
-
-const Button = styled.button`
-  background: linear-gradient(90deg, #007bff, #00c2ff);
-  color: white;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 0.5rem;
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
-const BackLink = styled.div`
-  text-align: center;
-  font-size: 0.8rem;
-  color: #cccccc;
-  cursor: pointer;
-  margin-top: 1rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const ErrorMsg = styled.div`
-  color: #ff6b6b;
-  font-size: 0.8rem;
-  margin-bottom: 0.75rem;
-`;
-
-const Register = () => {
-    const navigate = useNavigate();
-
-    const [form, setForm] = useState({
+const WeatherRegistrationForm = () => {
+    const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        birthday: '',
-        address: '',
-        agency: '',
-        position: '',
+        username: '',
         email: '',
         contact: '',
         password: '',
         confirmPassword: '',
+        address: '',
+        agency: '',
+        position: '',
+        birthday: '',
     });
 
+    const navigate = useNavigate();
     const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
 
-    const handleChange = (field) => (e) => {
-        const value = e.target.value;
-        setForm({ ...form, [field]: value });
-
-        setErrors((prev) => ({
-            ...prev,
-            [field]: validateField(field, value),
-        }));
-    };
-
-    const validateField = (field, value) => {
-        switch (field) {
+    const validateField = (name, value) => {
+        switch (name) {
             case 'firstName':
             case 'lastName':
-            case 'address':
-            case 'agency':
-            case 'position':
-                return value.trim() === '' ? 'This field is required.' : '';
-            case 'birthday':
-                return value ? '' : 'Birthday is required.';
+                return value.trim().length < 2 ? 'Must be at least 2 characters' : '';
+            case 'username':
+                if (value.length < 3) return 'Username must be at least 3 characters';
+                if (!/^[a-zA-Z0-9_]+$/.test(value)) return 'Only letters, numbers, and underscore allowed';
+                return '';
             case 'email':
-                return /^\S+@\S+\.\S+$/.test(value) ? '' : 'Invalid email address.';
+                return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email' : '';
             case 'contact':
-                return /^[0-9]{10,15}$/.test(value) ? '' : 'Invalid contact number.';
+                return !/^(?:\+63|0)(9\d{9}|2\d{7,8}|[3-9]\d{7})$/.test(value.replace(/\s/g, ''))
+                    ? 'Please enter a valid Philippine phone number'
+                    : '';
             case 'password':
-                return value.length >= 6 ? '' : 'Password must be at least 6 characters.';
+                if (value.length < 8) return 'Password must be at least 8 characters';
+                if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) return 'Must contain uppercase, lowercase, and number';
+                return '';
             case 'confirmPassword':
-                return value === form.password ? '' : 'Passwords do not match.';
+                return value !== formData.password ? 'Passwords do not match' : '';
+            case 'birthday':
+                if (!value) return 'Date of birth is required';
+                const birthDate = new Date(value);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+
+                if (birthDate > today) return 'Birth date cannot be in the future';
+                if (age < 16) return 'Must be at least 16 years old';
+                if (age > 120) return 'Please enter a valid birth date';
+                return '';
+            case 'address':
+            case 'agency': // Update to 'agency' in backend
+            case 'position':
+                return value.trim().length < 2 ? 'This field is required' : '';
             default:
                 return '';
         }
     };
 
-    const handleRegister = async (e) => {
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        if (touched[name]) {
+            setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const newErrors = {};
-        for (const field in form) {
-            const error = validateField(field, form[field]);
-            if (error) newErrors[field] = error;
-        }
+        const newTouched = {};
 
+        // Perform field validation
+        Object.keys(formData).forEach(key => {
+            newTouched[key] = true;
+            const error = validateField(key, formData[key]);
+            if (error) newErrors[key] = error;
+        });
+
+        setTouched(newTouched);
         setErrors(newErrors);
 
+        // If no validation errors, proceed with user registration
         if (Object.keys(newErrors).length === 0) {
             try {
-                await registerUser(form);
-                alert('Registration successful! Awaiting admin approval.');
+                // Call registerUser to send the form data to the backend
+                const data = await registerUser(formData);
+                alert('Registration successful! Welcome to VOTE WAVE!');
                 navigate('/login');
             } catch (error) {
-                alert(error.message);
+                console.error('Registration error:', error.message);
+                alert('Registration failed. Please try again.');
             }
         }
     };
 
+    const handleSignInClick = () => {
+        navigate('/login');
+    };
+
+    const nextStep = () => {
+        const step1Fields = ['firstName', 'lastName', 'username', 'email'];
+        const step1Errors = {};
+        const step1Touched = {};
+
+        step1Fields.forEach(field => {
+            step1Touched[field] = true;
+            const error = validateField(field, formData[field]);
+            if (error) step1Errors[field] = error;
+        });
+
+        setTouched(prev => ({ ...prev, ...step1Touched }));
+        setErrors(prev => ({ ...prev, ...step1Errors }));
+
+        if (Object.keys(step1Errors).length === 0) {
+            setCurrentStep(2);
+        }
+    };
+
+    const prevStep = () => {
+        setCurrentStep(1);
+    };
+
+    const getMaxDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    };
+
+    const getMinDate = () => {
+        const minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 120);
+        return minDate.toISOString().split('T')[0];
+    };
+
     return (
-        <RegisterWrapper>
-            <RegisterBox>
-                <Logo>
-                    <img src="/pagasa-logo.png" alt="PAGASA Logo" />
-                    <h1>PAGASA</h1>
-                    <p>Request an Account</p>
-                </Logo>
-                <Form onSubmit={handleRegister}>
-                    <Row>
-                        <div style={{ flex: 1 }}>
-                            <Input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} />
-                            {errors.firstName && <ErrorMsg>{errors.firstName}</ErrorMsg>}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <Input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} />
-                            {errors.lastName && <ErrorMsg>{errors.lastName}</ErrorMsg>}
-                        </div>
-                    </Row>
+        <Container>
+            {/* Weather-themed background elements */}
+            <WeatherElement className="cloud-1">
+                <Cloud size={80} />
+            </WeatherElement>
+            <WeatherElement className="cloud-2">
+                <Cloud size={60} />
+            </WeatherElement>
+            <WeatherElement className="cloud-rain">
+                <CloudRain size={70} />
+            </WeatherElement>
+            <WeatherElement className="sun">
+                <Sun size={90} />
+            </WeatherElement>
+            <WeatherElement className="lightning-1">
+                <Zap size={50} />
+            </WeatherElement>
+            <WeatherElement className="lightning-2">
+                <Zap size={40} />
+            </WeatherElement>
+            <WeatherElement className="wind">
+                <Wind size={60} />
+            </WeatherElement>
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                            label="Birthday"
-                            value={form.birthday ? dayjs(form.birthday) : null}
-                            onChange={(newValue) => {
-                                const formattedDate = newValue ? newValue.format('YYYY-MM-DD') : '';
-                                setForm((prev) => ({ ...prev, birthday: formattedDate }));
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    birthday: validateField('birthday', formattedDate),
-                                }));
-                            }}
-                            slotProps={{
-                                textField: {
-                                    fullWidth: true,
-                                    variant: 'filled',
-                                    InputProps: {
-                                        disableUnderline: true,
-                                        style: {
-                                            backgroundColor: '#1e1e1e',
-                                            borderRadius: 6,
-                                            paddingLeft: 2,
-                                            color: 'white',
-                                            height: '48px',
-                                        },
-                                    },
-                                    InputLabelProps: {
-                                        style: {
-                                            color: '#aaa',
-                                        },
-                                    },
-                                    sx: {
-                                        mb: '0.5rem',
-                                        '& .MuiFilledInput-root': {
-                                            backgroundColor: '#1e1e1e',
-                                            color: 'white',
-                                            borderRadius: 1,
-                                        },
-                                        '& .MuiFilledInput-input': {
-                                            color: 'white',
-                                        },
-                                        '& .MuiSvgIcon-root': {
-                                            color: '#a0a0a0', // White calendar icon
-                                        },
-                                    },
-                                },
-                                popper: {
-                                    modifiers: [
-                                        {
-                                            name: 'offset',
-                                            options: {
-                                                offset: [120, 2], // [x, y] shift — move right 50px and down 10px
-                                            },
-                                        },
-                                    ],
-                                },
-                            }}
+            {/* Floating particles */}
+            {[...Array(15)].map((_, i) => (
+                <FloatingParticle key={i} />
+            ))}
+
+            {/* Gradient overlay */}
+            <GradientOverlay />
+
+            <FormWrapper>
+                {/* Header */}
+                <Header>
+                    <LogoContainer>
+                        <img
+                            src="/pagasa-logo.png"  // Reference to the logo image in the public folder
+                            alt="Logo"
+                            style={{ width: '60px', height: 'auto' }}  // Adjust size as needed
                         />
-                    </LocalizationProvider>
-                    {errors.birthday && <ErrorMsg>{errors.birthday}</ErrorMsg>}
+                    </LogoContainer>
+                    <Title>PAGASA</Title>
+                    <Subtitle>Philippine Atmospheric, Geophysical and Astronomical Services Administration</Subtitle>
+                </Header>
 
-                    <div style={{ position: 'relative', marginBottom: '.5rem', width: '95%' }}>
-                        <MapboxAutocomplete
-                            value={form.address}
-                            onChange={(e) => {
-                                handleChange('address')(e);
-                            }}
-                            onSelect={(val) => {
-                                setForm(prev => ({ ...prev, address: val }));
-                                setErrors(prev => ({ ...prev, address: '' }));
-                            }}
-                        />
-                        {errors.address && <ErrorMsg>{errors.address}</ErrorMsg>}
-                    </div>
+                {/* Progress indicator */}
+                <ProgressContainer>
+                    <ProgressWrapper>
+                        <ProgressStep active={currentStep >= 1}>1</ProgressStep>
+                        <ProgressLine active={currentStep >= 2} />
+                        <ProgressStep active={currentStep >= 2}>2</ProgressStep>
+                    </ProgressWrapper>
+                </ProgressContainer>
 
-                    <Row>
-                        <div style={{ flex: 1 }}>
-                            <Input placeholder="Agency" value={form.agency} onChange={handleChange('agency')} />
-                            {errors.agency && <ErrorMsg>{errors.agency}</ErrorMsg>}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <Input placeholder="Position" value={form.position} onChange={handleChange('position')} />
-                            {errors.position && <ErrorMsg>{errors.position}</ErrorMsg>}
-                        </div>
-                    </Row>
+                {/* Form Container */}
+                <FormContainer>
+                    <FormContent>
+                        {currentStep === 1 && (
+                            <StepContainer direction="right">
+                                <StepTitle>Personal Information</StepTitle>
 
-                    <Row>
-                        <div style={{ flex: 1 }}>
-                            <Input type="email" placeholder="Email Address" value={form.email} onChange={handleChange('email')} />
-                            {errors.email && <ErrorMsg>{errors.email}</ErrorMsg>}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <Input placeholder="Contact Number" value={form.contact} onChange={handleChange('contact')} />
-                            {errors.contact && <ErrorMsg>{errors.contact}</ErrorMsg>}
-                        </div>
-                    </Row>
+                                <InputRow>
+                                    <InputField
+                                        icon={User}
+                                        name="firstName"
+                                        placeholder="First Name"
+                                        formData={formData}
+                                        errors={errors}
+                                        touched={touched}
+                                        showPassword={showPassword}
+                                        showConfirmPassword={showConfirmPassword}
+                                        setShowPassword={setShowPassword}
+                                        setShowConfirmPassword={setShowConfirmPassword}
+                                        handleInputChange={handleInputChange}
+                                        handleBlur={handleBlur}
+                                        getMaxDate={getMaxDate}
+                                        getMinDate={getMinDate}
+                                    />
+                                    <InputField
+                                        icon={User}
+                                        name="lastName"
+                                        placeholder="Last Name"
+                                        formData={formData}
+                                        errors={errors}
+                                        touched={touched}
+                                        showPassword={showPassword}
+                                        showConfirmPassword={showConfirmPassword}
+                                        setShowPassword={setShowPassword}
+                                        setShowConfirmPassword={setShowConfirmPassword}
+                                        handleInputChange={handleInputChange}
+                                        handleBlur={handleBlur}
+                                        getMaxDate={getMaxDate}
+                                        getMinDate={getMinDate}
+                                    />
+                                </InputRow>
 
-                    <Row>
-                        <div style={{ flex: 1 }}>
-                            <Input type="password" placeholder="Password" value={form.password} onChange={handleChange('password')} />
-                            {errors.password && <ErrorMsg>{errors.password}</ErrorMsg>}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <Input
-                                type="password"
-                                placeholder="Confirm Password"
-                                value={form.confirmPassword}
-                                onChange={handleChange('confirmPassword')}
-                            />
-                            {errors.confirmPassword && <ErrorMsg>{errors.confirmPassword}</ErrorMsg>}
-                        </div>
-                    </Row>
+                                <InputField
+                                    icon={User}
+                                    name="username"
+                                    placeholder="Username"
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
 
-                    <Button type="submit">Submit Request</Button>
-                    <BackLink onClick={() => navigate('/login')}>
-                        Already have an account? Back to Login
-                    </BackLink>
-                </Form>
-            </RegisterBox>
-        </RegisterWrapper>
+                                <InputField
+                                    icon={Mail}
+                                    type="email"
+                                    name="email"
+                                    placeholder="Email Address"
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <Button primary onClick={nextStep}>
+                                    Continue to Next Step
+                                </Button>
+                            </StepContainer>
+                        )}
+
+                        {currentStep === 2 && (
+                            <StepContainer direction="left">
+                                <StepTitle>Complete Your Profile</StepTitle>
+
+                                <InputField
+                                    icon={Phone}
+                                    type="tel"
+                                    name="contact"
+                                    placeholder="Phone Number"
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <InputField
+                                    icon={Calendar}
+                                    type="date"
+                                    name="birthday"
+                                    placeholder="Date of Birth"
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <InputField
+                                    icon={MapPin}
+                                    name="address"
+                                    placeholder="Address"
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <InputRow>
+                                    <InputField
+                                        icon={Building}
+                                        name="agency" // Update 'company' to 'agency' in backend
+                                        placeholder="Agency"
+                                        formData={formData}
+                                        errors={errors}
+                                        touched={touched}
+                                        showPassword={showPassword}
+                                        showConfirmPassword={showConfirmPassword}
+                                        setShowPassword={setShowPassword}
+                                        setShowConfirmPassword={setShowConfirmPassword}
+                                        handleInputChange={handleInputChange}
+                                        handleBlur={handleBlur}
+                                        getMaxDate={getMaxDate}
+                                        getMinDate={getMinDate}
+                                    />
+                                    <InputField
+                                        icon={Briefcase}
+                                        name="position"
+                                        placeholder="Position"
+                                        formData={formData}
+                                        errors={errors}
+                                        touched={touched}
+                                        showPassword={showPassword}
+                                        showConfirmPassword={showConfirmPassword}
+                                        setShowPassword={setShowPassword}
+                                        setShowConfirmPassword={setShowConfirmPassword}
+                                        handleInputChange={handleInputChange}
+                                        handleBlur={handleBlur}
+                                        getMaxDate={getMaxDate}
+                                        getMinDate={getMinDate}
+                                    />
+                                </InputRow>
+
+                                <InputField
+                                    icon={Lock}
+                                    name="password"
+                                    placeholder="Password"
+                                    showToggle={true}
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <InputField
+                                    icon={Lock}
+                                    name="confirmPassword"
+                                    placeholder="Confirm Password"
+                                    showToggle={true}
+                                    formData={formData}
+                                    errors={errors}
+                                    touched={touched}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    setShowPassword={setShowPassword}
+                                    setShowConfirmPassword={setShowConfirmPassword}
+                                    handleInputChange={handleInputChange}
+                                    handleBlur={handleBlur}
+                                    getMaxDate={getMaxDate}
+                                    getMinDate={getMinDate}
+                                />
+
+                                <ButtonRow>
+                                    <Button onClick={prevStep}>Back</Button>
+                                    <Button primary onClick={handleSubmit}>Create Account</Button>
+                                </ButtonRow>
+                            </StepContainer>
+                        )}
+                    </FormContent>
+
+                    <FooterText>
+                        <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem' }}>
+                            Already have an account?{' '}
+                            <FooterLink onClick={handleSignInClick} style={{ cursor: 'pointer' }}>
+                                Sign in here
+                            </FooterLink>
+                        </p>
+                    </FooterText>
+                </FormContainer>
+            </FormWrapper>
+        </Container>
     );
 };
 
-export default Register;
+export default WeatherRegistrationForm;

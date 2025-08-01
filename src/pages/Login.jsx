@@ -1,150 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/auth';
-import styled from 'styled-components';
+import { fetchUserDetails } from '../api/userAPI';
 import { jwtDecode } from 'jwt-decode';
-import { FaArrowLeft } from 'react-icons/fa';
-
-const LoginWrapper = styled.div`
-  height: 100vh;
-  background: url('/login_background.png') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Roboto', 'Open Sans', sans-serif;
-`;
-
-const LoginBox = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid rgba(123, 124, 124, 0.2);
-  width: 360px;
-  color: white;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(6px);
-`;
-
-const Logo = styled.div`
-  text-align: center;
-  margin-bottom: 1.5rem;
-
-  img {
-    width: 64px;
-    height: 64px;
-  }
-
-  h1 {
-    margin: 0.5rem 0 0;
-    font-size: 1.4rem;
-    font-weight: bold;
-  }
-
-  p {
-    font-size: 1rem;
-    opacity: 0.8;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Input = styled.input`
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: #1e1e1e;
-  color: white;
-  outline: none;
-
-  &::placeholder {
-    color: #aaa;
-  }
-`;
-
-const Button = styled.button`
-  background: linear-gradient(90deg, #007bff, #00c2ff);
-  color: white;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 0.5rem;
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
-const ErrorMsg = styled.div`
-  color: #ff6b6b;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-`;
-
-const ForgotPassword = styled.div`
-  text-align: right;
-  font-size: 0.8rem;
-  color: #cccccc;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const RegisterLink = styled.div`
-  text-align: center;
-  font-size: 0.8rem;
-  color: #cccccc;
-  cursor: pointer;
-  margin-top: 1rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const BackButton = styled.div`
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  cursor: pointer;
-  color: white;
-  font-size: 1.2rem;
-  padding: 12px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  background: transparent; /* Remove background */
-  
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.7); /* Brighter border on hover */
-    transform: translateY(-3px); /* Slight lift effect */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
-  }
-
-  &:active {
-    transform: translateY(1px); /* Subtle downwards effect when clicked */
-  }
-
-  &:focus {
-    outline: none; /* Remove default focus outline */
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Focus ring with blue accent */
-  }
-`;
+import { loginUser } from '../api/auth';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Cloud, Sun, CloudRain, Zap, Wind, AlertCircle, Check } from 'lucide-react';
+import { Container, WeatherElement, FloatingParticle, GradientOverlay, FormWrapper, Header, LogoContainer, Title, Subtitle, FormContainer, Form, InputGroup, InputWrapper, IconWrapper, StyledInput, RightIconWrapper, ErrorMessage, Button, FooterText, FooterLink, BackButton, ForgotPassword } from '../styles/login';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+
+    if (authToken) {
+      window.location.href = '/edit';
+    }
+  }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -154,7 +30,8 @@ const Login = () => {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           };
-          localStorage.setItem('userLocation', JSON.stringify(coords));
+          // Note: Using in-memory storage instead of localStorage for artifact compatibility
+          window.userLocation = coords;
         },
         (err) => {
           console.warn('[Geolocation Error]', err.message);
@@ -165,8 +42,43 @@ const Login = () => {
     }
   }, []);
 
+  const validateEmail = (email) => {
+    return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'Please enter a valid email' : '';
+  };
+
+  const validatePassword = (password) => {
+    return password.length < 1 ? 'Password is required' : '';
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (touched.email) {
+      setError('');
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (touched.password) {
+      setError('');
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setTouched({ email: true, password: true });
+
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+
+    if (emailError || passwordError) {
+      setError(emailError || passwordError);
+      return;
+    }
 
     try {
       const res = await loginUser({ email, password });
@@ -177,46 +89,158 @@ const Login = () => {
       const decoded = jwtDecode(token);
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(decoded));
+      const userData = await fetchUserDetails(decoded.id, token);
+      console.log('Login successful:', userData);
 
-      navigate('/edit');
+      if (userData.role === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/edit');
+      }
+
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Login failed. Please try again.');
     }
   };
 
+  const emailError = touched.email ? validateEmail(email) : '';
+  const passwordError = touched.password ? validatePassword(password) : '';
+  const hasEmailSuccess = touched.email && !emailError && email;
+  const hasPasswordSuccess = touched.password && !passwordError && password;
+
   return (
-    <LoginWrapper>
+    <Container>
+      {/* Weather-themed background elements */}
+      <WeatherElement className="cloud-1">
+        <Cloud size={80} />
+      </WeatherElement>
+      <WeatherElement className="cloud-2">
+        <Cloud size={60} />
+      </WeatherElement>
+      <WeatherElement className="cloud-rain">
+        <CloudRain size={70} />
+      </WeatherElement>
+      <WeatherElement className="sun">
+        <Sun size={90} />
+      </WeatherElement>
+      <WeatherElement className="lightning-1">
+        <Zap size={50} />
+      </WeatherElement>
+      <WeatherElement className="lightning-2">
+        <Zap size={40} />
+      </WeatherElement>
+      <WeatherElement className="wind">
+        <Wind size={60} />
+      </WeatherElement>
+
+      {/* Floating particles */}
+      {[...Array(15)].map((_, i) => (
+        <FloatingParticle key={i} />
+      ))}
+
+      {/* Gradient overlay */}
+      <GradientOverlay />
+
+      {/* Back button */}
       <BackButton onClick={() => navigate('/')}>
-        <FaArrowLeft />
+        <ArrowLeft size={18} />
       </BackButton>
-      <LoginBox>
-        <Logo>
-          <img src="/pagasa-logo.png" alt="PAGASA Logo" />
-          <h1>PAGASA</h1>
-          <p>Philippine Atmospheric, Geophysical and Astronomical Services Administration</p>
-        </Logo>
-        <Form onSubmit={handleLogin}>
-          {error && <ErrorMsg>{error}</ErrorMsg>}
-          <Input
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <ForgotPassword>Forgot password?</ForgotPassword>
-          <Button type="submit">Log In</Button>
-          <RegisterLink onClick={() => navigate('/register')}>
-            Don't have an account? Register
-          </RegisterLink>
-        </Form>
-      </LoginBox>
-    </LoginWrapper>
+
+      <FormWrapper>
+        {/* Header */}
+        <Header>
+          <LogoContainer>
+            <img src="/pagasa-logo.png" alt="PAGASA Logo" />
+          </LogoContainer>
+          <Title>PAGASA</Title>
+          <Subtitle>Philippine Atmospheric, Geophysical and Astronomical Services Administration</Subtitle>
+        </Header>
+
+        {/* Form Container */}
+        <FormContainer>
+          <Form onSubmit={handleLogin}>
+            {error && (
+              <ErrorMessage>
+                <AlertCircle size={16} />
+                {error}
+              </ErrorMessage>
+            )}
+
+            <InputGroup>
+              <InputWrapper>
+                <IconWrapper>
+                  <Mail size={18} />
+                </IconWrapper>
+                <StyledInput
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={() => handleBlur('email')}
+                  hasError={!!emailError}
+                  hasRightIcon={hasEmailSuccess}
+                />
+                {hasEmailSuccess && (
+                  <RightIconWrapper success>
+                    <Check size={18} />
+                  </RightIconWrapper>
+                )}
+              </InputWrapper>
+              {emailError && (
+                <ErrorMessage>
+                  <AlertCircle size={14} />
+                  {emailError}
+                </ErrorMessage>
+              )}
+            </InputGroup>
+
+            <InputGroup>
+              <InputWrapper>
+                <IconWrapper>
+                  <Lock size={18} />
+                </IconWrapper>
+                <StyledInput
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  onBlur={() => handleBlur('password')}
+                  hasError={!!passwordError}
+                  hasRightIcon={true}
+                />
+                <RightIconWrapper
+                  clickable
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </RightIconWrapper>
+              </InputWrapper>
+              {passwordError && (
+                <ErrorMessage>
+                  <AlertCircle size={14} />
+                  {passwordError}
+                </ErrorMessage>
+              )}
+            </InputGroup>
+
+            <ForgotPassword>
+              Forgot password?
+            </ForgotPassword>
+
+            <Button type="submit">
+              Log In
+            </Button>
+
+            <FooterText>
+              Don't have an account?{' '}
+              <FooterLink onClick={() => navigate('/register')}>
+                Register here
+              </FooterLink>
+            </FooterText>
+          </Form>
+        </FormContainer>
+      </FormWrapper>
+    </Container>
   );
 };
 

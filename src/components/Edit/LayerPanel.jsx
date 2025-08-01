@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import LayerItem from "./LayerItem";
 import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { addWindLayer, addGeoJsonLayer, toggleLayerVisibility, toggleLayerLock, removeLayer, updateLayerName, handleDragStart, handleDragOver, handleDrop, setActiveLayerOnMap } from "./utils/layerUtils";
+import { addGeoJsonLayer, toggleLayerVisibility, toggleLayerLock, removeLayer, updateLayerName, handleDragStart, handleDragOver, handleDrop, setActiveLayerOnMap } from "./utils/layerUtils";
 import { theme, darkTheme } from "../../styles/theme";
 import { panelStyle, headerStyle, buttonStyle, listStyle, footerStyle } from "./styles/LayerPanelStyles";
 import Modal from "../modals/MapNotReady";

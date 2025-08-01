@@ -509,12 +509,9 @@ const HeaderComponent = ({ activeTab, onMobileMenuToggle }) => {
       try {
         const token = localStorage.getItem('authToken');
         const user = JSON.parse(localStorage.getItem("user")); // Assuming you store userId in localStorage
-        console.log('Loading user data with token:', token, 'and user: ', user);
         
         if (token && user) {
-          console.log('Loading user data...');
           const userData = await fetchUserDetails(user.id, token);
-          console.log('User data loaded:', userData);
           setCurrentUser(userData);
         }
       } catch (error) {
